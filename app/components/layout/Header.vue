@@ -6,35 +6,43 @@
 				<div class="header__logo-icon">
 					<UIcon name="i-heroicons-mountain-solid" class="text-white text-2xl" />
 				</div>
-				<span class="header__logo-text">
-          <span class="header__logo-vertical">VERTICAL</span>
-          <span class="header__logo-pulse">PULSE</span>
-        </span>
+				<div class="header__logo-text">
+					<span class="header__logo-vertical">VERTICAL</span>
+					<span class="header__logo-pulse">PULSE</span>
+				</div>
 			</NuxtLink>
 
 			<!-- Navigation Desktop -->
 			<nav class="header__nav">
-				<NuxtLink to="/" class="header__nav-link">
+				<NuxtLink to="/" class="header__nav-link" active-class="header__nav-link--active">
 					Accueil
 				</NuxtLink>
 
 				<!-- Menu déroulant Le Club -->
-				<UDropdownMenu :items="clubMenuItems" :popper="{ placement: 'bottom-start' }">
-					<button class="header__nav-link header__nav-link--dropdown">
-						Le Club
-						<UIcon name="i-heroicons-chevron-down-20-solid" class="w-4 h-4 transition-transform" />
-					</button>
+				<!-- NOTE: items doit être un tableau de groupes d'items -->
+				<UDropdownMenu
+						:items="clubMenuItems"
+						:ui="{ content: 'w-48' }"
+						:popper="{ placement: 'bottom-start' }"
+				>
+					<UButton
+							color="white"
+							variant="ghost"
+							label="Le Club"
+							trailing-icon="i-heroicons-chevron-down-20-solid"
+							class="header__nav-dropdown"
+					/>
 				</UDropdownMenu>
 
-				<NuxtLink to="/tarifs-et-cours" class="header__nav-link">
+				<NuxtLink to="/tarifs-et-cours" class="header__nav-link" active-class="header__nav-link--active">
 					Tarifs & Cours
 				</NuxtLink>
 
-				<NuxtLink to="/sorties" class="header__nav-link">
+				<NuxtLink to="/sorties" class="header__nav-link" active-class="header__nav-link--active">
 					Sorties
 				</NuxtLink>
 
-				<NuxtLink to="/contact" class="header__nav-link">
+				<NuxtLink to="/contact" class="header__nav-link" active-class="header__nav-link--active">
 					Contact
 				</NuxtLink>
 			</nav>
@@ -42,17 +50,17 @@
 			<!-- Actions -->
 			<div class="header__actions">
 				<UButton
-						color="black"
+						color="neutral"
+						variant="solid"
 						size="md"
+						label="Connexion"
 						icon="i-heroicons-user"
 						class="header__btn-login"
-				>
-					Connexion
-				</UButton>
+				/>
 
-				<!-- Menu Mobile -->
+				<!-- Burger Menu Mobile -->
 				<UButton
-						color="white"
+						color="neutral"
 						variant="ghost"
 						icon="i-heroicons-bars-3"
 						class="header__burger"
@@ -61,120 +69,136 @@
 			</div>
 		</UContainer>
 
-		<!-- Mobile Slideover -->
-		<USlideover v-model="isMobileMenuOpen" side="right">
-			<UCard class="flex flex-col flex-1" :ui="{ body: { base: 'flex-1', padding: 'p-0' }, ring: '', divide: 'divide-y divide-gray-100' }">
-				<template #header>
-					<div class="flex items-center justify-between">
-						<div class="header__logo-text">
-							<span class="header__logo-vertical">VERTICAL</span>
-							<span class="header__logo-pulse">PULSE</span>
+		<!-- Slideover Mobile -->
+		<USlideover v-model:open="isMobileMenuOpen" side="right">
+			<template #content>
+				<UCard
+						class="flex flex-col flex-1"
+						:ui="{ body: { base: 'flex-1 p-0' }, header: { base: 'p-4' } }"
+				>
+					<template #header>
+						<div class="flex items-center justify-between">
+							<div class="header__logo-text">
+								<span class="header__logo-vertical">VERTICAL</span>
+								<span class="header__logo-pulse">PULSE</span>
+							</div>
+							<UButton
+									color="neutral"
+									variant="ghost"
+									icon="i-heroicons-x-mark-20-solid"
+									@click="isMobileMenuOpen = false"
+							/>
 						</div>
+					</template>
+
+					<nav class="flex flex-col p-4 gap-2">
 						<UButton
-								color="gray"
+								to="/"
+								color="neutral"
 								variant="ghost"
-								icon="i-heroicons-x-mark-20-solid"
+								size="xl"
+								label="Accueil"
+								class="justify-start"
 								@click="isMobileMenuOpen = false"
 						/>
-					</div>
-				</template>
 
-				<div class="flex flex-col gap-2 p-4">
-					<UButton
-							to="/"
-							color="white"
-							variant="ghost"
-							size="lg"
-							class="justify-start"
-							@click="isMobileMenuOpen = false"
-					>
-						Accueil
-					</UButton>
-
-					<!-- Menu Le Club mobile avec sous-menu -->
-					<UAccordion :items="mobileClubAccordion" :ui="{ item: { padding: 'py-2' } }">
-						<template #default="{ item, open }">
+						<!-- Collapsible Le Club Mobile -->
+						<UCollapsible class="flex flex-col gap-1">
 							<UButton
-									color="white"
+									color="neutral"
 									variant="ghost"
-									size="lg"
-									class="justify-start w-full"
-							>
-                <span class="flex items-center justify-between w-full">
-                  {{ item.label }}
-                  <UIcon
-											name="i-heroicons-chevron-down-20-solid"
-											class="w-5 h-5 transition-transform"
-											:class="[open && 'transform rotate-180']"
+									size="xl"
+									class="justify-between group"
+									label="Le Club"
+									trailing-icon="i-heroicons-chevron-down-20-solid"
+									:ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }"
+							/>
+
+							<template #content>
+								<div class="flex flex-col pl-4 gap-1 border-l-2 border-gray-100 ml-4">
+									<UButton
+											to="/le-club#histoire"
+											color="neutral"
+											variant="ghost"
+											label="Notre Histoire"
+											icon="i-heroicons-book-open"
+											class="justify-start"
+											@click="isMobileMenuOpen = false"
 									/>
-                </span>
-							</UButton>
-						</template>
+									<UButton
+											to="/le-club#equipe"
+											color="neutral"
+											variant="ghost"
+											label="L'Équipe"
+											icon="i-heroicons-user-group"
+											class="justify-start"
+											@click="isMobileMenuOpen = false"
+									/>
+									<UButton
+											to="/le-club#valeurs"
+											color="neutral"
+											variant="ghost"
+											label="Nos Valeurs"
+											icon="i-heroicons-heart"
+											class="justify-start"
+											@click="isMobileMenuOpen = false"
+									/>
+									<UButton
+											to="/le-club#affiliations"
+											color="neutral"
+											variant="ghost"
+											label="Affiliations"
+											icon="i-heroicons-shield-check"
+											class="justify-start"
+											@click="isMobileMenuOpen = false"
+									/>
+								</div>
+							</template>
+						</UCollapsible>
 
-						<template #item="{ item }">
-							<div class="flex flex-col gap-1 pl-4">
-								<UButton
-										v-for="subItem in item.children"
-										:key="subItem.label"
-										:to="subItem.to"
-										color="gray"
-										variant="ghost"
-										size="md"
-										class="justify-start"
-										@click="isMobileMenuOpen = false"
-								>
-									<UIcon :name="subItem.icon" class="w-4 h-4" />
-									{{ subItem.label }}
-								</UButton>
-							</div>
-						</template>
-					</UAccordion>
+						<UButton
+								to="/tarifs-et-cours"
+								color="neutral"
+								variant="ghost"
+								size="xl"
+								label="Tarifs & Cours"
+								class="justify-start"
+								@click="isMobileMenuOpen = false"
+						/>
 
-					<UButton
-							to="/tarifs-et-cours"
-							color="white"
-							variant="ghost"
-							size="lg"
-							class="justify-start"
-							@click="isMobileMenuOpen = false"
-					>
-						Tarifs & Cours
-					</UButton>
+						<UButton
+								to="/sorties"
+								color="neutral"
+								variant="ghost"
+								size="xl"
+								label="Sorties"
+								class="justify-start"
+								@click="isMobileMenuOpen = false"
+						/>
 
-					<UButton
-							to="/sorties"
-							color="white"
-							variant="ghost"
-							size="lg"
-							class="justify-start"
-							@click="isMobileMenuOpen = false"
-					>
-						Sorties
-					</UButton>
+						<UButton
+								to="/contact"
+								color="neutral"
+								variant="ghost"
+								size="xl"
+								label="Contact"
+								class="justify-start"
+								@click="isMobileMenuOpen = false"
+						/>
 
-					<UButton
-							to="/contact"
-							color="white"
-							variant="ghost"
-							size="lg"
-							class="justify-start"
-							@click="isMobileMenuOpen = false"
-					>
-						Contact
-					</UButton>
+						<UDivider class="my-4" />
 
-					<UDivider class="my-2" />
-
-					<UButton
-							color="black"
-							size="lg"
-							icon="i-heroicons-user"
-							class="justify-center"
-					>
-						Connexion
-					</UButton>
-				</div>
-			</UCard>
+						<UButton
+								color="neutral"
+								variant="solid"
+								size="xl"
+								label="Connexion"
+								icon="i-heroicons-user"
+								block
+						/>
+					</nav>
+				</UCard>
+			</template>
 		</USlideover>
 	</header>
 </template>
@@ -183,45 +207,46 @@
 const isScrolled = ref(false)
 const isMobileMenuOpen = ref(false)
 
-// Menu déroulant "Le Club" - Desktop
+// Format correct pour UDropdownMenu v4 : Tableau de groupes (Array<Array<Item>>)
 const clubMenuItems = [
-	[{
-		label: 'Notre Histoire',
-		icon: 'i-heroicons-book-open',
-		to: '/le-club#histoire'
-	}, {
-		label: "L'Équipe",
-		icon: 'i-heroicons-user-group',
-		to: '/le-club#equipe'
-	}, {
-		label: 'Nos Valeurs',
-		icon: 'i-heroicons-heart',
-		to: '/le-club#valeurs'
-	}],
-	[{
-		label: 'Affiliations',
-		icon: 'i-heroicons-shield-check',
-		to: '/le-club#affiliations',
-		badge: 'FFME'
-	}, {
-		label: 'Partenaires',
-		icon: 'i-heroicons-building-office',
-		to: '/le-club#partenaires'
-	}]
-]
-
-// Accordion mobile "Le Club"
-const mobileClubAccordion = [{
-	label: 'Le Club',
-	defaultOpen: false,
-	children: [
-		{ label: 'Notre Histoire', icon: 'i-heroicons-book-open', to: '/le-club#histoire' },
-		{ label: "L'Équipe", icon: 'i-heroicons-user-group', to: '/le-club#equipe' },
-		{ label: 'Nos Valeurs', icon: 'i-heroicons-heart', to: '/le-club#valeurs' },
-		{ label: 'Affiliations', icon: 'i-heroicons-shield-check', to: '/le-club#affiliations' },
-		{ label: 'Partenaires', icon: 'i-heroicons-building-office', to: '/le-club#partenaires' }
+	[
+		{
+			label: 'Découvrir',
+			type: 'label' // Titre de section
+		},
+		{
+			label: 'Notre Histoire',
+			icon: 'i-heroicons-book-open',
+			to: '/le-club#histoire'
+		},
+		{
+			label: "L'Équipe",
+			icon: 'i-heroicons-user-group',
+			to: '/le-club#equipe'
+		},
+		{
+			label: 'Nos Valeurs',
+			icon: 'i-heroicons-heart',
+			to: '/le-club#valeurs'
+		}
+	],
+	[
+		{
+			label: 'Infos',
+			type: 'label'
+		},
+		{
+			label: 'Affiliations',
+			icon: 'i-heroicons-shield-check',
+			to: '/le-club#affiliations'
+		},
+		{
+			label: 'Partenaires',
+			icon: 'i-heroicons-building-office',
+			to: '/le-club#partenaires'
+		}
 	]
-}]
+]
 
 const handleScroll = () => {
 	isScrolled.value = window.scrollY > 20
@@ -259,7 +284,7 @@ onUnmounted(() => {
 		gap: 3rem;
 	}
 
-	// Logo
+	// Logo styles
 	&__logo {
 		display: flex;
 		align-items: center;
@@ -275,7 +300,7 @@ onUnmounted(() => {
 	&__logo-icon {
 		width: 45px;
 		height: 45px;
-		background: var(--vp-green);
+		background: #7FD857;
 		border-radius: 10px;
 		display: flex;
 		align-items: center;
@@ -292,14 +317,14 @@ onUnmounted(() => {
 	&__logo-vertical {
 		font-size: 1.05rem;
 		font-weight: 700;
-		color: var(--vp-dark);
+		color: #0F1729;
 		letter-spacing: 0.5px;
 	}
 
 	&__logo-pulse {
 		font-size: 1.05rem;
 		font-weight: 300;
-		color: var(--vp-green);
+		color: #7FD857;
 		letter-spacing: 0.5px;
 	}
 
@@ -316,41 +341,41 @@ onUnmounted(() => {
 	}
 
 	&__nav-link {
-		color: var(--vp-dark);
+		color: #0F1729;
 		text-decoration: none;
 		font-size: 0.95rem;
 		font-weight: 500;
 		position: relative;
 		transition: color 0.2s ease;
-		background: none;
-		border: none;
-		cursor: pointer;
-		display: flex;
-		align-items: center;
-		gap: 0.25rem;
+		padding: 0.5rem 0;
 
 		&:hover {
-			color: var(--vp-green);
+			color: #7FD857;
 		}
 
-		&.router-link-active {
-			color: var(--vp-green);
+		&--active {
+			color: #7FD857;
 
 			&::after {
 				content: '';
 				position: absolute;
-				bottom: -8px;
+				bottom: 0;
 				left: 0;
 				right: 0;
 				height: 2px;
-				background: var(--vp-green);
+				background: #7FD857;
 				border-radius: 2px;
 			}
 		}
+	}
 
-		&--dropdown {
-			font-family: inherit;
-			padding: 0;
+	&__nav-dropdown {
+		font-weight: 500;
+		color: #0F1729;
+
+		&:hover {
+			color: #7FD857;
+			background: transparent;
 		}
 	}
 
@@ -362,6 +387,12 @@ onUnmounted(() => {
 	}
 
 	&__btn-login {
+		background-color: #0F1729;
+		color: white;
+		&:hover {
+			background-color: #1a2740;
+		}
+
 		@media (max-width: 768px) {
 			display: none;
 		}
