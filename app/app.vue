@@ -1,21 +1,26 @@
 <template>
 	<UApp>
-		<UHeader>
+<!--		<UHeader>-->
 			<Header/>
-		</UHeader>
+<!--		</UHeader>-->
 
-		<UMain>
+<!--		<UMain>-->
 			<NuxtPage/>
-		</UMain>
+<!--		</UMain>-->
 
-		<UFooter>
+<!--		<UFooter>-->
 			<Footer/>
 
-		</UFooter>
+<!--		</UFooter>-->
 	</UApp>
 </template>
 
 <script setup>
 import Header from "~/components/layout/Header.vue";
 import Footer from "~/components/layout/Footer.vue";
+
+const colorMode = useColorMode()
+
+// Forcer le mode light
+colorMode.preference = 'light'
 </script>

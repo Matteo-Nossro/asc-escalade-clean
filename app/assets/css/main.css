@@ -25,3 +25,9 @@
     --vp-gray: #F5F7FA;
     --vp-gray-dark: #e1e5ea;
 }
+
+:root {
+     --ui-container: 110rem;
+    color-scheme: light;
+
+}

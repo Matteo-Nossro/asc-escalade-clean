@@ -1,5 +1,5 @@
 <template>
-	<footer class="bg-[#0F1729] text-white pt-16 pb-8 border-t border-gray-800">
+	<footer class="w-screen bg-[#0F1729] text-white pt-16 pb-8 border-t border-gray-800 -ml-[calc((100vw-100%)/2)]">
 		<UContainer>
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
 
