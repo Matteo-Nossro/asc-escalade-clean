@@ -49,6 +49,8 @@
 <!--]-->
 <!--</script>-->
 
+<!--TODO: Si on garde le composant ci dessous plutot le faire avec le composant Marquee de la librairie NuxtUi-->
+
 <template>
 	<section class="py-24 bg-gray-50 border-t border-gray-200 overflow-hidden">
 
