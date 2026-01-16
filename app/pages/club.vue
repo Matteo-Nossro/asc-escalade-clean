@@ -5,6 +5,7 @@
 		<ClubHistoire />
 		<ClubStatistiques />
 		<ClubEquipe/>
+		<ClubPartenaires/>
 
 	</div>
 </template>
