@@ -1,12 +1,12 @@
 <template>
 	<UApp>
-<!--		<UHeader>-->
+		<UHeader>
 			<Header/>
-<!--		</UHeader>-->
+		</UHeader>
 
-<!--		<UMain>-->
+		<UMain>
 			<NuxtPage/>
-<!--		</UMain>-->
+		</UMain>
 
 <!--		<UFooter>-->
 			<Footer/>
