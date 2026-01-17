@@ -13,7 +13,7 @@
 			<ContactHeader />
 
 			<!-- 2. La Grande Carte Blanche (Container Principal) -->
-			<div class="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-6xl mx-auto flex flex-col lg:flex-row min-h-[600px]">
+			<div class=" mx-auto flex flex-col lg:flex-row min-h-[600px]">
 
 				<!-- Colonne Gauche (Bleu Nuit) : Prend 35% de la largeur sur grand écran -->
 				<div class="w-full lg:w-[35%] p-2 lg:p-3">
