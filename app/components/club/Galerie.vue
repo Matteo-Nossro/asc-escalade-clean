@@ -80,13 +80,13 @@ onMounted(() => {
 })
 
 const photos = [
-	{ src: 'https://images.unsplash.com/photo-1516592673881-b63665536f19?w=800&q=80', alt: 'Orpierre - Grande Voie' },
-	{ src: 'https://images.unsplash.com/photo-1601224748193-d34f112e31e6?w=600&q=80', alt: 'Chamonix - Le sommet' },
+	{ src: 'https://images.unsplash.com/photo-1601224748193-d24f166b5c77?w=800&q=80', alt: 'Orpierre - Grande Voie' },
+	{ src: 'https://images.unsplash.com/photo-1765629316848-e1a003b2c6ad?q=80', alt: 'Chamonix - Le sommet' },
 	{ src: 'https://images.unsplash.com/photo-1564769662533-4f00a87b4056?w=800&q=80', alt: 'Bloc Indoor - Finale' },
 	{ src: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=800&q=80', alt: 'L\'équipe de compétition' },
-	{ src: 'https://images.unsplash.com/photo-1583693248386-b4d0812bd2d5?w=600&q=80', alt: 'Cours Enfants' },
-	{ src: 'https://images.unsplash.com/photo-1505250469679-0539f972d54e?w=800&q=80', alt: 'Stage d\'été' },
-	{ src: 'https://images.unsplash.com/photo-1458829550379-37c223cb99eb?w=600&q=80', alt: 'Soirée du Club' }
+	{ src: 'https://images.unsplash.com/photo-1763702269921-49362114b35a?q=80', alt: 'Cours Enfants' },
+	{ src: 'https://images.unsplash.com/photo-1625456825043-4cabbf6cb09c?q=80', alt: 'Stage d\'été' },
+	{ src: 'https://plus.unsplash.com/premium_photo-1683120718239-b5927e299e77?q=80', alt: 'Soirée du Club' }
 ]
 </script>
 
