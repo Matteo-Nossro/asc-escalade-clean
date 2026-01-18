@@ -92,7 +92,7 @@ const sorties = [
 		titre: 'Stage Grandes Voies Verdon',
 		categorie: 'Stage',
 		badgeColor: 'bg-purple-600',
-		image: 'https://images.unsplash.com/photo-1516592673881-b63665536f19?w=800&q=80',
+		image: 'https://images.unsplash.com/photo-1601224748193-d24f166b5c77?w=800&q=80',
 		date: '14 - 17 Mai 2026',
 		lieu: 'Gorges du Verdon',
 		niveau: 'Confirmé (6a min)',
