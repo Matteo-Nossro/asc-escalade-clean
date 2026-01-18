@@ -21,8 +21,8 @@
 					<div>
 						<h4 class="font-bold text-white">Adresse</h4>
 						<p class="text-gray-400 text-sm mt-1">
-							Gymnase Municipal<br>
-							39100 Dole, France
+							Gymnase BOIVIN<br>
+							21800, Chevigny St Sauveur
 						</p>
 					</div>
 				</div>
@@ -34,8 +34,8 @@
 					</div>
 					<div>
 						<h4 class="font-bold text-white">Email</h4>
-						<a href="mailto:contact@verticalpulse.fr" class="text-gray-400 text-sm mt-1 hover:text-[#7FD857] transition-colors">
-							contact@verticalpulse.fr
+						<a href="mailto:contact@escalade-chevigny.fr" class="text-gray-400 text-sm mt-1 hover:text-[#7FD857] transition-colors">
+							contact@escalade-chevigny.fr
 						</a>
 					</div>
 				</div>
@@ -48,7 +48,7 @@
 					<div>
 						<h4 class="font-bold text-white">Téléphone</h4>
 						<p class="text-gray-400 text-sm mt-1">
-							03 84 00 00 00
+							03 80 46 46 71
 						</p>
 					</div>
 				</div>
@@ -63,13 +63,16 @@
 					height="100%"
 					frameborder="0"
 					scrolling="no"
-					src="https://www.openstreetmap.org/export/embed.html?bbox=5.4800,47.0850,5.5050,47.1000&amp;layer=mapnik&amp;marker=47.0927,5.4925"
-					class="grayscale invert contrast-125 brightness-75"
+					src="https://www.openstreetmap.org/export/embed.html?bbox=5.1170,47.3054,5.1383,47.2977&amp;layer=mapnik&amp;marker=47.3015,5.1282"
 			></iframe>
-			<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-				<UIcon name="i-heroicons-map-pin" class="w-8 h-8 text-[#7FD857] drop-shadow-lg animate-bounce" />
-			</div>
+<!--			class="grayscale invert contrast-125 brightness-75"-->
+
+			<!--			<div class="absolute inset-0 flex items-center justify-center pointer-events-none">-->
+<!--				<UIcon name="i-heroicons-map-pin" class="w-8 h-8 text-[#7FD857] drop-shadow-lg animate-bounce" />-->
+<!--			</div>-->
 		</div>
 
 	</div>
 </template>
+<script setup lang="ts">
+</script>
