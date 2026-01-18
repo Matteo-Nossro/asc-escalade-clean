@@ -29,12 +29,13 @@
 							color="white"
 							variant="ghost"
 							label="Le Club"
+							to="/club"
 							trailing-icon="i-heroicons-chevron-down-20-solid"
 							class="header__nav-dropdown"
 					/>
 				</UDropdownMenu>
 
-				<NuxtLink to="/tarifs-et-cours" class="header__nav-link" active-class="header__nav-link--active">
+				<NuxtLink to="/tarifs" class="header__nav-link" active-class="header__nav-link--active">
 					Tarifs & Cours
 				</NuxtLink>
 
@@ -110,6 +111,7 @@
 									size="xl"
 									class="justify-between group"
 									label="Le Club"
+									to="/club"
 									trailing-icon="i-heroicons-chevron-down-20-solid"
 									:ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }"
 							/>
@@ -157,7 +159,7 @@
 						</UCollapsible>
 
 						<UButton
-								to="/tarifs-et-cours"
+								to="/tarifs"
 								color="neutral"
 								variant="ghost"
 								size="xl"
