@@ -11,7 +11,7 @@
 
 			<SortiesHeader />
 			<SortiesConcept />
-			<SortiesListeSorties />
+			<SortiesListeSorties :sorties="sorties" />
 
 			<!-- Lien Footer discret -->
 			<div class="text-center mt-20">
@@ -25,3 +25,18 @@
 
 	</div>
 </template>
+
+
+<script setup lang="ts">
+// Récupération des sorties via le composable
+const { getPosts } = usePosts()
+const sorties = await getPosts('sortie')
+
+// Meta tags
+useHead({
+	title: 'Sorties & Stages - Vertical Pulse',
+	meta: [
+		{ name: 'description', content: 'Découvrez nos sorties en falaise, stages et événements d\'escalade organisés par Vertical Pulse.' }
+	]
+})
+</script>
