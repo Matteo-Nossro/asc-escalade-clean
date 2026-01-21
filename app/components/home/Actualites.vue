@@ -1,14 +1,26 @@
 <template>
 	<section class="py-20 bg-white">
 		<UContainer>
-			<!-- En-tête de section -->
-			<div class="mb-12">
-				<h2 class="text-3xl font-bold text-[#0F1729]">
-					Actualités
-				</h2>
-				<p class="text-gray-600 mt-2">
-					Suivez les dernières nouvelles du club
-				</p>
+			<!-- En-tête de section avec bouton -->
+			<div class="flex items-end justify-between mb-12">
+				<div>
+					<h2 class="text-3xl font-bold text-[#0F1729]">
+						Actualités
+					</h2>
+					<p class="text-gray-600 mt-2">
+						Suivez les dernières nouvelles du club
+					</p>
+				</div>
+
+				<!-- Bouton Desktop -->
+				<UButton
+						to="/actualites"
+						variant="ghost"
+						color="neutral"
+						trailing-icon="i-heroicons-arrow-right-20-solid"
+						label="Toutes les actualités"
+						class="hidden md:flex text-[#0F1729] hover:text-[#7FD857] font-bold"
+				/>
 			</div>
 
 			<!-- Grille d'actualités -->
@@ -139,6 +151,19 @@
 			<div v-else class="text-center py-16 bg-gray-50 rounded-2xl">
 				<UIcon name="i-heroicons-newspaper" class="w-16 h-16 text-gray-300 mx-auto mb-4" />
 				<p class="text-gray-500 text-lg">Aucune actualité pour le moment</p>
+			</div>
+
+			<!-- Bouton Mobile "Voir toutes les actualités" -->
+			<div class="md:hidden mt-8 text-center">
+				<UButton
+						to="/actualites"
+						block
+						variant="outline"
+						color="neutral"
+						label="Voir toutes les actualités"
+						trailing-icon="i-heroicons-arrow-right-20-solid"
+						class="border-2 border-[#0F1729] text-[#0F1729] hover:bg-[#0F1729] hover:text-white font-bold"
+				/>
 			</div>
 
 		</UContainer>
