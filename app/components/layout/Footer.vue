@@ -23,7 +23,7 @@
 					<!-- Réseaux Sociaux -->
 					<div class="flex gap-3">
 						<UButton
-								to="https://facebook.com"
+								to="https://www.facebook.com/ascescaladechevigny/"
 								target="_blank"
 								color="neutral"
 								variant="soft"
@@ -32,7 +32,7 @@
 								:ui="{ rounded: 'rounded-lg' }"
 						/>
 						<UButton
-								to="https://instagram.com"
+								to="https://www.instagram.com/asc.escalade.chevigny"
 								target="_blank"
 								color="neutral"
 								variant="soft"
@@ -51,23 +51,22 @@
 						<li class="flex items-start gap-3 text-gray-400">
 							<UIcon name="i-heroicons-map-pin" class="w-5 h-5 text-[#7FD857] mt-1 shrink-0" />
 							<span class="text-sm">
-                Gymnase Pierre de Coubertin<br>
-                12 Avenue des Sports<br>
-                74000 Annecy
+								Gymnase BOIVIN<br>
+								21800, Chevigny St Sauveur
               </span>
 						</li>
 
 						<li class="flex items-center gap-3 text-gray-400">
 							<UIcon name="i-heroicons-phone" class="w-5 h-5 text-[#7FD857] shrink-0" />
 							<a href="tel:0450123456" class="text-sm hover:text-white transition-colors">
-								04 50 12 34 56
+								03 80 46 46 71
 							</a>
 						</li>
 
 						<li class="flex items-center gap-3 text-gray-400">
 							<UIcon name="i-heroicons-envelope" class="w-5 h-5 text-[#7FD857] shrink-0" />
-							<a href="mailto:contact@verticalpulse.fr" class="text-sm hover:text-white transition-colors">
-								contact@verticalpulse.fr
+							<a href="mailto:contact@escalade-chevigny.fr" class="text-sm hover:text-white transition-colors">
+								contact@escalade-chevigny.fr
 							</a>
 						</li>
 					</ul>
@@ -94,17 +93,17 @@
 					<h3 class="text-[#7FD857] font-bold text-lg">Partenaires</h3>
 
 					<div class="grid grid-cols-2 gap-4">
-						<a href="#" class="text-gray-400 text-xs hover:text-white transition-colors uppercase font-semibold">
+						<a href="https://www.ffme.fr/" class="text-gray-400 text-xs hover:text-white transition-colors uppercase font-semibold">
 							FFME
 						</a>
-						<a href="#" class="text-gray-400 text-xs hover:text-white transition-colors uppercase font-semibold">
+						<a href="https://www.handisport.org/" class="text-gray-400 text-xs hover:text-white transition-colors uppercase font-semibold">
 							FFH
 						</a>
 						<a href="#" class="text-gray-400 text-xs hover:text-white transition-colors uppercase font-semibold">
 							Vieux Campeur
 						</a>
-						<a href="#" class="text-gray-400 text-xs hover:text-white transition-colors uppercase font-semibold">
-							Ville d'Annecy
+						<a href="https://www.chevigny-saint-sauveur.fr/" class="text-gray-400 text-xs hover:text-white transition-colors uppercase font-semibold">
+							Ville de Chevigny-saint-sauveur
 						</a>
 					</div>
 				</div>
