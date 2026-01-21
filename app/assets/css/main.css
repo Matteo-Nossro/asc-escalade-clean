@@ -31,3 +31,19 @@
     color-scheme: light;
 
 }
+/* Espacement pour le header fixe */
+.page-content {
+    padding-top: 80px; /* Hauteur du header (ajuster selon votre header) */
+}
+
+/* Pour les pages avec hero plein écran */
+.page-hero {
+    padding-top: 0;
+}
+
+/* Ajustement responsive */
+@media (max-width: 768px) {
+    .page-content {
+        padding-top: 70px;
+    }
+}

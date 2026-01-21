@@ -18,22 +18,9 @@
 					Accueil
 				</NuxtLink>
 
-				<!-- Menu déroulant Le Club -->
-				<!-- NOTE: items doit être un tableau de groupes d'items -->
-				<UDropdownMenu
-						:items="clubMenuItems"
-						:ui="{ content: 'w-48' }"
-						:popper="{ placement: 'bottom-start' }"
-				>
-					<UButton
-							color="white"
-							variant="ghost"
-							label="Le Club"
-							to="/club"
-							trailing-icon="i-heroicons-chevron-down-20-solid"
-							class="header__nav-dropdown"
-					/>
-				</UDropdownMenu>
+				<NuxtLink to="/club" class="header__nav-link" active-class="header__nav-link--active">
+					Le Club
+				</NuxtLink>
 
 				<NuxtLink to="/tarifs" class="header__nav-link" active-class="header__nav-link--active">
 					Tarifs & Cours
@@ -41,6 +28,10 @@
 
 				<NuxtLink to="/sorties" class="header__nav-link" active-class="header__nav-link--active">
 					Sorties
+				</NuxtLink>
+
+				<NuxtLink to="/actualites" class="header__nav-link" active-class="header__nav-link--active">
+					Actualités
 				</NuxtLink>
 
 				<NuxtLink to="/contact" class="header__nav-link" active-class="header__nav-link--active">
@@ -51,6 +42,7 @@
 			<!-- Actions -->
 			<div class="header__actions">
 				<UButton
+						to="/login"
 						color="neutral"
 						variant="solid"
 						size="md"
@@ -59,26 +51,48 @@
 						class="header__btn-login"
 				/>
 
-				<!-- Burger Menu Mobile -->
 				<UButton
 						color="neutral"
 						variant="ghost"
 						icon="i-heroicons-bars-3"
 						class="header__burger"
-						@click="isMobileMenuOpen = true"
+						@click="openMobileMenu"
 				/>
 			</div>
 		</UContainer>
 
-		<!-- Slideover Mobile -->
-		<USlideover v-model:open="isMobileMenuOpen" side="right">
-			<template #content>
-				<UCard
-						class="flex flex-col flex-1"
-						:ui="{ body: { base: 'flex-1 p-0' }, header: { base: 'p-4' } }"
+		<!-- Slideover Mobile avec ClientOnly -->
+		<ClientOnly>
+			<Teleport to="body">
+				<Transition
+						enter-active-class="transition-opacity duration-200"
+						enter-from-class="opacity-0"
+						enter-to-class="opacity-100"
+						leave-active-class="transition-opacity duration-200"
+						leave-from-class="opacity-100"
+						leave-to-class="opacity-0"
 				>
-					<template #header>
-						<div class="flex items-center justify-between">
+					<div
+							v-if="isMobileMenuOpen"
+							class="fixed inset-0 bg-black/50 z-[9998]"
+							@click="closeMobileMenu"
+					></div>
+				</Transition>
+
+				<Transition
+						enter-active-class="transition-transform duration-300"
+						enter-from-class="translate-x-full"
+						enter-to-class="translate-x-0"
+						leave-active-class="transition-transform duration-300"
+						leave-from-class="translate-x-0"
+						leave-to-class="translate-x-full"
+				>
+					<div
+							v-if="isMobileMenuOpen"
+							class="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-white shadow-2xl z-[9999] flex flex-col"
+					>
+						<!-- Header du menu mobile -->
+						<div class="flex items-center justify-between p-6 border-b border-gray-200">
 							<div class="header__logo-text">
 								<span class="header__logo-vertical">VERTICAL</span>
 								<span class="header__logo-pulse">PULSE</span>
@@ -87,169 +101,122 @@
 									color="neutral"
 									variant="ghost"
 									icon="i-heroicons-x-mark-20-solid"
-									@click="isMobileMenuOpen = false"
+									@click="closeMobileMenu"
 							/>
 						</div>
-					</template>
 
-					<nav class="flex flex-col p-4 gap-2">
-						<UButton
-								to="/"
-								color="neutral"
-								variant="ghost"
-								size="xl"
-								label="Accueil"
-								class="justify-start"
-								@click="isMobileMenuOpen = false"
-						/>
+						<!-- Navigation mobile -->
+						<nav class="flex-1 overflow-y-auto p-4">
+							<div class="flex flex-col gap-2">
+								<NuxtLink
+										v-for="item in mobileMenuItems"
+										:key="item.to"
+										:to="item.to"
+										class="mobile-nav-link"
+										active-class="mobile-nav-link--active"
+										@click="handleMenuClick"
+								>
+									<UIcon :name="item.icon" class="w-5 h-5 flex-shrink-0" />
+									<span class="font-medium flex-1">{{ item.label }}</span>
+									<UIcon name="i-heroicons-chevron-right" class="w-5 h-5 flex-shrink-0 opacity-50" />
+								</NuxtLink>
+							</div>
+						</nav>
 
-						<!-- Collapsible Le Club Mobile -->
-						<UCollapsible class="flex flex-col gap-1">
+						<!-- Footer du menu mobile avec bouton connexion -->
+						<div class="p-4 border-t border-gray-200">
 							<UButton
+									to="/login"
 									color="neutral"
-									variant="ghost"
+									variant="solid"
 									size="xl"
-									class="justify-between group"
-									label="Le Club"
-									to="/club"
-									trailing-icon="i-heroicons-chevron-down-20-solid"
-									:ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }"
+									label="Connexion"
+									icon="i-heroicons-user"
+									block
+									class="bg-[#0F1729] text-white hover:bg-[#1a2740]"
+									@click="handleMenuClick"
 							/>
-
-							<template #content>
-								<div class="flex flex-col pl-4 gap-1 border-l-2 border-gray-100 ml-4">
-									<UButton
-											to="/le-club#histoire"
-											color="neutral"
-											variant="ghost"
-											label="Notre Histoire"
-											icon="i-heroicons-book-open"
-											class="justify-start"
-											@click="isMobileMenuOpen = false"
-									/>
-									<UButton
-											to="/le-club#equipe"
-											color="neutral"
-											variant="ghost"
-											label="L'Équipe"
-											icon="i-heroicons-user-group"
-											class="justify-start"
-											@click="isMobileMenuOpen = false"
-									/>
-									<UButton
-											to="/le-club#valeurs"
-											color="neutral"
-											variant="ghost"
-											label="Nos Valeurs"
-											icon="i-heroicons-heart"
-											class="justify-start"
-											@click="isMobileMenuOpen = false"
-									/>
-									<UButton
-											to="/le-club#affiliations"
-											color="neutral"
-											variant="ghost"
-											label="Affiliations"
-											icon="i-heroicons-shield-check"
-											class="justify-start"
-											@click="isMobileMenuOpen = false"
-									/>
-								</div>
-							</template>
-						</UCollapsible>
-
-						<UButton
-								to="/tarifs"
-								color="neutral"
-								variant="ghost"
-								size="xl"
-								label="Tarifs & Cours"
-								class="justify-start"
-								@click="isMobileMenuOpen = false"
-						/>
-
-						<UButton
-								to="/sorties"
-								color="neutral"
-								variant="ghost"
-								size="xl"
-								label="Sorties"
-								class="justify-start"
-								@click="isMobileMenuOpen = false"
-						/>
-
-						<UButton
-								to="/contact"
-								color="neutral"
-								variant="ghost"
-								size="xl"
-								label="Contact"
-								class="justify-start"
-								@click="isMobileMenuOpen = false"
-						/>
-
-						<UDivider class="my-4" />
-
-						<UButton
-								color="neutral"
-								variant="solid"
-								size="xl"
-								label="Connexion"
-								icon="i-heroicons-user"
-								block
-						/>
-					</nav>
-				</UCard>
-			</template>
-		</USlideover>
+						</div>
+					</div>
+				</Transition>
+			</Teleport>
+		</ClientOnly>
 	</header>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const isScrolled = ref(false)
 const isMobileMenuOpen = ref(false)
 
-// Format correct pour UDropdownMenu v4 : Tableau de groupes (Array<Array<Item>>)
-const clubMenuItems = [
-	[
-		{
-			label: 'Découvrir',
-			type: 'label' // Titre de section
-		},
-		{
-			label: 'Notre Histoire',
-			icon: 'i-heroicons-book-open',
-			to: '/le-club#histoire'
-		},
-		{
-			label: "L'Équipe",
-			icon: 'i-heroicons-user-group',
-			to: '/le-club#equipe'
-		},
-		{
-			label: 'Nos Valeurs',
-			icon: 'i-heroicons-heart',
-			to: '/le-club#valeurs'
-		}
-	],
-	[
-		{
-			label: 'Infos',
-			type: 'label'
-		},
-		{
-			label: 'Affiliations',
-			icon: 'i-heroicons-shield-check',
-			to: '/le-club#affiliations'
-		},
-		{
-			label: 'Partenaires',
-			icon: 'i-heroicons-building-office',
-			to: '/le-club#partenaires'
-		}
-	]
+const { isDesktop } = useBreakpoints()
+
+// Menu Mobile - Items simples
+const mobileMenuItems = [
+	{
+		label: 'Accueil',
+		icon: 'i-heroicons-home',
+		to: '/'
+	},
+	{
+		label: 'Le Club',
+		icon: 'i-heroicons-building-library',
+		to: '/club'
+	},
+	{
+		label: 'Tarifs & Cours',
+		icon: 'i-heroicons-currency-euro',
+		to: '/tarifs'
+	},
+	{
+		label: 'Sorties',
+		icon: 'i-heroicons-map',
+		to: '/sorties'
+	},
+	{
+		label: 'Actualités',
+		icon: 'i-heroicons-newspaper',
+		to: '/actualites'
+	},
+	{
+		label: 'Contact',
+		icon: 'i-heroicons-envelope',
+		to: '/contact'
+	}
 ]
 
+// Ouvrir le menu
+const openMobileMenu = () => {
+	isMobileMenuOpen.value = true
+	// Bloquer le scroll du body
+	if (process.client) {
+		document.body.style.overflow = 'hidden'
+	}
+}
+
+// Fermer le menu
+const closeMobileMenu = () => {
+	isMobileMenuOpen.value = false
+	// Débloquer le scroll du body
+	if (process.client) {
+		document.body.style.overflow = ''
+	}
+}
+
+// Fermer le menu lors d'un clic sur un lien
+const handleMenuClick = () => {
+	setTimeout(() => {
+		closeMobileMenu()
+	}, 150)
+}
+
+// Fermer automatiquement le menu mobile quand on passe en desktop
+watch(isDesktop, (newVal) => {
+	if (newVal && isMobileMenuOpen.value) {
+		closeMobileMenu()
+	}
+})
+
+// Gestion du scroll
 const handleScroll = () => {
 	isScrolled.value = window.scrollY > 20
 }
@@ -259,7 +226,11 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-	window.removeEventListener('scroll', handleScroll)
+	window.removeEventListener('resize', handleScroll)
+	// Nettoyer le style du body au cas où
+	if (process.client) {
+		document.body.style.overflow = ''
+	}
 })
 </script>
 
@@ -330,12 +301,11 @@ onUnmounted(() => {
 		letter-spacing: 0.5px;
 	}
 
-	// Navigation
+	// Navigation Desktop
 	&__nav {
 		display: flex;
 		align-items: center;
 		gap: 2rem;
-		flex: 1;
 
 		@media (max-width: 1024px) {
 			display: none;
@@ -371,16 +341,6 @@ onUnmounted(() => {
 		}
 	}
 
-	&__nav-dropdown {
-		font-weight: 500;
-		color: #0F1729;
-
-		&:hover {
-			color: #7FD857;
-			background: transparent;
-		}
-	}
-
 	// Actions
 	&__actions {
 		display: flex;
@@ -391,6 +351,7 @@ onUnmounted(() => {
 	&__btn-login {
 		background-color: #0F1729;
 		color: white;
+
 		&:hover {
 			background-color: #1a2740;
 		}
@@ -405,6 +366,42 @@ onUnmounted(() => {
 
 		@media (max-width: 1024px) {
 			display: flex;
+		}
+	}
+}
+
+// Styles pour les liens du menu mobile
+.mobile-nav-link {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 1rem;
+	border-radius: 0.75rem;
+	text-decoration: none;
+	transition: all 0.2s ease;
+	background: white;
+	color: #0F1729;
+
+	&:hover {
+		background: #F5F7FA;
+	}
+
+	&:active {
+		background: #E5E7EB;
+		transform: scale(0.98);
+	}
+
+	// Style pour le lien actif
+	&--active {
+		background: #F0FDF4;
+
+		span {
+			color: #7FD857;
+			font-weight: 600;
+		}
+
+		svg {
+			color: #7FD857;
 		}
 	}
 }

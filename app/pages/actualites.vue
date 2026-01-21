@@ -1,20 +1,21 @@
 <template>
-	<div class="min-h-screen bg-gray-50">
+	<div class="min-h-screen bg-gray-50 page-content">
 
 		<!-- Header -->
-		<div class="bg-gradient-to-br from-[#0F1729] to-[#1a2740] pt-32 pb-16">
-			<UContainer>
-				<div class="flex items-center gap-3 text-[#7FD857] mb-4">
-					<UIcon name="i-heroicons-newspaper" class="w-8 h-8" />
-					<span class="text-sm font-bold uppercase tracking-wider">News</span>
-				</div>
-				<h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
-					Actualités du Club
-				</h1>
-				<p class="text-lg text-white/80 max-w-2xl">
-					Suivez toute l'actualité de Vertical Pulse : événements, compétitions, nouveautés et vie du club.
-				</p>
-			</UContainer>
+
+		<div class="text-center max-w-3xl mx-auto mb-16 pt-12 px-4">
+			<h1 class="text-4xl md:text-5xl font-black text-[#0F1729] mb-4 uppercase tracking-tight">
+				Actualités du Club
+			</h1>
+			<p class="text-gray-500 text-lg mb-8">
+				Trouvez les actualités de votre club.
+			</p>
+			<!-- Ligne verte -->
+			<div class="w-16 h-1 bg-[#7FD857] mx-auto rounded-full mb-12"></div>
+
+			<p class="text-gray-600 leading-relaxed max-w-2xl mx-auto">
+				Suivez toute l'actualité de l'ASC : événements, compétitions, nouveautés et vie du club.
+			</p>
 		</div>
 
 		<!-- Filtres (optionnel) -->

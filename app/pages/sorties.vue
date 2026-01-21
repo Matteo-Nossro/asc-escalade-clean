@@ -7,7 +7,7 @@
 			<path d="M1200 800 L800 0 L1600 0 Z" fill="#E5E7EB" opacity="0.5"/>
 		</svg>
 
-		<UContainer class="relative z-10">
+		<UContainer class="relative z-10 page-content bg-gray-50">
 
 			<SortiesHeader />
 			<SortiesConcept />

@@ -1,15 +1,15 @@
 <template>
 	<UApp>
-		<UHeader>
-			<Header/>
-		</UHeader>
+<!--		<UHeader>-->
+			<LayoutHeader/>
+<!--		</UHeader>-->
 
 		<UMain>
 			<NuxtPage/>
 		</UMain>
 
 <!--		<UFooter>-->
-			<Footer/>
+			<LayoutFooter/>
 
 <!--		</UFooter>-->
 
@@ -17,8 +17,6 @@
 </template>
 
 <script setup>
-import Header from "~/components/layout/Header.vue";
-import Footer from "~/components/layout/Footer.vue";
 
 const colorMode = useColorMode()
 

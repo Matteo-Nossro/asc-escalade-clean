@@ -7,11 +7,15 @@
 		</svg>
 
 <!--		<UContainer class="relative z-10">-->
+		<div class="page-content bg-gray-50">
 			<TarifsHeader />
 <!--			<TarifsGrilleTarifs />-->
 			<TarifsBonASavoir />
 			<TarifsPlanning />
 <!--		</UContainer>-->
+		</div>
 
 	</div>
 </template>
+<script setup lang="ts">
+</script>
