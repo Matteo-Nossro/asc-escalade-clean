@@ -23,7 +23,7 @@
 
 				<!-- Texte descriptif -->
 				<p class="text-gray-300 text-lg md:text-xl leading-relaxed max-w-2xl">
-					Que vous soyez débutant ou expert, il y a une place pour vous chez Vertical Pulse.
+					Que vous soyez débutant ou expert, il y a une place pour vous chez l'ASC Escalade.
 					Venez essayer lors d'une séance d'initiation.
 				</p>
 

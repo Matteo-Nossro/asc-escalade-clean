@@ -94,7 +94,7 @@ export const usePosts = () => {
                     <p>Organisation de covoiturages depuis Dole. Participation aux frais d'essence : 15€/personne.</p>
                     
                     <h3>Rendez-vous</h3>
-                    <p>Samedi 6 juin à 9h, parking de la salle Vertical Pulse pour départ en covoiturage, ou 10h directement au parking du Bas Cuvier.</p>
+                    <p>Samedi 6 juin à 9h, parking de la salle ASC Escalade pour départ en covoiturage, ou 10h directement au parking du Bas Cuvier.</p>
                 `,
                 image: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1200&q=80',
                 category: 'Bloc',
@@ -116,7 +116,7 @@ export const usePosts = () => {
                 title: 'Soirée Falaise Rochefort-sur-Nenon',
                 excerpt: 'Sortie falaise locale en bord de Doubs. Idéal pour découvrir l\'escalade en extérieur.',
                 content: `
-                    <h2>La falaise locale de Vertical Pulse</h2>
+                    <h2>La falaise locale de l'ASC Escalade</h2>
                     <p>À seulement 15 minutes de Dole, la falaise de Rochefort-sur-Nenon est notre spot d'entraînement préféré en extérieur !</p>
                     
                     <h3>Le site</h3>
@@ -271,7 +271,7 @@ export const usePosts = () => {
                     <p>15€ comprenant l'entrée + location chaussons si besoin</p>
                     
                     <h3>Covoiturage</h3>
-                    <p>Départ groupé à 18h15 depuis la salle Vertical Pulse</p>
+                    <p>Départ groupé à 18h15 depuis la salle de l'ASC Escalade</p>
                 `,
                 image: 'https://images.unsplash.com/photo-1564769662533-4f00a87b4056?w=1200&q=80',
                 category: 'Climb Up',
@@ -458,7 +458,7 @@ export const usePosts = () => {
                 excerpt: 'Venez découvrir l\'escalade gratuitement ! Initiations, démonstrations et animations toute la journée.',
                 content: `
                     <h2>L'escalade pour tous !</h2>
-                    <p>Le samedi 20 mars, Vertical Pulse ouvre ses portes au public pour une grande journée découverte de l'escalade.</p>
+                    <p>Le samedi 20 mars, l'ASC Escalade ouvre ses portes au public pour une grande journée découverte de l'escalade.</p>
                     
                     <h3>Programme</h3>
                     
@@ -507,11 +507,11 @@ export const usePosts = () => {
                         <li>Tenue sportive recommandée</li>
                     </ul>
                     
-                    <p><strong>Où ?</strong> Salle Vertical Pulse, 15 rue des Sports, 39100 Dole</p>
+                    <p><strong>Où ?</strong> Salle de l'ASC Escalade, 15 rue des Sports, 39100 Dole</p>
                     
                     <p><em>Venez nombreux, on vous attend !</em></p>
                 `,
-                image: 'https://images.unsplash.com/photo-1571779292019-f30b6b4f0d5a?w=1200&q=80',
+                image: 'https://images.unsplash.com/photo-1536639070539-43ec572aca6d?q=80',
                 category: 'Événement',
                 date: '2026-03-20',
                 author: { name: 'Le Bureau', avatar: 'VT' },
@@ -524,13 +524,13 @@ export const usePosts = () => {
                 slug: 'partenariat-climb-up-tarif-prefere',
                 type: 'actualite',
                 title: 'Nouveau partenariat Climb Up !',
-                excerpt: 'Les membres de Vertical Pulse bénéficient désormais de -30% chez Climb Up Besançon.',
+                excerpt: 'Les membres de l\'ASC Escalade bénéficient désormais de -30% chez Climb Up Besançon.',
                 content: `
                     <h2>Encore plus d'escalade pour nos membres</h2>
                     <p>Nous sommes heureux d'annoncer notre nouveau partenariat avec Climb Up Besançon !</p>
                     
                     <h3>L'offre</h3>
-                    <p>Tous les membres de Vertical Pulse à jour de leur cotisation bénéficient de :</p>
+                    <p>Tous les membres de l'ASC Escalade à jour de leur cotisation bénéficient de :</p>
                     <ul>
                         <li><strong>-30% sur l'entrée à l'unité</strong> (9,80€ au lieu de 14€)</li>
                         <li><strong>-20% sur les cartes 10 entrées</strong> (112€ au lieu de 140€)</li>
@@ -540,7 +540,7 @@ export const usePosts = () => {
                     
                     <h3>Comment en profiter ?</h3>
                     <ol>
-                        <li>Présentez votre carte de membre Vertical Pulse à jour</li>
+                        <li>Présentez votre carte de membre l'ASC Escalade à jour</li>
                         <li>Indiquez le code partenaire : <strong>VPULSE2026</strong></li>
                         <li>Profitez de vos réductions !</li>
                     </ol>
@@ -616,7 +616,7 @@ export const usePosts = () => {
                     </ul>
                     
                     <h3>Tarif</h3>
-                    <p><strong>150€</strong> pour les membres de Vertical Pulse (au lieu de 380€)</p>
+                    <p><strong>150€</strong> pour les membres de l'ASC Escalade (au lieu de 380€)</p>
                     <p>Le club prend en charge 230€ pour ses membres investis.</p>
                     
                     <h3>Inscription</h3>
@@ -625,7 +625,7 @@ export const usePosts = () => {
                     
                     <p><em>Cette formation est un excellent moyen de s'investir dans le club et de partager votre passion !</em></p>
                 `,
-                image: 'https://images.unsplash.com/photo-1571779292019-f30b6b4f0d5a?w=1200&q=80',
+                image: 'https://plus.unsplash.com/premium_photo-1672281090688-b5e0974cb895?q=80',
                 category: 'Formation',
                 date: '2026-03-15',
                 author: { name: 'Marc Dubois', avatar: 'MD' },

@@ -15,7 +15,7 @@
 
 					<div class="space-y-6 text-gray-600 leading-relaxed text-justify">
 						<p>
-							Fondé en 1998 par une poignée de passionnés, Vertical Pulse n'était au départ qu'un petit groupe d'amis se réunissant pour grimper sur les falaises locales.
+							Fondé en 1998 par une poignée de passionnés, l'ASC Escalade n'était au départ qu'un petit groupe d'amis se réunissant pour grimper sur les falaises locales.
 						</p>
 						<p>
 							Aujourd'hui, l'association a bien grandi mais l'esprit reste le même : convivialité, partage et dépassement de soi. Nous avons pour mission de rendre l'escalade accessible à tous, quel que soit l'âge, le niveau ou la condition physique.

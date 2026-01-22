@@ -39,7 +39,7 @@
 				<!-- Boutons d'action -->
 				<div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto animate-fade-in-up delay-300">
 					<UButton
-							to="/le-club"
+							to="/club"
 							size="xl"
 							class="bg-[#7FD857] hover:bg-[#6bc745] text-[#0F1729] font-bold px-8 py-4 justify-center"
 							:ui="{ rounded: 'rounded-md' }"

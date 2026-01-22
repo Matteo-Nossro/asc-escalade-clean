@@ -34,9 +34,9 @@ const sorties = await getPosts('sortie')
 
 // Meta tags
 useHead({
-	title: 'Sorties & Stages - Vertical Pulse',
+	title: 'Sorties & Stages - ASC Escalade',
 	meta: [
-		{ name: 'description', content: 'Découvrez nos sorties en falaise, stages et événements d\'escalade organisés par Vertical Pulse.' }
+		{ name: 'description', content: 'Découvrez nos sorties en falaise, stages et événements d\'escalade organisés par l\'ASC Escalade.' }
 	]
 })
 </script>

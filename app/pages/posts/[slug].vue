@@ -30,6 +30,40 @@ const currentIndex = allPosts.findIndex(p => p.id === post.id)
 const previousPost = computed(() => currentIndex > 0 ? allPosts[currentIndex - 1] : null)
 const nextPost = computed(() => currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null)
 
+// État pour "Lire plus" mobile
+const { isMobile } = useBreakpoints()
+const isExpanded = ref(false)
+const contentRef = ref<HTMLElement | null>(null)
+const showReadMore = ref(false)
+const contentHeight = ref(0)
+
+// Vérifier si le contenu dépasse 10 lignes (environ 240px)
+onMounted(() => {
+	if (contentRef.value && isMobile.value) {
+		const fullHeight = contentRef.value.scrollHeight
+		const lineHeight = 24 // hauteur approximative d'une ligne
+		const maxLines = 20
+		const maxHeight = lineHeight * maxLines
+
+		if (fullHeight > maxHeight) {
+			showReadMore.value = true
+			contentHeight.value = maxHeight
+		}
+	}
+})
+
+// Toggle expand/collapse
+const toggleContent = () => {
+	isExpanded.value = !isExpanded.value
+
+	// Scroll vers le bouton après collapse pour meilleure UX
+	if (!isExpanded.value && contentRef.value) {
+		setTimeout(() => {
+			contentRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+		}, 300)
+	}
+}
+
 // Fonctions utilitaires
 const formatDate = (date: string) => {
 	return new Date(date).toLocaleDateString('fr-FR', {
@@ -50,7 +84,8 @@ const getCategoryColor = (category: string) => {
 		'Compétition': '#EF4444',
 		'Événement': '#F59E0B',
 		'Club': '#3B82F6',
-		'Formation': '#8B5CF6'
+		'Formation': '#8B5CF6',
+		'Partenariat': '#10B981'
 	}
 	return colors[category] || '#7FD857'
 }
@@ -58,6 +93,7 @@ const getCategoryColor = (category: string) => {
 const getDifficultyColor = (difficulty?: string) => {
 	if (!difficulty) return '#6B7280'
 	const colors: Record<string, string> = {
+		'Tous niveaux': '#10B981',
 		'Débutant': '#10B981',
 		'Intermédiaire': '#F59E0B',
 		'Confirmé': '#EF4444',
@@ -97,7 +133,7 @@ useHead({
 						<NuxtLink to="/" class="hover:text-white transition-colors">Accueil</NuxtLink>
 						<UIcon name="i-heroicons-chevron-right" class="w-4 h-4" />
 						<NuxtLink
-								:to="post.type === 'sortie' ? '/sorties' : '/'"
+								:to="post.type === 'sortie' ? '/sorties' : '/actualites'"
 								class="hover:text-white transition-colors"
 						>
 							{{ post.type === 'sortie' ? 'Sorties' : 'Actualités' }}
@@ -133,7 +169,7 @@ useHead({
 									size="sm"
 									class="bg-[#7FD857]"
 							>
-								{{ post.author.name.split(' ').map(n => n[0]).join('').toUpperCase() }}
+								{{ post.author.avatar || post.author.name.split(' ').map(n => n[0]).join('').toUpperCase() }}
 							</UAvatar>
 							<span class="font-medium">{{ post.author.name }}</span>
 						</div>
@@ -163,10 +199,42 @@ useHead({
 
 				<!-- Contenu de l'article -->
 				<div class="lg:col-span-2">
-					<div class="bg-white rounded-3xl shadow-lg p-8 md:p-12">
+					<div class="bg-white rounded-3xl shadow-lg p-6 md:p-12">
 
-						<!-- Contenu riche -->
-						<div class="prose prose-lg max-w-none" v-html="post.content"></div>
+						<!-- Contenu riche avec système "Lire plus" sur mobile -->
+						<div class="relative">
+							<div
+									ref="contentRef"
+									class="prose prose-lg max-w-none transition-all duration-300"
+									:class="{
+                  'overflow-hidden': isMobile && showReadMore && !isExpanded
+                }"
+									:style="isMobile && showReadMore && !isExpanded ? { maxHeight: contentHeight + 'px' } : {}"
+									v-html="post.content"
+							></div>
+
+							<!-- Dégradé fade sur mobile quand replié -->
+							<div
+									v-if="isMobile && showReadMore && !isExpanded"
+									class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white to-transparent pointer-events-none"
+							></div>
+						</div>
+
+						<!-- Bouton "Lire plus" / "Lire moins" (mobile uniquement) -->
+						<div
+								v-if="isMobile && showReadMore"
+								class="mt-6 flex justify-center"
+						>
+							<UButton
+									:label="isExpanded ? 'Lire moins' : 'Lire la suite'"
+									:icon="isExpanded ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
+									color="neutral"
+									variant="outline"
+									size="lg"
+									@click="toggleContent"
+									class="font-bold border-2 hover:bg-[#7FD857] hover:text-white hover:border-[#7FD857] transition-all"
+							/>
+						</div>
 
 						<!-- Tags -->
 						<div class="mt-8 pt-8 border-t border-gray-200">
@@ -190,7 +258,7 @@ useHead({
 							<h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">
 								Partager
 							</h3>
-							<div class="flex gap-3">
+							<div class="flex flex-wrap gap-3">
 								<UButton
 										icon="i-heroicons-share"
 										color="neutral"
@@ -405,5 +473,25 @@ useHead({
 
 :deep(.prose li) {
 	margin-bottom: 0.5rem;
+}
+
+:deep(.prose ol) {
+	list-style: decimal;
+	padding-left: 1.5rem;
+	margin-bottom: 1rem;
+}
+
+:deep(.prose strong) {
+	font-weight: 600;
+	color: #0F1729;
+}
+
+:deep(.prose a) {
+	color: #7FD857;
+	text-decoration: underline;
+}
+
+:deep(.prose a:hover) {
+	color: #6bc546;
 }
 </style>

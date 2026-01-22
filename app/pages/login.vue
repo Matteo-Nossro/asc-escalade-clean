@@ -9,7 +9,7 @@
 				<div class="inline-flex items-center justify-center w-16 h-16 bg-[#7FD857] rounded-2xl mb-4 shadow-lg">
 					<UIcon name="i-lucide-mountain" class="w-8 h-8 text-[#0F1729]" />
 				</div>
-				<h1 class="text-3xl font-bold text-gray-900 mb-2">Vertical Pulse</h1>
+				<h1 class="text-3xl font-bold text-gray-900 mb-2">ASC Escalade</h1>
 				<p class="text-gray-600">Connectez-vous à votre espace</p>
 			</div>
 
@@ -169,7 +169,7 @@
 
 			<!-- Footer -->
 			<div class="mt-6 text-center text-sm text-gray-500">
-				<p>© 2026 Vertical Pulse - Club d'Escalade de Dole</p>
+				<p>© 2026 l'ASC Escalade - Club d'Escalade de Chevigny-saint-sauveur</p>
 			</div>
 
 		</div>

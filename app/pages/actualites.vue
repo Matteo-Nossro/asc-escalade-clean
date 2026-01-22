@@ -222,9 +222,9 @@ const getCategoryColor = (category: string) => {
 
 // Meta tags
 useHead({
-	title: 'Actualités - Vertical Pulse',
+	title: 'Actualités - ASC Escalade',
 	meta: [
-		{ name: 'description', content: 'Suivez toute l\'actualité du club Vertical Pulse : événements, compétitions, nouveautés et vie du club d\'escalade de Dole.' }
+		{ name: 'description', content: 'Suivez toute l\'actualité du club l\'ASC Escalade : événements, compétitions, nouveautés et vie du club d\'escalade de Dole.' }
 	]
 })
 </script>
