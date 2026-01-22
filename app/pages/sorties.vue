@@ -1,5 +1,5 @@
 <template>
-	<div class="min-h-screen bg-gray-50 relative pb-32 overflow-hidden">
+	<div class="min-h-screen relative pb-32 overflow-hidden">
 
 		<!-- DÉCO FOND (Triangles gris) -->
 		<svg class="absolute top-0 left-0 w-full h-full pointer-events-none opacity-40" viewBox="0 0 1440 800" fill="none" preserveAspectRatio="none">
@@ -7,7 +7,7 @@
 			<path d="M1200 800 L800 0 L1600 0 Z" fill="#E5E7EB" opacity="0.5"/>
 		</svg>
 
-		<UContainer class="relative z-10 page-content bg-gray-50">
+		<UContainer class="relative z-10 page-content">
 
 			<SortiesHeader />
 			<SortiesConcept />
