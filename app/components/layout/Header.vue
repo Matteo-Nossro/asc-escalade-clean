@@ -7,8 +7,8 @@
 					<UIcon name="i-heroicons-mountain-solid" class="text-white text-2xl" />
 				</div>
 				<div class="header__logo-text">
-					<span class="header__logo-vertical">VERTICAL</span>
-					<span class="header__logo-pulse">PULSE</span>
+					<span class="header__logo-vertical">ASC</span>
+					<span class="header__logo-pulse">ESCALADE</span>
 				</div>
 			</NuxtLink>
 
@@ -94,8 +94,8 @@
 						<!-- Header du menu mobile -->
 						<div class="flex items-center justify-between p-6 border-b border-gray-200">
 							<div class="header__logo-text">
-								<span class="header__logo-vertical">VERTICAL</span>
-								<span class="header__logo-pulse">PULSE</span>
+								<span class="header__logo-vertical">ASC</span>
+								<span class="header__logo-pulse">ESCALADE</span>
 							</div>
 							<UButton
 									color="neutral"

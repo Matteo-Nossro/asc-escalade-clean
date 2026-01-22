@@ -11,8 +11,8 @@
 							<UIcon name="i-heroicons-mountain-solid" class="text-white text-2xl" />
 						</div>
 						<div class="flex flex-col leading-none">
-							<span class="font-bold text-lg tracking-wide text-white">VERTICAL</span>
-							<span class="font-light text-lg tracking-wide text-[#7FD857]">PULSE</span>
+							<span class="font-bold text-lg tracking-wide text-white">ASC</span>
+							<span class="font-light text-lg tracking-wide text-[#7FD857]">ESCALADE</span>
 						</div>
 					</NuxtLink>
 
@@ -112,7 +112,7 @@
 
 			<!-- Copyright -->
 			<div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500">
-				<p>© 2026 Vertical Pulse. Tous droits réservés.</p>
+				<p>© 2026 ASC Escalade. Tous droits réservés.</p>
 				<p>Designé avec passion pour la grimpe.</p>
 			</div>
 		</UContainer>
