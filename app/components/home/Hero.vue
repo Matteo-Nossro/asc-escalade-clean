@@ -20,7 +20,7 @@
 
 				<!-- Surtitre -->
 				<span class="text-[#7FD857] font-bold tracking-[0.2em] uppercase text-sm md:text-base animate-fade-in-up">
-          Club d'escalade Annecy
+          Club d'escalade de Chevigny-saint-sauveur
         </span>
 
 				<!-- Titre Principal -->
@@ -33,7 +33,7 @@
 
 				<!-- Sous-titre -->
 				<p class="text-gray-200 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-4 animate-fade-in-up delay-200">
-					Rejoignez une communauté passionnée. Mur, falaise, bloc - quel que soit votre niveau, Vertical Pulse est votre point de départ.
+					Rejoignez une communauté passionnée. Mur, falaise, bloc - quel que soit votre niveau, l'ASC Escalade est votre point de départ.
 				</p>
 
 				<!-- Boutons d'action -->
