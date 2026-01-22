@@ -4,23 +4,25 @@
 			<!-- En-tête de section avec bouton -->
 			<div class="flex items-end justify-between mb-12">
 				<div>
-					<h2 class="text-3xl font-bold text-[#0F1729]">
+					<h2 ref="titleRef" class="text-3xl font-bold text-[#0F1729] opacity-0">
 						Actualités
 					</h2>
-					<p class="text-gray-600 mt-2">
+					<p ref="subtitleRef" class="text-gray-600 mt-2 opacity-0">
 						Suivez les dernières nouvelles du club
 					</p>
 				</div>
 
 				<!-- Bouton Desktop -->
-				<UButton
-						to="/actualites"
-						variant="ghost"
-						color="neutral"
-						trailing-icon="i-heroicons-arrow-right-20-solid"
-						label="Toutes les actualités"
-						class="hidden md:flex text-[#0F1729] hover:text-[#7FD857] font-bold"
-				/>
+				<div ref="buttonRef" class="hidden md:block opacity-0">
+					<UButton
+							to="/actualites"
+							variant="ghost"
+							color="neutral"
+							trailing-icon="i-heroicons-arrow-right-20-solid"
+							label="Toutes les actualités"
+							class="text-[#0F1729] hover:text-[#7FD857] font-bold"
+					/>
+				</div>
 			</div>
 
 			<!-- Grille d'actualités -->
@@ -29,7 +31,8 @@
 				<!-- Article Principal (Grande image) - Colonne gauche -->
 				<div
 						v-if="featuredPost"
-						class="md:col-span-8 relative group overflow-hidden rounded-2xl h-[400px]"
+						ref="featuredRef"
+						class="md:col-span-8 relative group overflow-hidden rounded-2xl h-[400px] opacity-0"
 				>
 					<!-- Image de fond -->
 					<img
@@ -40,6 +43,20 @@
 
 					<!-- Overlay dégradé -->
 					<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+
+					<!-- Particules décoratives -->
+					<div class="absolute inset-0 pointer-events-none">
+						<div
+								v-for="i in 3"
+								:key="`particle-${i}`"
+								:ref="el => featuredParticles[i] = el"
+								class="absolute w-1 h-1 bg-[#7FD857] rounded-full opacity-0"
+								:style="{
+                left: `${20 + i * 25}%`,
+                top: `${30 + i * 15}%`
+              }"
+						></div>
+					</div>
 
 					<!-- Contenu -->
 					<div class="absolute bottom-0 left-0 p-8 w-full">
@@ -75,7 +92,8 @@
 					<!-- Article 2 (Petit) -->
 					<div
 							v-if="secondaryPosts[0]"
-							class="bg-[#F5F7FA] rounded-2xl p-6 flex flex-col justify-between h-full relative hover:bg-gray-100 transition-colors"
+							ref="secondary1Ref"
+							class="bg-[#F5F7FA] rounded-2xl p-6 flex flex-col justify-between h-full relative hover:bg-gray-100 transition-all duration-300 hover:shadow-lg opacity-0"
 					>
 						<div class="flex justify-between items-start mb-4">
               <span class="text-xs font-semibold text-gray-500 bg-white px-2 py-1 rounded">
@@ -85,7 +103,7 @@
 									icon="i-heroicons-arrow-right"
 									variant="ghost"
 									color="neutral"
-									class="bg-white hover:bg-gray-50 rounded-lg"
+									class="bg-white hover:bg-gray-50 rounded-lg transition-transform hover:translate-x-1"
 							/>
 						</div>
 
@@ -112,10 +130,14 @@
 					<!-- Article 3 (Petit - Dark) -->
 					<div
 							v-if="secondaryPosts[1]"
-							class="bg-[#0F1729] rounded-2xl p-6 flex flex-col justify-between h-full relative group overflow-hidden"
+							ref="secondary2Ref"
+							class="bg-[#0F1729] rounded-2xl p-6 flex flex-col justify-between h-full relative group overflow-hidden hover:shadow-xl transition-all duration-300 opacity-0"
 					>
-						<!-- Décoration de fond légère -->
-						<div class="absolute top-0 right-0 w-24 h-24 bg-[#7FD857] opacity-10 rounded-full blur-2xl -mr-8 -mt-8"></div>
+						<!-- Décoration de fond légère animée -->
+						<div
+								ref="glowRef"
+								class="absolute top-0 right-0 w-24 h-24 bg-[#7FD857] opacity-10 rounded-full blur-2xl -mr-8 -mt-8"
+						></div>
 
 						<div class="flex justify-between items-start mb-4 relative z-10">
               <span class="text-xs font-semibold text-gray-400 border border-gray-700 px-2 py-1 rounded">
@@ -154,7 +176,7 @@
 			</div>
 
 			<!-- Bouton Mobile "Voir toutes les actualités" -->
-			<div class="md:hidden mt-8 text-center">
+			<div ref="mobileButtonRef" class="md:hidden mt-8 text-center opacity-0">
 				<UButton
 						to="/actualites"
 						block
@@ -171,8 +193,23 @@
 </template>
 
 <script setup lang="ts">
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import type { Post } from '~/types/post'
 import Tag from '~/components/ui/Tag.vue'
+
+gsap.registerPlugin(ScrollTrigger)
+
+// Refs pour les animations
+const titleRef = ref<HTMLElement | null>(null)
+const subtitleRef = ref<HTMLElement | null>(null)
+const buttonRef = ref<HTMLElement | null>(null)
+const featuredRef = ref<HTMLElement | null>(null)
+const secondary1Ref = ref<HTMLElement | null>(null)
+const secondary2Ref = ref<HTMLElement | null>(null)
+const mobileButtonRef = ref<HTMLElement | null>(null)
+const glowRef = ref<HTMLElement | null>(null)
+const featuredParticles = ref<(HTMLElement | null)[]>([])
 
 // Récupération des 3 dernières actualités
 const { getPosts } = usePosts()
@@ -223,8 +260,147 @@ const getCategoryColor = (category: string) => {
 		'Événement': '#F59E0B',
 		'Club': '#3B82F6',
 		'Formation': '#8B5CF6',
-		'Sortie Falaise': '#7FD857'
+		'Sortie Falaise': '#7FD857',
+		'Partenariat': '#10B981'
 	}
 	return colors[category] || '#7FD857'
 }
+
+// Animations GSAP
+onMounted(() => {
+	// Animation de l'en-tête au scroll
+	const tl = gsap.timeline({
+		scrollTrigger: {
+			trigger: titleRef.value,
+			start: 'top 80%',
+			end: 'top 50%',
+			toggleActions: 'play none none none'
+		}
+	})
+
+	tl.to(titleRef.value, {
+		opacity: 1,
+		y: 0,
+		duration: 0.6,
+		ease: 'power2.out'
+	})
+			.to(subtitleRef.value, {
+				opacity: 1,
+				y: 0,
+				duration: 0.5
+			}, '-=0.3')
+			.to(buttonRef.value, {
+				opacity: 1,
+				x: 0,
+				duration: 0.5
+			}, '-=0.3')
+
+	// Animation des cards au scroll
+	if (featuredRef.value) {
+		gsap.to(featuredRef.value, {
+			opacity: 1,
+			y: 0,
+			duration: 0.8,
+			ease: 'power2.out',
+			scrollTrigger: {
+				trigger: featuredRef.value,
+				start: 'top 85%',
+				toggleActions: 'play none none none'
+			}
+		})
+	}
+
+	if (secondary1Ref.value) {
+		gsap.to(secondary1Ref.value, {
+			opacity: 1,
+			x: 0,
+			duration: 0.7,
+			ease: 'power2.out',
+			scrollTrigger: {
+				trigger: secondary1Ref.value,
+				start: 'top 85%',
+				toggleActions: 'play none none none'
+			}
+		})
+	}
+
+	if (secondary2Ref.value) {
+		gsap.to(secondary2Ref.value, {
+			opacity: 1,
+			x: 0,
+			duration: 0.7,
+			delay: 0.2,
+			ease: 'power2.out',
+			scrollTrigger: {
+				trigger: secondary2Ref.value,
+				start: 'top 85%',
+				toggleActions: 'play none none none'
+			}
+		})
+	}
+
+	if (mobileButtonRef.value) {
+		gsap.to(mobileButtonRef.value, {
+			opacity: 1,
+			y: 0,
+			duration: 0.5,
+			scrollTrigger: {
+				trigger: mobileButtonRef.value,
+				start: 'top 90%',
+				toggleActions: 'play none none none'
+			}
+		})
+	}
+
+	// Animation du glow sur la carte sombre
+	if (glowRef.value) {
+		gsap.to(glowRef.value, {
+			scale: 1.3,
+			opacity: 0.15,
+			duration: 3,
+			repeat: -1,
+			yoyo: true,
+			ease: 'sine.inOut'
+		})
+	}
+
+	// Animation des particules sur la carte featured
+	featuredParticles.value.forEach((particle, index) => {
+		if (particle) {
+			gsap.to(particle, {
+				opacity: 0.6,
+				y: -20,
+				duration: 2 + index * 0.5,
+				delay: index * 0.3,
+				repeat: -1,
+				yoyo: true,
+				ease: 'sine.inOut'
+			})
+		}
+	})
+})
 </script>
+
+<style scoped>
+/* Initialisation des positions pour les animations */
+h2, p {
+	transform: translateY(20px);
+}
+
+[ref="buttonRef"] {
+	transform: translateX(20px);
+}
+
+[ref="featuredRef"] {
+	transform: translateY(30px);
+}
+
+[ref="secondary1Ref"],
+[ref="secondary2Ref"] {
+	transform: translateX(20px);
+}
+
+[ref="mobileButtonRef"] {
+	transform: translateY(20px);
+}
+</style>
