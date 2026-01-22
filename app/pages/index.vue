@@ -1,5 +1,11 @@
 <template>
 	<div>
-		<h1>TEST</h1>
+		<HomeHero/>
+		<HomeActualites/>
+		<HomeProchainsEvenements />
+		<HomeCtaRejoindre />
+
 	</div>
 </template>
+<script setup lang="ts">
+</script>

@@ -6,35 +6,35 @@
 				<div class="header__logo-icon">
 					<UIcon name="i-heroicons-mountain-solid" class="text-white text-2xl" />
 				</div>
-				<span class="header__logo-text">
-          <span class="header__logo-vertical">VERTICAL</span>
-          <span class="header__logo-pulse">PULSE</span>
-        </span>
+				<div class="header__logo-text">
+					<span class="header__logo-vertical">ASC</span>
+					<span class="header__logo-pulse">ESCALADE</span>
+				</div>
 			</NuxtLink>
 
 			<!-- Navigation Desktop -->
 			<nav class="header__nav">
-				<NuxtLink to="/" class="header__nav-link">
+				<NuxtLink to="/" class="header__nav-link" active-class="header__nav-link--active">
 					Accueil
 				</NuxtLink>
 
-				<!-- Menu déroulant Le Club -->
-				<UDropdownMenu :items="clubMenuItems" :popper="{ placement: 'bottom-start' }">
-					<button class="header__nav-link header__nav-link--dropdown">
-						Le Club
-						<UIcon name="i-heroicons-chevron-down-20-solid" class="w-4 h-4 transition-transform" />
-					</button>
-				</UDropdownMenu>
+				<NuxtLink to="/club" class="header__nav-link" active-class="header__nav-link--active">
+					Le Club
+				</NuxtLink>
 
-				<NuxtLink to="/tarifs-et-cours" class="header__nav-link">
+				<NuxtLink to="/tarifs" class="header__nav-link" active-class="header__nav-link--active">
 					Tarifs & Cours
 				</NuxtLink>
 
-				<NuxtLink to="/sorties" class="header__nav-link">
+				<NuxtLink to="/sorties" class="header__nav-link" active-class="header__nav-link--active">
 					Sorties
 				</NuxtLink>
 
-				<NuxtLink to="/contact" class="header__nav-link">
+				<NuxtLink to="/actualites" class="header__nav-link" active-class="header__nav-link--active">
+					Actualités
+				</NuxtLink>
+
+				<NuxtLink to="/contact" class="header__nav-link" active-class="header__nav-link--active">
 					Contact
 				</NuxtLink>
 			</nav>
@@ -42,187 +42,181 @@
 			<!-- Actions -->
 			<div class="header__actions">
 				<UButton
-						color="black"
+						to="/login"
+						color="neutral"
+						variant="solid"
 						size="md"
+						label="Connexion"
 						icon="i-heroicons-user"
 						class="header__btn-login"
-				>
-					Connexion
-				</UButton>
+				/>
 
-				<!-- Menu Mobile -->
 				<UButton
-						color="white"
+						color="neutral"
 						variant="ghost"
 						icon="i-heroicons-bars-3"
 						class="header__burger"
-						@click="isMobileMenuOpen = true"
+						@click="openMobileMenu"
 				/>
 			</div>
 		</UContainer>
 
-		<!-- Mobile Slideover -->
-		<USlideover v-model="isMobileMenuOpen" side="right">
-			<UCard class="flex flex-col flex-1" :ui="{ body: { base: 'flex-1', padding: 'p-0' }, ring: '', divide: 'divide-y divide-gray-100' }">
-				<template #header>
-					<div class="flex items-center justify-between">
-						<div class="header__logo-text">
-							<span class="header__logo-vertical">VERTICAL</span>
-							<span class="header__logo-pulse">PULSE</span>
-						</div>
-						<UButton
-								color="gray"
-								variant="ghost"
-								icon="i-heroicons-x-mark-20-solid"
-								@click="isMobileMenuOpen = false"
-						/>
-					</div>
-				</template>
+		<!-- Slideover Mobile avec ClientOnly -->
+		<ClientOnly>
+			<Teleport to="body">
+				<Transition
+						enter-active-class="transition-opacity duration-200"
+						enter-from-class="opacity-0"
+						enter-to-class="opacity-100"
+						leave-active-class="transition-opacity duration-200"
+						leave-from-class="opacity-100"
+						leave-to-class="opacity-0"
+				>
+					<div
+							v-if="isMobileMenuOpen"
+							class="fixed inset-0 bg-black/50 z-[9998]"
+							@click="closeMobileMenu"
+					></div>
+				</Transition>
 
-				<div class="flex flex-col gap-2 p-4">
-					<UButton
-							to="/"
-							color="white"
-							variant="ghost"
-							size="lg"
-							class="justify-start"
-							@click="isMobileMenuOpen = false"
+				<Transition
+						enter-active-class="transition-transform duration-300"
+						enter-from-class="translate-x-full"
+						enter-to-class="translate-x-0"
+						leave-active-class="transition-transform duration-300"
+						leave-from-class="translate-x-0"
+						leave-to-class="translate-x-full"
+				>
+					<div
+							v-if="isMobileMenuOpen"
+							class="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-white shadow-2xl z-[9999] flex flex-col"
 					>
-						Accueil
-					</UButton>
-
-					<!-- Menu Le Club mobile avec sous-menu -->
-					<UAccordion :items="mobileClubAccordion" :ui="{ item: { padding: 'py-2' } }">
-						<template #default="{ item, open }">
-							<UButton
-									color="white"
-									variant="ghost"
-									size="lg"
-									class="justify-start w-full"
-							>
-                <span class="flex items-center justify-between w-full">
-                  {{ item.label }}
-                  <UIcon
-											name="i-heroicons-chevron-down-20-solid"
-											class="w-5 h-5 transition-transform"
-											:class="[open && 'transform rotate-180']"
-									/>
-                </span>
-							</UButton>
-						</template>
-
-						<template #item="{ item }">
-							<div class="flex flex-col gap-1 pl-4">
-								<UButton
-										v-for="subItem in item.children"
-										:key="subItem.label"
-										:to="subItem.to"
-										color="gray"
-										variant="ghost"
-										size="md"
-										class="justify-start"
-										@click="isMobileMenuOpen = false"
-								>
-									<UIcon :name="subItem.icon" class="w-4 h-4" />
-									{{ subItem.label }}
-								</UButton>
+						<!-- Header du menu mobile -->
+						<div class="flex items-center justify-between p-6 border-b border-gray-200">
+							<div class="header__logo-text">
+								<span class="header__logo-vertical">ASC</span>
+								<span class="header__logo-pulse">ESCALADE</span>
 							</div>
-						</template>
-					</UAccordion>
+							<UButton
+									color="neutral"
+									variant="ghost"
+									icon="i-heroicons-x-mark-20-solid"
+									@click="closeMobileMenu"
+							/>
+						</div>
 
-					<UButton
-							to="/tarifs-et-cours"
-							color="white"
-							variant="ghost"
-							size="lg"
-							class="justify-start"
-							@click="isMobileMenuOpen = false"
-					>
-						Tarifs & Cours
-					</UButton>
+						<!-- Navigation mobile -->
+						<nav class="flex-1 overflow-y-auto p-4">
+							<div class="flex flex-col gap-2">
+								<NuxtLink
+										v-for="item in mobileMenuItems"
+										:key="item.to"
+										:to="item.to"
+										class="mobile-nav-link"
+										active-class="mobile-nav-link--active"
+										@click="handleMenuClick"
+								>
+									<UIcon :name="item.icon" class="w-5 h-5 flex-shrink-0" />
+									<span class="font-medium flex-1">{{ item.label }}</span>
+									<UIcon name="i-heroicons-chevron-right" class="w-5 h-5 flex-shrink-0 opacity-50" />
+								</NuxtLink>
+							</div>
+						</nav>
 
-					<UButton
-							to="/sorties"
-							color="white"
-							variant="ghost"
-							size="lg"
-							class="justify-start"
-							@click="isMobileMenuOpen = false"
-					>
-						Sorties
-					</UButton>
-
-					<UButton
-							to="/contact"
-							color="white"
-							variant="ghost"
-							size="lg"
-							class="justify-start"
-							@click="isMobileMenuOpen = false"
-					>
-						Contact
-					</UButton>
-
-					<UDivider class="my-2" />
-
-					<UButton
-							color="black"
-							size="lg"
-							icon="i-heroicons-user"
-							class="justify-center"
-					>
-						Connexion
-					</UButton>
-				</div>
-			</UCard>
-		</USlideover>
+						<!-- Footer du menu mobile avec bouton connexion -->
+						<div class="p-4 border-t border-gray-200">
+							<UButton
+									to="/login"
+									color="neutral"
+									variant="solid"
+									size="xl"
+									label="Connexion"
+									icon="i-heroicons-user"
+									block
+									class="bg-[#0F1729] text-white hover:bg-[#1a2740]"
+									@click="handleMenuClick"
+							/>
+						</div>
+					</div>
+				</Transition>
+			</Teleport>
+		</ClientOnly>
 	</header>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const isScrolled = ref(false)
 const isMobileMenuOpen = ref(false)
 
-// Menu déroulant "Le Club" - Desktop
-const clubMenuItems = [
-	[{
-		label: 'Notre Histoire',
-		icon: 'i-heroicons-book-open',
-		to: '/le-club#histoire'
-	}, {
-		label: "L'Équipe",
-		icon: 'i-heroicons-user-group',
-		to: '/le-club#equipe'
-	}, {
-		label: 'Nos Valeurs',
-		icon: 'i-heroicons-heart',
-		to: '/le-club#valeurs'
-	}],
-	[{
-		label: 'Affiliations',
-		icon: 'i-heroicons-shield-check',
-		to: '/le-club#affiliations',
-		badge: 'FFME'
-	}, {
-		label: 'Partenaires',
-		icon: 'i-heroicons-building-office',
-		to: '/le-club#partenaires'
-	}]
+const { isDesktop } = useBreakpoints()
+
+// Menu Mobile - Items simples
+const mobileMenuItems = [
+	{
+		label: 'Accueil',
+		icon: 'i-heroicons-home',
+		to: '/'
+	},
+	{
+		label: 'Le Club',
+		icon: 'i-heroicons-building-library',
+		to: '/club'
+	},
+	{
+		label: 'Tarifs & Cours',
+		icon: 'i-heroicons-currency-euro',
+		to: '/tarifs'
+	},
+	{
+		label: 'Sorties',
+		icon: 'i-heroicons-map',
+		to: '/sorties'
+	},
+	{
+		label: 'Actualités',
+		icon: 'i-heroicons-newspaper',
+		to: '/actualites'
+	},
+	{
+		label: 'Contact',
+		icon: 'i-heroicons-envelope',
+		to: '/contact'
+	}
 ]
 
-// Accordion mobile "Le Club"
-const mobileClubAccordion = [{
-	label: 'Le Club',
-	defaultOpen: false,
-	children: [
-		{ label: 'Notre Histoire', icon: 'i-heroicons-book-open', to: '/le-club#histoire' },
-		{ label: "L'Équipe", icon: 'i-heroicons-user-group', to: '/le-club#equipe' },
-		{ label: 'Nos Valeurs', icon: 'i-heroicons-heart', to: '/le-club#valeurs' },
-		{ label: 'Affiliations', icon: 'i-heroicons-shield-check', to: '/le-club#affiliations' },
-		{ label: 'Partenaires', icon: 'i-heroicons-building-office', to: '/le-club#partenaires' }
-	]
-}]
+// Ouvrir le menu
+const openMobileMenu = () => {
+	isMobileMenuOpen.value = true
+	// Bloquer le scroll du body
+	if (process.client) {
+		document.body.style.overflow = 'hidden'
+	}
+}
 
+// Fermer le menu
+const closeMobileMenu = () => {
+	isMobileMenuOpen.value = false
+	// Débloquer le scroll du body
+	if (process.client) {
+		document.body.style.overflow = ''
+	}
+}
+
+// Fermer le menu lors d'un clic sur un lien
+const handleMenuClick = () => {
+	setTimeout(() => {
+		closeMobileMenu()
+	}, 150)
+}
+
+// Fermer automatiquement le menu mobile quand on passe en desktop
+watch(isDesktop, (newVal) => {
+	if (newVal && isMobileMenuOpen.value) {
+		closeMobileMenu()
+	}
+})
+
+// Gestion du scroll
 const handleScroll = () => {
 	isScrolled.value = window.scrollY > 20
 }
@@ -232,7 +226,11 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-	window.removeEventListener('scroll', handleScroll)
+	window.removeEventListener('resize', handleScroll)
+	// Nettoyer le style du body au cas où
+	if (process.client) {
+		document.body.style.overflow = ''
+	}
 })
 </script>
 
@@ -259,7 +257,7 @@ onUnmounted(() => {
 		gap: 3rem;
 	}
 
-	// Logo
+	// Logo styles
 	&__logo {
 		display: flex;
 		align-items: center;
@@ -275,7 +273,7 @@ onUnmounted(() => {
 	&__logo-icon {
 		width: 45px;
 		height: 45px;
-		background: var(--vp-green);
+		background: #7FD857;
 		border-radius: 10px;
 		display: flex;
 		align-items: center;
@@ -292,23 +290,22 @@ onUnmounted(() => {
 	&__logo-vertical {
 		font-size: 1.05rem;
 		font-weight: 700;
-		color: var(--vp-dark);
+		color: #0F1729;
 		letter-spacing: 0.5px;
 	}
 
 	&__logo-pulse {
 		font-size: 1.05rem;
 		font-weight: 300;
-		color: var(--vp-green);
+		color: #7FD857;
 		letter-spacing: 0.5px;
 	}
 
-	// Navigation
+	// Navigation Desktop
 	&__nav {
 		display: flex;
 		align-items: center;
 		gap: 2rem;
-		flex: 1;
 
 		@media (max-width: 1024px) {
 			display: none;
@@ -316,41 +313,31 @@ onUnmounted(() => {
 	}
 
 	&__nav-link {
-		color: var(--vp-dark);
+		color: #0F1729;
 		text-decoration: none;
 		font-size: 0.95rem;
 		font-weight: 500;
 		position: relative;
 		transition: color 0.2s ease;
-		background: none;
-		border: none;
-		cursor: pointer;
-		display: flex;
-		align-items: center;
-		gap: 0.25rem;
+		padding: 0.5rem 0;
 
 		&:hover {
-			color: var(--vp-green);
+			color: #7FD857;
 		}
 
-		&.router-link-active {
-			color: var(--vp-green);
+		&--active {
+			color: #7FD857;
 
 			&::after {
 				content: '';
 				position: absolute;
-				bottom: -8px;
+				bottom: 0;
 				left: 0;
 				right: 0;
 				height: 2px;
-				background: var(--vp-green);
+				background: #7FD857;
 				border-radius: 2px;
 			}
-		}
-
-		&--dropdown {
-			font-family: inherit;
-			padding: 0;
 		}
 	}
 
@@ -362,6 +349,13 @@ onUnmounted(() => {
 	}
 
 	&__btn-login {
+		background-color: #0F1729;
+		color: white;
+
+		&:hover {
+			background-color: #1a2740;
+		}
+
 		@media (max-width: 768px) {
 			display: none;
 		}
@@ -372,6 +366,42 @@ onUnmounted(() => {
 
 		@media (max-width: 1024px) {
 			display: flex;
+		}
+	}
+}
+
+// Styles pour les liens du menu mobile
+.mobile-nav-link {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 1rem;
+	border-radius: 0.75rem;
+	text-decoration: none;
+	transition: all 0.2s ease;
+	background: white;
+	color: #0F1729;
+
+	&:hover {
+		background: #F5F7FA;
+	}
+
+	&:active {
+		background: #E5E7EB;
+		transform: scale(0.98);
+	}
+
+	// Style pour le lien actif
+	&--active {
+		background: #F0FDF4;
+
+		span {
+			color: #7FD857;
+			font-weight: 600;
+		}
+
+		svg {
+			color: #7FD857;
 		}
 	}
 }

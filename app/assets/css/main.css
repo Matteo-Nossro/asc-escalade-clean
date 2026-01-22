@@ -26,24 +26,24 @@
     --vp-gray-dark: #e1e5ea;
 }
 
-/*// Reset*/
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+:root {
+     --ui-container: 110rem;
+    color-scheme: light;
+
+}
+/* Espacement pour le header fixe */
+.page-content {
+    padding-top: 80px; /* Hauteur du header (ajuster selon votre header) */
 }
 
-body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    color: var(--vp-dark);
-    background: white;
-    line-height: 1.6;
+/* Pour les pages avec hero plein écran */
+.page-hero {
+    padding-top: 0;
 }
 
-a {
-    text-decoration: none;
-}
-
-button {
-    font-family: inherit;
+/* Ajustement responsive */
+@media (max-width: 768px) {
+    .page-content {
+        padding-top: 70px;
+    }
 }
