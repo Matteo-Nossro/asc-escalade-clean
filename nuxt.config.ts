@@ -1,6 +1,9 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ['@nuxt/ui'],
+  modules: [
+    '@nuxt/ui',
+    '@nuxtjs/sanity'
+  ],
 
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
@@ -14,17 +17,20 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
-  routeRules: {
-    '/': { prerender: true }
+  // Configuration Sanity
+  sanity: {
+    projectId: process.env.NUXT_PUBLIC_SANITY_PROJECT_ID || '',
+    dataset: process.env.NUXT_PUBLIC_SANITY_DATASET || 'production',
+    apiVersion: '2024-02-09',
+
+    // Options avancées (optionnel)
+    useCdn: true,  // Active le CDN Sanity pour la prod
+    visualEditing: {
+      studioUrl: 'http://localhost:3333'  // URL de ton studio
+    }
   },
 
-  // Configuration Sanity uniquement
-  runtimeConfig: {
-    // Variables publiques (accessibles côté client et serveur)
-    public: {
-      sanityProjectId: process.env.NUXT_PUBLIC_SANITY_PROJECT_ID || '',
-      sanityDataset: process.env.NUXT_PUBLIC_SANITY_DATASET || 'production',
-      sanityApiVersion: process.env.NUXT_PUBLIC_SANITY_API_VERSION || '2024-02-09',
-    }
+  routeRules: {
+    '/': { prerender: true }
   }
 })

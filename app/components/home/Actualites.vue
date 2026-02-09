@@ -5,10 +5,10 @@
 			<div class="flex items-end justify-between mb-12">
 				<div>
 					<h2 ref="titleRef" class="text-3xl font-bold text-[#0F1729] opacity-0">
-						Actualités
+						{{ content.title }}
 					</h2>
 					<p ref="subtitleRef" class="text-gray-600 mt-2 opacity-0">
-						Suivez les dernières nouvelles du club
+						{{ content.subtitle }}
 					</p>
 				</div>
 
@@ -26,7 +26,7 @@
 			</div>
 
 			<!-- Grille d'actualités -->
-			<div v-if="actualites.length > 0" class="grid grid-cols-1 md:grid-cols-12 gap-6">
+			<div v-if="actualites && actualites.length > 0" class="grid grid-cols-1 md:grid-cols-12 gap-6">
 
 				<!-- Article Principal (Grande image) - Colonne gauche -->
 				<div
@@ -35,8 +35,12 @@
 						class="md:col-span-8 relative group overflow-hidden rounded-2xl h-[400px] opacity-0"
 				>
 					<!-- Image de fond -->
-					<img
-							:src="featuredPost.image"
+					<SanityImage
+							v-if="featuredPost.image"
+							:asset-id="featuredPost.image.asset._ref"
+							:width="800"
+							:height="400"
+							auto="format"
 							:alt="featuredPost.title"
 							class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
 					/>
@@ -78,12 +82,12 @@
 
 						<div class="flex items-center gap-3 text-white/80 text-xs mt-3">
 							<UIcon name="i-heroicons-calendar" class="w-4 h-4" />
-							<span>{{ formatDate(featuredPost.date) }}</span>
+							<span>{{ formatDate(featuredPost.publishedAt) }}</span>
 						</div>
 					</div>
 
 					<!-- Lien global sur la card -->
-					<NuxtLink :to="`/posts/${featuredPost.slug}`" class="absolute inset-0 z-10" />
+					<NuxtLink :to="`/actualites/${featuredPost.slug.current}`" class="absolute inset-0 z-10" />
 				</div>
 
 				<!-- Colonne droite - Liste verticale -->
@@ -97,7 +101,7 @@
 					>
 						<div class="flex justify-between items-start mb-4">
               <span class="text-xs font-semibold text-gray-500 bg-white px-2 py-1 rounded">
-                {{ formatDateShort(secondaryPosts[0].date) }}
+                {{ formatDateShort(secondaryPosts[0].publishedAt) }}
               </span>
 							<UButton
 									icon="i-heroicons-arrow-right"
@@ -124,7 +128,7 @@
 							</p>
 						</div>
 
-						<NuxtLink :to="`/posts/${secondaryPosts[0].slug}`" class="absolute inset-0 z-10" />
+						<NuxtLink :to="`/actualites/${secondaryPosts[0].slug.current}`" class="absolute inset-0 z-10" />
 					</div>
 
 					<!-- Article 3 (Petit - Dark) -->
@@ -141,7 +145,7 @@
 
 						<div class="flex justify-between items-start mb-4 relative z-10">
               <span class="text-xs font-semibold text-gray-400 border border-gray-700 px-2 py-1 rounded">
-                {{ formatDateShort(secondaryPosts[1].date) }}
+                {{ formatDateShort(secondaryPosts[1].publishedAt) }}
               </span>
 						</div>
 
@@ -162,7 +166,7 @@
 							</p>
 						</div>
 
-						<NuxtLink :to="`/posts/${secondaryPosts[1].slug}`" class="absolute inset-0 z-10" />
+						<NuxtLink :to="`/actualites/${secondaryPosts[1].slug.current}`" class="absolute inset-0 z-10" />
 					</div>
 
 				</div>
@@ -195,10 +199,18 @@
 <script setup lang="ts">
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import type { Post } from '~/types/post'
 import Tag from '~/components/ui/Tag.vue'
 
 gsap.registerPlugin(ScrollTrigger)
+
+// Props
+const props = defineProps<{
+	content: {
+		title: string
+		subtitle: string
+		limit: number
+	}
+}>()
 
 // Refs pour les animations
 const titleRef = ref<HTMLElement | null>(null)
@@ -211,27 +223,33 @@ const mobileButtonRef = ref<HTMLElement | null>(null)
 const glowRef = ref<HTMLElement | null>(null)
 const featuredParticles = ref<(HTMLElement | null)[]>([])
 
-// Récupération des 3 dernières actualités
-const { getPosts } = usePosts()
-const actualites = await getPosts('actualite')
+// Récupérer les actualités depuis Sanity
+const query = groq`*[_type == "actualite" && published == true] | order(publishedAt desc) [0...${props.content.limit}] {
+  _id,
+  title,
+  slug,
+  excerpt,
+  image {
+    asset-> {
+      _ref,
+      url
+    }
+  },
+  category,
+  featured,
+  publishedAt
+}`
 
-// Trier par date décroissante et prendre les 3 plus récentes
-const recentActualites = computed(() => {
-	return actualites
-			.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-			.slice(0, 3)
-})
+const { data: actualites } = await useSanityQuery(query)
 
 // Article principal (featured) - soit marqué featured, soit le plus récent
 const featuredPost = computed(() => {
-	return recentActualites.value.find(post => post.featured) || recentActualites.value[0]
+	return actualites.value?.find((post: any) => post.featured) || actualites.value?.[0]
 })
 
 // Articles secondaires (2 suivants)
 const secondaryPosts = computed(() => {
-	return recentActualites.value
-			.filter(post => post.id !== featuredPost.value?.id)
-			.slice(0, 2)
+	return actualites.value?.filter((post: any) => post._id !== featuredPost.value?._id).slice(0, 2) || []
 })
 
 // Fonction pour formater la date complète
@@ -266,9 +284,8 @@ const getCategoryColor = (category: string) => {
 	return colors[category] || '#7FD857'
 }
 
-// Animations GSAP
+// Animations GSAP (même code que l'original)
 onMounted(() => {
-	// Animation de l'en-tête au scroll
 	const tl = gsap.timeline({
 		scrollTrigger: {
 			trigger: titleRef.value,
@@ -278,103 +295,49 @@ onMounted(() => {
 		}
 	})
 
-	tl.to(titleRef.value, {
-		opacity: 1,
-		y: 0,
-		duration: 0.6,
-		ease: 'power2.out'
-	})
-			.to(subtitleRef.value, {
-				opacity: 1,
-				y: 0,
-				duration: 0.5
-			}, '-=0.3')
-			.to(buttonRef.value, {
-				opacity: 1,
-				x: 0,
-				duration: 0.5
-			}, '-=0.3')
+	tl.to(titleRef.value, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' })
+			.to(subtitleRef.value, { opacity: 1, y: 0, duration: 0.5 }, '-=0.3')
+			.to(buttonRef.value, { opacity: 1, x: 0, duration: 0.5 }, '-=0.3')
 
-	// Animation des cards au scroll
 	if (featuredRef.value) {
 		gsap.to(featuredRef.value, {
-			opacity: 1,
-			y: 0,
-			duration: 0.8,
-			ease: 'power2.out',
-			scrollTrigger: {
-				trigger: featuredRef.value,
-				start: 'top 85%',
-				toggleActions: 'play none none none'
-			}
+			opacity: 1, y: 0, duration: 0.8, ease: 'power2.out',
+			scrollTrigger: { trigger: featuredRef.value, start: 'top 85%', toggleActions: 'play none none none' }
 		})
 	}
 
 	if (secondary1Ref.value) {
 		gsap.to(secondary1Ref.value, {
-			opacity: 1,
-			x: 0,
-			duration: 0.7,
-			ease: 'power2.out',
-			scrollTrigger: {
-				trigger: secondary1Ref.value,
-				start: 'top 85%',
-				toggleActions: 'play none none none'
-			}
+			opacity: 1, x: 0, duration: 0.7, ease: 'power2.out',
+			scrollTrigger: { trigger: secondary1Ref.value, start: 'top 85%', toggleActions: 'play none none none' }
 		})
 	}
 
 	if (secondary2Ref.value) {
 		gsap.to(secondary2Ref.value, {
-			opacity: 1,
-			x: 0,
-			duration: 0.7,
-			delay: 0.2,
-			ease: 'power2.out',
-			scrollTrigger: {
-				trigger: secondary2Ref.value,
-				start: 'top 85%',
-				toggleActions: 'play none none none'
-			}
+			opacity: 1, x: 0, duration: 0.7, delay: 0.2, ease: 'power2.out',
+			scrollTrigger: { trigger: secondary2Ref.value, start: 'top 85%', toggleActions: 'play none none none' }
 		})
 	}
 
 	if (mobileButtonRef.value) {
 		gsap.to(mobileButtonRef.value, {
-			opacity: 1,
-			y: 0,
-			duration: 0.5,
-			scrollTrigger: {
-				trigger: mobileButtonRef.value,
-				start: 'top 90%',
-				toggleActions: 'play none none none'
-			}
+			opacity: 1, y: 0, duration: 0.5,
+			scrollTrigger: { trigger: mobileButtonRef.value, start: 'top 90%', toggleActions: 'play none none none' }
 		})
 	}
 
-	// Animation du glow sur la carte sombre
 	if (glowRef.value) {
 		gsap.to(glowRef.value, {
-			scale: 1.3,
-			opacity: 0.15,
-			duration: 3,
-			repeat: -1,
-			yoyo: true,
-			ease: 'sine.inOut'
+			scale: 1.3, opacity: 0.15, duration: 3, repeat: -1, yoyo: true, ease: 'sine.inOut'
 		})
 	}
 
-	// Animation des particules sur la carte featured
 	featuredParticles.value.forEach((particle, index) => {
 		if (particle) {
 			gsap.to(particle, {
-				opacity: 0.6,
-				y: -20,
-				duration: 2 + index * 0.5,
-				delay: index * 0.3,
-				repeat: -1,
-				yoyo: true,
-				ease: 'sine.inOut'
+				opacity: 0.6, y: -20, duration: 2 + index * 0.5, delay: index * 0.3,
+				repeat: -1, yoyo: true, ease: 'sine.inOut'
 			})
 		}
 	})
@@ -382,7 +345,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Initialisation des positions pour les animations */
 h2, p {
 	transform: translateY(20px);
 }

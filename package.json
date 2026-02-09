@@ -7,10 +7,13 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "studio": "cd sanity-studio && npm run dev",
+    "studio:deploy": "cd sanity-studio && npm run deploy"
   },
   "dependencies": {
     "@nuxt/ui": "^4.3.0",
+    "@nuxtjs/sanity": "^2.1.0",
     "@prisma/client": "^7.3.0",
     "@sanity/client": "^7.14.1",
     "@sanity/image-url": "^2.0.3",
