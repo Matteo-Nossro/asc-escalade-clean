@@ -6,15 +6,25 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   colorMode: {
-    preference: 'light', // Mode par défaut
-    fallback: 'light', // Mode de repli
-    // Optionnel : empêcher l'utilisateur de changer de mode
+    preference: 'light',
+    fallback: 'light',
     dataValue: 'light',
     classSuffix: ''
   },
+
   css: ['~/assets/css/main.css'],
 
   routeRules: {
     '/': { prerender: true }
   },
+
+  // Configuration Sanity uniquement
+  runtimeConfig: {
+    // Variables publiques (accessibles côté client et serveur)
+    public: {
+      sanityProjectId: process.env.NUXT_PUBLIC_SANITY_PROJECT_ID || '',
+      sanityDataset: process.env.NUXT_PUBLIC_SANITY_DATASET || 'production',
+      sanityApiVersion: process.env.NUXT_PUBLIC_SANITY_API_VERSION || '2024-02-09',
+    }
+  }
 })
