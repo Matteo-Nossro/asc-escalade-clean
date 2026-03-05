@@ -17,16 +17,23 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
-  // Configuration Sanity
-  sanity: {
-    projectId: process.env.NUXT_PUBLIC_SANITY_PROJECT_ID || '',
-    dataset: process.env.NUXT_PUBLIC_SANITY_DATASET || 'production',
-    apiVersion: '2024-02-09',
+  runtimeConfig: {
+    sanityPreviewSecret: process.env.NUXT_SANITY_PREVIEW_SECRET,
+  },
 
-    // Options avancées (optionnel)
-    useCdn: true,  // Active le CDN Sanity pour la prod
+  sanity: {
+    projectId: process.env.NUXT_PUBLIC_SANITY_PROJECT_ID || 'l2rphl1o',
+    dataset: process.env.NUXT_PUBLIC_SANITY_DATASET || 'production',
+    apiVersion: '2024-05-15',
+    useCdn: false, // Important
+
     visualEditing: {
-      studioUrl: 'http://localhost:3333'  // URL de ton studio
+      token: process.env.NUXT_SANITY_TOKEN,
+      studioUrl: process.env.SANITY_STUDIO_URL || 'http://localhost:3333',
+      stega: {
+        enabled: true,
+        studioUrl: process.env.SANITY_STUDIO_URL || 'http://localhost:3333'
+      }
     }
   },
 

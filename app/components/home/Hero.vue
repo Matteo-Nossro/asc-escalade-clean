@@ -3,7 +3,6 @@
 
 		<!-- Image de fond -->
 		<div class="absolute inset-0 z-0">
-			<!-- Image depuis Sanity si définie, sinon image par défaut -->
 			<SanityImage
 					v-if="content.backgroundImage"
 					:asset-id="content.backgroundImage.asset._ref"
@@ -40,9 +39,10 @@
 		<UContainer class="relative z-10 w-full">
 			<div class="max-w-4xl mx-auto text-center flex flex-col items-center gap-6">
 
-				<!-- Surtitre -->
+				<!-- Surtitre avec encodeDataAttribute -->
 				<span
 						ref="surtitleRef"
+						:data-sanity="encodeDataAttribute(['hero', 'surtitle'])"
 						class="text-[#7FD857] font-bold tracking-[0.2em] uppercase text-sm md:text-base opacity-0"
 				>
           {{ content.surtitle }}
@@ -50,14 +50,23 @@
 
 				<!-- Titre Principal -->
 				<h1 ref="titleRef" class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight drop-shadow-lg opacity-0">
-					{{ content.title }}<br>
-					<span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">
+          <span :data-sanity="encodeDataAttribute(['hero', 'title'])">
+            {{ content.title }}
+          </span><br>
+					<span
+							:data-sanity="encodeDataAttribute(['hero', 'titleHighlight'])"
+							class="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300"
+					>
             {{ content.titleHighlight }}
           </span>
 				</h1>
 
 				<!-- Sous-titre -->
-				<p ref="subtitleRef" class="text-gray-200 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-4 opacity-0">
+				<p
+						ref="subtitleRef"
+						:data-sanity="encodeDataAttribute(['hero', 'subtitle'])"
+						class="text-gray-200 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-4 opacity-0"
+				>
 					{{ content.subtitle }}
 				</p>
 
@@ -70,7 +79,10 @@
 							class="group relative bg-[#7FD857] hover:bg-[#6bc745] text-[#0F1729] font-bold px-8 py-4 justify-center overflow-hidden shadow-lg hover:shadow-xl transition-all"
 							:ui="{ rounded: 'rounded-full' }"
 					>
-            <span class="relative z-10 flex items-center gap-2">
+            <span
+								:data-sanity="encodeDataAttribute(['hero', 'primaryButtonText'])"
+								class="relative z-10 flex items-center gap-2"
+						>
               {{ content.primaryButtonText }}
               <UIcon name="i-heroicons-arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </span>
@@ -84,7 +96,10 @@
 							class="group relative bg-white/10 backdrop-blur-md hover:bg-white/20 text-white font-bold px-8 py-4 justify-center border-2 border-white/30 hover:border-white shadow-lg hover:shadow-xl transition-all"
 							:ui="{ rounded: 'rounded-full' }"
 					>
-            <span class="relative z-10 flex items-center gap-2">
+            <span
+								:data-sanity="encodeDataAttribute(['hero', 'secondaryButtonText'])"
+								class="relative z-10 flex items-center gap-2"
+						>
               {{ content.secondaryButtonText }}
               <UIcon name="i-heroicons-map" class="w-5 h-5 group-hover:scale-110 transition-transform" />
             </span>
@@ -143,7 +158,7 @@
 import { gsap } from 'gsap'
 
 // Props
-defineProps<{
+const props = defineProps<{
 	content: {
 		surtitle: string
 		title: string
@@ -154,8 +169,20 @@ defineProps<{
 		primaryButtonLink: string
 		secondaryButtonText: string
 		secondaryButtonLink: string
-	}
+	},
+	encodeDataAttribute: (path: string[]) => string
+
+	// documentId: string,
+	// documentType: string
 }>()
+
+// Utiliser le composable pour Visual Editing
+const { sanityProps } = useSanityVisualEditing(props.documentId, props.documentType)
+
+// 🔍 LOG DE DEBUG
+console.log('Test sanityProps:', sanityProps('hero.surtitle'))
+// Devrait afficher : { 'data-sanity': 'hero.surtitle' }
+
 
 // Refs pour les animations
 const surtitleRef = ref<HTMLElement | null>(null)
@@ -255,6 +282,7 @@ onMounted(() => {
 		}
 	})
 })
+
 </script>
 
 <style scoped>
