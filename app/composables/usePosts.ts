@@ -48,7 +48,7 @@ export const usePosts = () => {
   const getPostBySlug = async (slug: string): Promise<Post | null> => {
     try {
       const { data } = await storyblokApi.get(`cdn/stories/posts/${slug}`, {
-        version: 'published'
+        version: 'draft'
       })
       const story = data.story
       return {
