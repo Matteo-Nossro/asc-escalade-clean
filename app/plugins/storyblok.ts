@@ -17,6 +17,14 @@ import TextWithImage from '../storyblok/ui/TextWithImage.vue'
 import TextWithTitle from '../storyblok/ui/TextWithTitle.vue'
 
 
+// ==========================================
+// Éléments de Layout
+// ==========================================
+// import Header from '../storyblok/layout/Header.vue'
+// import Footer from '../storyblok/layout/Footer.vue'
+import SiteConfig from '../storyblok/SiteConfig.vue'
+
+
 export default defineNuxtPlugin(({ vueApp }) => {
   // Enregistrement des éléments de la page d'accueil
   vueApp.component('home-hero', HomeHero)
@@ -33,4 +41,9 @@ export default defineNuxtPlugin(({ vueApp }) => {
   vueApp.component('tabs_section', TabsSection)
   vueApp.component('text_with_image', TextWithImage)
   vueApp.component('text_with_title', TextWithTitle)
+
+  // Enregistrement des éléments de layout
+  // vueApp.component('global_header', Header)
+  // vueApp.component('global_footer', Footer)
+  vueApp.component('site_config', SiteConfig)
 })

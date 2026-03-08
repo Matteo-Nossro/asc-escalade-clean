@@ -1,25 +1,26 @@
 <template>
-	<UApp>
-<!--		<UHeader>-->
-			<LayoutHeader/>
-<!--		</UHeader>-->
-
-		<UMain>
-			<NuxtPage/>
-		</UMain>
-
-<!--		<UFooter>-->
-			<LayoutFooter/>
-
-<!--		</UFooter>-->
-
-	</UApp>
+  <UApp>
+    <LayoutHeader />
+    <UMain>
+      <NuxtPage />
+    </UMain>
+    <LayoutFooter />
+  </UApp>
 </template>
 
 <script setup>
-
 const colorMode = useColorMode()
-
-// Forcer le mode light
 colorMode.preference = 'light'
+
+// DEBUG TEMPORAIRE
+const storyblokApi = useStoryblokApi()
+const { data, error } = await useAsyncData('debug-config', async () => {
+  const response = await storyblokApi.get('cdn/stories/global/site-config', {
+    version: 'draft'
+  })
+  return response.data
+})
+
+console.log('✅ Data:', data.value)
+console.log('❌ Error:', error.value)
 </script>
