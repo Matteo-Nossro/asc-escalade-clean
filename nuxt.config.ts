@@ -3,7 +3,7 @@
 import mkcert from "vite-plugin-mkcert";
 
 export default defineNuxtConfig({
-  modules: ['@nuxt/ui','@storyblok/nuxt'],
+  modules: ['@nuxt/ui','@storyblok/nuxt','@nuxt/image'],
 
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
@@ -18,6 +18,13 @@ export default defineNuxtConfig({
           : undefined,
       },
     },
+
+  image: {
+    provider: 'storyblok',
+    storyblok: {
+      baseURL: 'https://a.storyblok.com' // CDN Storyblok EU
+    }
+  },
 
   colorMode: {
     preference: 'light', // Mode par défaut

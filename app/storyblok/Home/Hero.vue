@@ -6,33 +6,38 @@
 
     <!-- Image de fond -->
     <div class="absolute inset-0 z-0">
-      <img
+      <!-- Image Storyblok optimisée -->
+      <NuxtImg
         v-if="blok.backgroundImage?.filename"
-        :src="blok.backgroundImage.filename + '/m/1920x1080/smart'"
+        provider="storyblok"
+        :src="blok.backgroundImage.filename"
         :alt="blok.backgroundImage.alt || 'Hero background'"
+        format="webp"
+        :quality="70"
+        :width="1920"
+        :height="1080"
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1920px"
         class="w-full h-full object-cover"
       />
-      <img
+
+      <!-- Fallback Unsplash optimisé via Nuxt Image (remote) -->
+      <NuxtImg
         v-else
         src="https://images.unsplash.com/photo-1516592673884-4a382d1124c2?q=80&w=2070&auto=format&fit=crop"
         alt="Mur d'escalade intérieur"
+        format="webp"
+        :quality="70"
+        :width="1920"
+        :height="1080"
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1920px"
         class="w-full h-full object-cover"
       />
+
       <div class="absolute inset-0 bg-black/40"></div>
       <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent"></div>
     </div>
 
-    <!-- Particules flottantes -->
-    <div class="absolute inset-0 pointer-events-none z-5">
-      <div
-        v-for="i in 15"
-        :key="`particle-${i}`"
-        :ref="el => particles[i] = (el as HTMLElement)"
-        class="absolute w-1 h-1 bg-white rounded-full opacity-0"
-        :style="{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%` }"
-      ></div>
-    </div>
-
+    
     <!-- Contenu -->
     <UContainer class="relative z-10 w-full">
       <div class="max-w-4xl mx-auto text-center flex flex-col items-center gap-6">

@@ -20,6 +20,7 @@
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
+    "@nuxt/image": "^2.0.0",
     "sass-embedded": "^1.97.2",
     "vite-plugin-mkcert": "^1.17.10"
   }
