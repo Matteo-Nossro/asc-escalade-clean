@@ -1,5 +1,5 @@
 <template>
-  <section v-editable="blok" class="py-12 bg-white">
+  <section v-editable="blok" class="py-12">
     <UContainer>
       <!-- Ajout de text-center et mx-auto pour centrer le tout -->
       <div class="mx-auto flex flex-col items-center text-lg leading-relaxed text-gray-600 space-y-6">

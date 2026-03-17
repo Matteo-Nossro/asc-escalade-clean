@@ -92,7 +92,7 @@
       <!-- Titre principal -->
       <h1
         ref="title"
-        class="text-4xl md:text-6xl font-extrabold text-[#0F1729] mb-4 uppercase tracking-tight opacity-0 translate-y-10"
+        class="text-4xl md:text-6xl font-extrabold text-[#0F1729] mb-4 uppercase tracking-tight"
       >
         {{ blok.title || 'TARIFS & COURS' }}
       </h1>
@@ -100,7 +100,7 @@
       <!-- Sous-titre -->
       <p
         ref="subtitle"
-        class="text-gray-500 text-lg md:text-xl font-medium max-w-2xl mx-auto mb-8 opacity-0 translate-y-8"
+        class="text-gray-500 text-lg md:text-xl font-medium max-w-2xl mx-auto mb-8"
       >
         {{ blok.subtitle || 'Trouvez la formule qui vous correspond' }}
       </p>
@@ -108,14 +108,15 @@
       <!-- Trait -->
       <div
         ref="line"
-        class="h-1.5 bg-[#7FD857] rounded-full mx-auto opacity-0"
-        style="width: 0"
+        class="h-1.5 bg-[#7FD857] rounded-full mx-auto"
+        style="width: 64px"
       ></div>
     </UContainer>
   </section>
 </template>
 
-<script setup lang="ts">
+<script setup>
+import { ref, onMounted } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -128,50 +129,33 @@ const props = defineProps({
   }
 })
 
-const badge = ref<HTMLElement | null>(null)
-const title = ref<HTMLElement | null>(null)
-const subtitle = ref<HTMLElement | null>(null)
-const line = ref<HTMLElement | null>(null)
-const hill1 = ref<SVGSVGElement | null>(null)
-const hill2 = ref<SVGSVGElement | null>(null)
-const gridLine1 = ref<SVGLineElement | null>(null)
-const gridLine2 = ref<SVGLineElement | null>(null)
-const gridLine3 = ref<SVGLineElement | null>(null)
-const ticket1 = ref<SVGRectElement | null>(null)
-const ticket2 = ref<SVGRectElement | null>(null)
-const euros = ref<(HTMLElement | null)[]>([])
+const badge = ref(null)
+const title = ref(null)
+const subtitle = ref(null)
+const line = ref(null)
+const hill1 = ref(null)
+const hill2 = ref(null)
+const gridLine1 = ref(null)
+const gridLine2 = ref(null)
+const gridLine3 = ref(null)
+const ticket1 = ref(null)
+const ticket2 = ref(null)
+const euros = ref([])
 
 onMounted(() => {
-  // Timeline principale
-  const tl = gsap.timeline({ defaults: { ease: 'power2.out' } })
-
+  // gsap.from() anime depuis un état initial sans bloquer le rendu si ça échoue
   if (badge.value) {
-    tl.to(badge.value, {
-      opacity: 1,
-      y: 0,
-      duration: 0.8,
-      delay: 0.2
-    })
+    gsap.from(badge.value, { opacity: 0, y: 20, duration: 0.8, ease: 'power2.out' })
   }
-
-  tl.to(title.value, {
-    opacity: 1,
-    y: 0,
-    duration: 1,
-    delay: 0.3
-  }, '-=0.5')
-
-  .to(subtitle.value, {
-    opacity: 1,
-    y: 0,
-    duration: 0.8
-  }, '-=0.5')
-
-  .to(line.value, {
-    width: '64px',
-    opacity: 1,
-    duration: 0.6
-  }, '-=0.4')
+  if (title.value) {
+    gsap.from(title.value, { opacity: 0, y: 30, duration: 1, delay: 0.3, ease: 'power2.out' })
+  }
+  if (subtitle.value) {
+    gsap.from(subtitle.value, { opacity: 0, y: 20, duration: 0.8, delay: 0.6, ease: 'power2.out' })
+  }
+  if (line.value) {
+    gsap.from(line.value, { opacity: 0, width: 0, duration: 0.6, delay: 0.9, ease: 'power2.out' })
+  }
 
   // Grille
   const gridLines = [gridLine1.value, gridLine2.value, gridLine3.value]
