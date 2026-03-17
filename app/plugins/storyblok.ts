@@ -1,4 +1,11 @@
 // ==========================================
+// Composants racine
+// ==========================================
+import Page from '../storyblok/Page.vue'
+import Post from '../storyblok/Post.vue'
+import SiteConfig from '../storyblok/SiteConfig.vue'
+
+// ==========================================
 // Éléments de la page d'accueil
 // ==========================================
 import HomeHero from '../storyblok/Home/Hero.vue'
@@ -15,11 +22,13 @@ import CenteredImage from '../storyblok/ui/CenteredImage.vue'
 import TabsSection from '../storyblok/ui/TabsSection.vue'
 import TextWithImage from '../storyblok/ui/TextWithImage.vue'
 import TextWithTitle from '../storyblok/ui/TextWithTitle.vue'
+import Galerie from '../storyblok/ui/Galerie.vue'
 
 // ==========================================
 // Éléments de la page actualités
 // ==========================================
 import ActualitesHeader from '../storyblok/actualites/Header.vue'
+import ActualitesPage from '../storyblok/actualites/Page.vue'
 
 // ==========================================
 // Éléments de la page club
@@ -44,6 +53,7 @@ import ContactForm from '../storyblok/contact/Form.vue'
 import SortiesHeader from '../storyblok/sorties/Header.vue'
 import SortiesConcept from '../storyblok/sorties/Concept.vue'
 import SortiesListe from '../storyblok/sorties/ListeSorties.vue'
+import SortiesPage from '../storyblok/sorties/Page.vue'
 
 // ==========================================
 // Éléments de la page tarifs
@@ -53,55 +63,52 @@ import TarifsPlanning from '../storyblok/tarifs/Planning.vue'
 import TarifsHeader from '../storyblok/tarifs/Header.vue'
 
 
-// ==========================================
-// Éléments de Layout
-// ==========================================
-// import Header from '../storyblok/layout/Header.vue'
-// import Footer from '../storyblok/layout/Footer.vue'
-import SiteConfig from '../storyblok/SiteConfig.vue'
-
-
 export default defineNuxtPlugin(({ vueApp }) => {
-  // Enregistrement des éléments de la page d'accueil
+  // Racine
+  vueApp.component('page', Page)
+  vueApp.component('post', Post)
+  vueApp.component('site-config', SiteConfig)
+
+  // Page d'accueil
   vueApp.component('home-hero', HomeHero)
   vueApp.component('home-actualites', HomeActualites)
   vueApp.component('home-prochains-evenements', HomeEvenements)
   vueApp.component('home-cta-rejoindre', HomeCtaRejoindre)
 
+  // Actualités
+  vueApp.component('actualites-page', ActualitesPage)
+  vueApp.component('actualites-header', ActualitesHeader)
 
-  vueApp.component('actualites_header', ActualitesHeader)
+  // Club
+  vueApp.component('club-hero', ClubHero)
+  vueApp.component('club-histoire', ClubHistoire)
+  vueApp.component('club-equipe', ClubEquipe)
+  vueApp.component('club-statistiques', ClubStatistiques)
+  vueApp.component('club-galerie', ClubGalerie)
+  vueApp.component('club-partenaires', ClubPartenaires)
 
-  vueApp.component('club_hero', ClubHero)
-  vueApp.component('club_histoire', ClubHistoire)
-  vueApp.component('club_equipe', ClubEquipe)
-  vueApp.component('club_statistiques', ClubStatistiques)
-  vueApp.component('club_galerie', ClubGalerie)
-  vueApp.component('club_partenaires', ClubPartenaires)
+  // Contact
+  vueApp.component('contact-header', ContactHeader)
+  vueApp.component('contact-infos', ContactInfos)
+  vueApp.component('contact-form', ContactForm)
 
-  vueApp.component('contact_header', ContactHeader)
-  vueApp.component('contact_infos', ContactInfos)
-  vueApp.component('contact_form', ContactForm)
+  // Sorties
+  vueApp.component('sorties-page', SortiesPage)
+  vueApp.component('sorties-header', SortiesHeader)
+  vueApp.component('sorties-concept', SortiesConcept)
+  vueApp.component('sorties-liste', SortiesListe)
 
-  vueApp.component('sorties_header', SortiesHeader)
-  vueApp.component('sorties_concept', SortiesConcept)
-  vueApp.component('sorties_liste', SortiesListe)
-
-  vueApp.component('tarifs_page', TarifsPage)
+  // Tarifs
+  vueApp.component('tarifs-page', TarifsPage)
   vueApp.component('tarifs-planning', TarifsPlanning)
-  vueApp.component('tarifs_hero ', TarifsHeader)
+  vueApp.component('tarifs-hero', TarifsHeader)
 
-  // Enregistrement des éléments de l'UI général
-  // Le premier argument ('nom-du-blok') DOIT correspondre EXACTEMENT 
-  // au 'Technical name' que tu as défini dans Storyblok !
+  // UI général
   vueApp.component('accordions', Accordions)
-  vueApp.component('call_to_action', CallToAction)
-  vueApp.component('centered_image', CenteredImage)
-  vueApp.component('tabs_section', TabsSection)
-  vueApp.component('text_with_image', TextWithImage)
-  vueApp.component('text_with_title', TextWithTitle)
-
-  // Enregistrement des éléments de layout
-  // vueApp.component('global_header', Header)
-  // vueApp.component('global_footer', Footer)
-  vueApp.component('site_config', SiteConfig)
+  vueApp.component('call-to-action', CallToAction)
+  vueApp.component('centered-image', CenteredImage)
+  vueApp.component('tabs-section', TabsSection)
+  vueApp.component('text-with-image', TextWithImage)
+  vueApp.component('text-with-title', TextWithTitle)
+  vueApp.component('galerie', Galerie)
 })
