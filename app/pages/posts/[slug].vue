@@ -104,7 +104,6 @@ useHead({
 
 <template>
   <div class="min-h-screen bg-gray-50">
-	{{console.log()}}
     <!-- Hero avec image -->
     <div class="relative h-[60vh] overflow-hidden">
       <img

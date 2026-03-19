@@ -62,6 +62,14 @@ import SortiesPage from '../storyblok/sorties/Page.vue'
 import TarifsPage from '../storyblok/tarifs/TarifsPage.vue'
 import TarifsPlanning from '../storyblok/tarifs/Planning.vue'
 import TarifsHeader from '../storyblok/tarifs/Header.vue'
+import TarifsBonASavoir from '../storyblok/tarifs/BonASavoir.vue'
+import TarifsGrilleTarifs from '../storyblok/tarifs/GrilleTarifs.vue'
+
+// ==========================================
+// UI complémentaires
+// ==========================================
+import UiBouton from '../storyblok/ui/Bouton.vue'
+import UiCarrousel from '../storyblok/ui/Carrousel.vue'
 
 
 export default defineNuxtPlugin(({ vueApp }) => {
@@ -104,8 +112,12 @@ export default defineNuxtPlugin(({ vueApp }) => {
   vueApp.component('tarifs-page', TarifsPage)
   vueApp.component('tarifs-planning', TarifsPlanning)
   vueApp.component('tarifs-hero', TarifsHeader)
+  vueApp.component('tarifs-bon-a-savoir', TarifsBonASavoir)
+  vueApp.component('tarifs-grille-tarifs', TarifsGrilleTarifs)
 
   // UI général
+  vueApp.component('bouton', UiBouton)
+  vueApp.component('carrousel', UiCarrousel)
   vueApp.component('accordions', Accordions)
   vueApp.component('call-to-action', CallToAction)
   vueApp.component('centered-image', CenteredImage)
