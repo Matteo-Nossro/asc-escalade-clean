@@ -43,6 +43,7 @@ import ClubPartenaires from '../storyblok/club/Partenaires.vue'
 // ==========================================
 // Éléments de la page contact
 // ==========================================
+import ContactPage from '../storyblok/contact/ContactPage.vue'
 import ContactHeader from '../storyblok/contact/Header.vue'
 import ContactInfos from '../storyblok/contact/Infos.vue'
 import ContactForm from '../storyblok/contact/Form.vue'
@@ -88,6 +89,7 @@ export default defineNuxtPlugin(({ vueApp }) => {
   vueApp.component('club-partenaires', ClubPartenaires)
 
   // Contact
+  vueApp.component('contact-page', ContactPage)
   vueApp.component('contact-header', ContactHeader)
   vueApp.component('contact-infos', ContactInfos)
   vueApp.component('contact-form', ContactForm)

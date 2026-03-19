@@ -27,9 +27,10 @@
           </div>
 
           <!-- Carte Événement -->
-          <div
+          <NuxtLink
             v-for="event in selectedDateEvents"
             :key="event.id"
+            :to="`/posts/${event.slug}`"
             class="group bg-white border border-gray-100 rounded-xl p-5 flex items-center gap-6 shadow-md hover:shadow-xl hover:border-[#7FD857]/30 hover:-translate-y-1 transition-all duration-300 cursor-pointer"
           >
             <!-- Date Box -->
@@ -62,7 +63,7 @@
             <div class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 group-hover:bg-[#7FD857] transition-colors shrink-0">
               <UIcon name="i-heroicons-arrow-right" class="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
             </div>
-          </div>
+          </NuxtLink>
 
         </div>
 
@@ -118,36 +119,35 @@
   </section>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { today, getLocalTimeZone } from '@internationalized/date'
 
 defineProps({ blok: Object })
 
 const date = ref(today(getLocalTimeZone()))
 
-// ✅ Données dynamiques via composable (remplace le tableau hardcodé)
 const { getEvents } = useEvents()
-const events = await getEvents()
+const { data: eventsData } = await useAsyncData('home-events', () => getEvents())
 
-const hasEventOnDate = (dateItem: any) => {
+const toDateStr = (d) =>
+  `${d.year}-${String(d.month).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`
+
+const hasEventOnDate = (dateItem) => {
   if (!dateItem) return false
-  const d = new Date(dateItem)
-  const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-  return events.some((e: any) => e.date === dateStr)
+  return (eventsData.value ?? []).some((e) => e.date === toDateStr(dateItem))
 }
 
 const selectedDateEvents = computed(() => {
   if (!date.value) return []
-  const selectedDateStr = date.value.toString()
-  return events.filter((e: any) => e.date === selectedDateStr)
+  return (eventsData.value ?? []).filter((e) => e.date === toDateStr(date.value))
 })
 
-const getMonthShort = (dateString: string) => {
+const getMonthShort = (dateString) => {
   if (!dateString) return ''
   return new Date(dateString).toLocaleString('fr-FR', { month: 'short' }).replace('.', '')
 }
 
-const getCategoryColor = (category: string) => {
+const getCategoryColor = (category) => {
   switch (category) {
     case 'Vie du club': return 'primary'
     case 'Sortie': return 'warning'

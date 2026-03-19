@@ -41,7 +41,8 @@ export const usePosts = () => {
       currentParticipants: story.content.currentParticipants,
       price: story.content.price,
       difficulty: story.content.difficulty,
-      featured: story.content.featured ?? false
+      featured: story.content.featured ?? false,
+      eventDate: story.content.eventDate
     }))
   }
 
@@ -71,7 +72,8 @@ export const usePosts = () => {
         currentParticipants: story.content.currentParticipants,
         price: story.content.price,
         difficulty: story.content.difficulty,
-        featured: story.content.featured ?? false
+        featured: story.content.featured ?? false,
+        eventDate: story.content.eventDate
       }
     } catch {
       return null
