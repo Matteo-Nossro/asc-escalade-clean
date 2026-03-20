@@ -1,25 +1,14 @@
 <template>
-	<UApp>
-<!--		<UHeader>-->
-			<LayoutHeader/>
-<!--		</UHeader>-->
-
-		<UMain>
-			<NuxtPage/>
-		</UMain>
-
-<!--		<UFooter>-->
-			<LayoutFooter/>
-
-<!--		</UFooter>-->
-
-	</UApp>
+  <UApp>
+    <LayoutHeader />
+    <UMain>
+      <NuxtPage />
+    </UMain>
+    <LayoutFooter />
+  </UApp>
 </template>
 
 <script setup>
-
 const colorMode = useColorMode()
-
-// Forcer le mode light
 colorMode.preference = 'light'
 </script>
