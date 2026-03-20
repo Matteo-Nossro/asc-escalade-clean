@@ -19,4 +19,5 @@ export interface Post {
     price?: number  // Pour les sorties
     difficulty?: 'Débutant' | 'Intermédiaire' | 'Confirmé' | 'Expert'  // Pour les sorties
     featured?: boolean
+    eventDate?: string      // Date de l'événement (YYYY-MM-DD), si défini = affiché dans le calendrier
 }
