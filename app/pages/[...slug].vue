@@ -13,10 +13,12 @@ const story = await useAsyncStoryblok(
 
 <template>
   <div>
+    <!-- Debug temporaire -->
+    <pre style="background:yellow;padding:10px;">
+      story: {{ !!story }}
+      component: {{ story?.content?.component }}
+    </pre>
+
     <StoryblokComponent v-if="story" :blok="story.content" />
-    <div v-else>
-      <!-- debug temporaire : à supprimer après -->
-      <p>Story non trouvée - slug: {{ $route.params.slug }}</p>
-    </div>
   </div>
 </template>
