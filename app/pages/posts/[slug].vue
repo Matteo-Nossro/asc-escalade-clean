@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { renderRichText } from '@storyblok/nuxt'
 import type { Post } from '~/types/post'
 import Tag from '~/components/ui/Tag.vue'
 
