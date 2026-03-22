@@ -9,7 +9,7 @@
         </template>
         <template v-else>
           <div class="header__logo-icon">
-            <UIcon name="i-heroicons-mountain-solid" class="text-white text-2xl" />
+            <UIcon name="i-heroicons-arrow-trending-up" class="text-white text-2xl" />
           </div>
           <div class="header__logo-text">
             <span class="header__logo-vertical">{{ config?.logo_text_top || 'ASC' }}</span>
