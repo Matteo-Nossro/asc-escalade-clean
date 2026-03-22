@@ -1,17 +1,22 @@
 <script setup>
-const slug = useRoute().params.slug;
+const route = useRoute()
+const slug = route.params.slug
 
-const { story } = await useAsyncStoryblok(
-	slug && slug.length > 0 ? slug.join('/') : 'accueil',
-	{
-		api: {
-			version: 'draft',
-		},
-		bridge: {},
-	},
-);
+const runtimeConfig = useRuntimeConfig()
+const version = runtimeConfig.public.storyblokVersion || 'published'
+
+const story = await useAsyncStoryblok(
+  slug && slug.length > 0 ? slug.join('/') : 'accueil',
+  { version },
+)
 </script>
 
 <template>
-	<StoryblokComponent v-if="story" :blok="story.content" />
+  <div>
+    <StoryblokComponent v-if="story" :blok="story.content" />
+    <div v-else>
+      <!-- debug temporaire : à supprimer après -->
+      <p>Story non trouvée - slug: {{ $route.params.slug }}</p>
+    </div>
+  </div>
 </template>
