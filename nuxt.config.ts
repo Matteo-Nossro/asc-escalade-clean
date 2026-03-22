@@ -2,6 +2,8 @@
 
 import mkcert from "vite-plugin-mkcert";
 
+const isDev = process.env.NODE_ENV === 'development'
+
 export default defineNuxtConfig({
   modules: ['@nuxt/ui','@storyblok/nuxt','@nuxt/image'],
 
@@ -14,9 +16,6 @@ export default defineNuxtConfig({
       apiOptions: {
         region: process.env.STORYBLOK_REGION || "eu",
         version: (process.env.STORYBLOK_VERSION as 'draft' | 'published') || 'published',
-        endpoint: process.env.STORYBLOK_API_BASE_URL
-          ? `${new URL(process.env.STORYBLOK_API_BASE_URL).origin}/v2`
-          : undefined,
       },
     },
 
@@ -41,14 +40,15 @@ export default defineNuxtConfig({
   routeRules: {},
 
     devServer: {
-    https: true,
+    https: isDev,
   },
   runtimeConfig: {
     public: {
       storyblokVersion: process.env.STORYBLOK_VERSION || 'published'
     }
   },
+
   vite: {
-    plugins: [mkcert()],
+    plugins: isDev ? [mkcert()] : [],
   },
 })
