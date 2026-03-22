@@ -38,6 +38,8 @@ export default defineNuxtConfig({
 
   ssr:true,
   
+  routeRules: {},
+
     devServer: {
     https: true,
   },
