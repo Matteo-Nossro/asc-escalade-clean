@@ -14,9 +14,7 @@ export default defineNuxtConfig({
       apiOptions: {
         region: process.env.STORYBLOK_REGION || "eu",
         version: (process.env.STORYBLOK_VERSION as 'draft' | 'published') || 'published',
-        endpoint: process.env.STORYBLOK_API_BASE_URL
-          ? `${new URL(process.env.STORYBLOK_API_BASE_URL).origin}/v2`
-          : undefined,
+        endpoint: process.env.STORYBLOK_API_BASE_URL || undefined,
       },
     },
 
