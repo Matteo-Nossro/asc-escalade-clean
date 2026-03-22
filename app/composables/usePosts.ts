@@ -6,7 +6,7 @@ export const usePosts = () => {
 
   const getPosts = async (type?: 'sortie' | 'actualite'): Promise<Post[]> => {
     const params: Record<string, any> = {
-      version: 'draft',
+      version: (useRuntimeConfig().public.storyblokVersion as 'draft' | 'published') || 'published',
       starts_with: 'posts/',
       sort_by: 'content.date:desc',
       per_page: 100
@@ -49,7 +49,7 @@ export const usePosts = () => {
   const getPostBySlug = async (slug: string): Promise<Post | null> => {
     try {
       const { data } = await storyblokApi.get(`cdn/stories/posts/${slug}`, {
-        version: 'draft'
+        version: (useRuntimeConfig().public.storyblokVersion as 'draft' | 'published') || 'published',
       })
       const story = data.story
       return {

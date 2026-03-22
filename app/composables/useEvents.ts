@@ -4,7 +4,7 @@ export const useEvents = () => {
 
   const getEvents = async () => {
     const { data } = await storyblokApi.get('cdn/stories', {
-      version: 'draft',
+      version: (useRuntimeConfig().public.storyblokVersion as 'draft' | 'published') || 'published',
       starts_with: 'posts/',
       per_page: 100
     })

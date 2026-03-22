@@ -4,7 +4,7 @@ export const useSiteConfig = async () => {
   const { data } = await useAsyncData('site-config', async () => {
     try {
       const response = await storyblokApi.get('cdn/stories/global/site-config', {
-        version: 'draft'
+        version: (useRuntimeConfig().public.storyblokVersion as 'draft' | 'published') || 'published',
       })
       return response.data.story?.content || null
     } catch (e) {
