@@ -1,0 +1,31 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  STORYBLOK_VERSION = "published"
+  STORYBLOK_REGION = "eu"
+
+# Headers pour le cache Nuxt
+[[headers]]
+  for = "/_nuxt/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/_nuxt/builds/*"
+  [headers.values]
+    Cache-Control = "public, max-age=1, immutable"
+
+# Pas de cache sur les pages HTML → contenu Storyblok toujours frais
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Redirections si besoin
+# [[redirects]]
+#   from = "/ancien-chemin"
+#   to = "/nouveau-chemin"
+#   status = 301

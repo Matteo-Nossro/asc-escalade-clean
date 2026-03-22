@@ -11,7 +11,7 @@
             </template>
             <template v-else>
               <div class="w-10 h-10 bg-[#7FD857] rounded-lg flex items-center justify-center">
-                <UIcon name="i-heroicons-mountain-solid" class="text-white text-2xl" />
+                <UIcon name="i-heroicons-arrow-trending-up" class="text-white text-2xl" />
               </div>
               <div class="flex flex-col leading-none">
                 <span class="font-bold text-lg tracking-wide text-white">{{ config?.logo_text_top || 'ASC' }}</span>
