@@ -19,6 +19,7 @@ const user = useSupabaseUser()
 const { fetchProfile } = useAuth()
 
 watch(user, async (newUser) => {
+  console.log('User changed:', newUser)
   if (newUser) {
     await fetchProfile()
   }
