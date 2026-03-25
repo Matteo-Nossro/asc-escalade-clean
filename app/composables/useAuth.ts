@@ -6,6 +6,8 @@ export const useAuth = () => {
   const supabase = useSupabaseClient()
   const user = useSupabaseUser()
 
+  // L'id peut être dans .id (client) ou .sub (SSR/JWT)
+const getUserId = () => user.value?.id ?? (user.value as any)?.sub
   const profile = ref<Profile | null>(null)
   const roles = ref<RoleCode[]>([])
   const loading = ref(false)
@@ -25,18 +27,20 @@ export const useAuth = () => {
   })
 
   async function fetchProfile() {
-    if (!user.value?.id) {
+    const uid = getUserId()
+    if (!uid) {
       profile.value = null
       roles.value = []
       return
     }
+
     loading.value = true
     error.value = null
     try {
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user.value.id)
+        .eq('id', uid)          
         .single()
       if (profileError) throw profileError
       profile.value = profileData as Profile
@@ -44,7 +48,8 @@ export const useAuth = () => {
       const { data: rolesData, error: rolesError } = await supabase
         .from('user_roles')
         .select('role_code')
-        .eq('user_id', user.value.id)
+        .eq('user_id', uid)     
+        .single()
       if (rolesError) throw rolesError
       roles.value = (rolesData as UserRole[]).map((r) => r.role_code)
     } catch (e: any) {
@@ -57,6 +62,7 @@ export const useAuth = () => {
   }
 
   async function updateProfile(updates: Partial<Profile>) {
+    const uid = getUserId()
     if (!user.value) throw new Error('Non authentifié')
     loading.value = true
     error.value = null
@@ -65,7 +71,7 @@ export const useAuth = () => {
       const { data, error: updateError } = await supabase
         .from('profiles')
         .update(safeUpdates)
-        .eq('id', user.value.id)
+        .eq('id', uid)
         .select()
         .single()
       if (updateError) throw updateError
