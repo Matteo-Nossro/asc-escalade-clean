@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@nuxt/ui": "^4.3.0",
+    "@nuxtjs/supabase": "^2.0.4",
     "@storyblok/nuxt": "^10.0.0",
     "embla-carousel-vue": "^8.6.0",
     "gsap": "^3.14.2",
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "@nuxt/image": "^2.0.0",
+    "@types/node": "^25.5.0",
     "sass-embedded": "^1.97.2",
     "vite-plugin-mkcert": "^1.17.10"
   }

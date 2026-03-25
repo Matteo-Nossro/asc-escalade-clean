@@ -3,10 +3,21 @@
 import mkcert from "vite-plugin-mkcert";
 
 export default defineNuxtConfig({
-  modules: ['@nuxt/ui','@storyblok/nuxt','@nuxt/image'],
+  modules: ['@nuxt/ui', '@storyblok/nuxt', '@nuxt/image', '@nuxtjs/supabase'],
 
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
+
+  supabase: {
+    url: process.env.SUPABASE_URL,
+    key: process.env.SUPABASE_KEY,
+    redirect: false,
+    cookieOptions: {
+      maxAge: 60 * 60 * 8,
+      sameSite: 'lax',
+      secure: true,
+    },
+  },
 
   storyblok: {
       bridge: true,
