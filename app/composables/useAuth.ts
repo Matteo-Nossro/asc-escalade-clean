@@ -25,7 +25,7 @@ export const useAuth = () => {
   })
 
   async function fetchProfile() {
-    if (!user.value) {
+    if (!user.value?.id) {
       profile.value = null
       roles.value = []
       return

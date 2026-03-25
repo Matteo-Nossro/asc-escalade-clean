@@ -111,47 +111,6 @@
 
 				</form>
 
-				<!-- Divider -->
-				<div class="relative my-8">
-					<div class="absolute inset-0 flex items-center">
-						<div class="w-full border-t border-gray-200"></div>
-					</div>
-					<div class="relative flex justify-center text-sm">
-						<span class="px-4 bg-white text-gray-500">Ou continuer avec</span>
-					</div>
-				</div>
-
-				<!-- Social Login (optionnel) -->
-				<div class="grid grid-cols-2 gap-3">
-					<UButton
-							color="white"
-							variant="solid"
-							size="lg"
-							@click="loginWithGoogle"
-							:disabled="loading"
-							class="border-2 border-gray-200 hover:border-gray-300"
-					>
-						<template #leading>
-							<UIcon name="i-lucide-chrome" class="w-5 h-5 text-red-500" />
-						</template>
-						Google
-					</UButton>
-
-					<UButton
-							color="white"
-							variant="solid"
-							size="lg"
-							@click="loginWithMicrosoft"
-							:disabled="loading"
-							class="border-2 border-gray-200 hover:border-gray-300"
-					>
-						<template #leading>
-							<UIcon name="i-lucide-microsoft" class="w-5 h-5 text-blue-600" />
-						</template>
-						Microsoft
-					</UButton>
-				</div>
-
 				<!-- Lien inscription -->
 				<div class="mt-6 text-center">
 					<p class="text-sm text-gray-600">
@@ -180,85 +139,75 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-// Meta pour la page
 definePageMeta({
-	layout: false,  // Pas de layout pour la page de login
-	// middleware: 'guest'  // Redirige si déjà connecté
+  layout: false,
+  middleware: 'guest'
 })
 
-// Réactivité
+const { loginWithEmail, loginWithOAuth } = useAuth()
+const route = useRoute()
+
 const credentials = ref({
-	email: '',
-	password: ''
+  email: '',
+  password: ''
 })
-
 const showPassword = ref(false)
 const rememberMe = ref(false)
 const loading = ref(false)
 const error = ref('')
 
-// Fonction de connexion principale
 const handleLogin = async () => {
-	try {
-		loading.value = true
-		error.value = ''
+  try {
+    loading.value = true
+    error.value = ''
 
-		// Validation basique
-		if (!credentials.value.email || !credentials.value.password) {
-			error.value = 'Veuillez remplir tous les champs'
-			return
-		}
+    if (!credentials.value.email || !credentials.value.password) {
+      error.value = 'Veuillez remplir tous les champs'
+      return
+    }
 
-		// TODO: Intégrer Auth0 ici
-		// const { login } = useAuth0()
-		// await login(credentials.value.email, credentials.value.password)
+    await loginWithEmail(credentials.value.email, credentials.value.password)
 
-		// Pour le moment, simulation
-		await new Promise(resolve => setTimeout(resolve, 1500))
+    const redirect = (route.query.redirect as string) || '/admin/dashboard'
+    await navigateTo(redirect)
 
-		// Redirection après connexion réussie
-		await navigateTo('/admin/dashboard')
-
-	} catch (err: any) {
-		error.value = err.message || 'Une erreur est survenue lors de la connexion'
-	} finally {
-		loading.value = false
-	}
+  } catch (err: any) {
+    const msg = err.message || ''
+    if (msg.includes('Invalid login credentials')) {
+      error.value = 'Email ou mot de passe incorrect'
+    } else if (msg.includes('Email not confirmed')) {
+      error.value = 'Veuillez confirmer votre adresse email'
+    } else if (msg.includes('Too many requests')) {
+      error.value = 'Trop de tentatives, veuillez patienter'
+    } else {
+      error.value = 'Une erreur est survenue lors de la connexion'
+    }
+  } finally {
+    loading.value = false
+  }
 }
 
-// Connexion avec Google
 const loginWithGoogle = async () => {
-	try {
-		loading.value = true
-		error.value = ''
-
-		// TODO: Intégrer Auth0 Social Login
-		// const { loginWithRedirect } = useAuth0()
-		// await loginWithRedirect({ connection: 'google-oauth2' })
-
-		console.log('Login with Google')
-	} catch (err: any) {
-		error.value = err.message || 'Erreur lors de la connexion avec Google'
-	} finally {
-		loading.value = false
-	}
+  try {
+    loading.value = true
+    error.value = ''
+    await loginWithOAuth('google')
+  } catch (err: any) {
+    error.value = err.message || 'Erreur lors de la connexion avec Google'
+  } finally {
+    loading.value = false
+  }
 }
 
-// Connexion avec Microsoft
 const loginWithMicrosoft = async () => {
-	try {
-		loading.value = true
-		error.value = ''
-
-		// TODO: Intégrer Auth0 Social Login
-		// const { loginWithRedirect } = useAuth0()
-		// await loginWithRedirect({ connection: 'windowslive' })
-
-		console.log('Login with Microsoft')
-	} catch (err: any) {
-		error.value = err.message || 'Erreur lors de la connexion avec Microsoft'
-	} finally {
-		loading.value = false
-	}
+  try {
+    loading.value = true
+    error.value = ''
+    await loginWithOAuth('azure')
+  } catch (err: any) {
+    error.value = err.message || 'Erreur lors de la connexion avec Microsoft'
+  } finally {
+    loading.value = false
+  }
 }
 </script>
