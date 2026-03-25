@@ -1,0 +1,80 @@
+// app/types/auth.ts
+
+export interface Profile {
+  id: string
+  email: string
+  full_name: string
+  licence_number: number | null
+  first_name: string | null
+  last_name: string | null
+  birth_date: string | null
+  gender: string | null
+  address: string | null
+  postal_code: string | null
+  city: string | null
+  phone: string | null
+  mobile: string | null
+  licence_type: string | null
+  passport: string | null
+  notes: string | null
+  club_group: string | null
+  avatar_url: string | null
+  emergency_contact: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type RoleCode = 'parent' | 'admin' | 'secretary'
+
+export interface UserRole {
+  id: string
+  user_id: string
+  role_code: RoleCode
+  assigned_at: string
+}
+
+export interface ParentAccessLink {
+  id: string
+  parent_id: string
+  child_id: string
+  access_type: 'read' | 'register' | 'full'
+  created_at: string
+  child?: Pick<Profile, 'id' | 'full_name' | 'avatar_url' | 'birth_date'>
+}
+
+export interface EventRecord {
+  id: string
+  title: string
+  starts_at: string
+  slug: string | null
+  location: string | null
+  category: string | null
+  difficulty: string | null
+  max_participants: number | null
+  price: number | null
+  description: string | null
+}
+
+export interface Registration {
+  id: string
+  user_id: string
+  event_id: string
+  status: 'pending' | 'confirmed' | 'cancelled'
+  registered_by: string | null
+  notes: string | null
+  registered_at: string
+  event?: Pick<EventRecord, 'title' | 'starts_at' | 'slug'>
+  profile?: Pick<Profile, 'full_name'>
+}
+
+// Format pour le tableau admin du dashboard
+export interface Adherent {
+  id: string
+  name: string
+  licence: string
+  email: string
+  formule: string
+  creneau: string
+  status: 'Actif' | 'Inactif' | 'En attente'
+  _profile?: Profile
+}
