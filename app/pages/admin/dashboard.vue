@@ -82,6 +82,7 @@
 							icon="i-heroicons-arrow-down-tray"
 							label="Exporter"
 							class="hidden sm:flex"
+							@click="exportCSV"
 					/>
 				</div>
 			</div>
@@ -173,12 +174,12 @@
 			<!-- Pagination -->
 			<div class="p-4 border-t border-gray-100 flex justify-between items-center">
 				<p class="text-sm text-gray-500">
-					{{ filteredRows.length }} membre(s) sur {{ rows.length }}
+					{{ filteredRows.length }} membre(s) sur {{ allRows.length }}
 				</p>
 				<UPagination
 						v-model="page"
 						:page-count="pageCount"
-						:total="rows.length"
+						:total="allRows.length"
 				/>
 			</div>
 
@@ -251,6 +252,7 @@
 							@click="saveMember"
 							color="primary"
 							class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546]"
+							:loading="saving"
 					>
 						{{ editMode ? 'Mettre à jour' : 'Enregistrer' }}
 					</UButton>
@@ -260,269 +262,199 @@
 	</div>
 </template>
 <script setup lang="ts">
-import {ref, computed} from 'vue'
-import type {TableColumn} from "#ui/components/Table.vue";
-import type {DropdownMenuItem} from "#ui/components/DropdownMenu.vue";
+import { ref, computed, onMounted } from 'vue'
+import type { TableColumn } from '#ui/components/Table.vue'
+import type { DropdownMenuItem } from '#ui/components/DropdownMenu.vue'
+import type { Profile, Adherent } from '~/types/auth'
 
+const supabase = useSupabaseClient()
+const pending = ref(true)
+const saving = ref(false)
 
-const pending = ref(false)
+// ---- Données ----
+const allRows = ref<Adherent[]>([])
 
-// --- DONNÉES STATS ---
-const stats = computed(() => ({
-	totalMembres: rows.value.length,
-	licencesActives: rows.value.filter(r => r.status === 'Actif').length,
-	placesDispo: 180 - rows.value.length,
-	totalPlaces: 180,
-	inscriptionsAttente: rows.value.filter(r => r.status === 'En attente').length
-}))
-
-interface Adherent {
-	id: number
-	name: string
-	licence: string
-	email: string
-	formule: string
-	creneau: string
-	status: 'Actif' | 'Inactif' | 'En attente'
+function profileToAdherent(p: Profile): Adherent {
+  return {
+    id: p.id,
+    name: p.full_name || `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Sans nom',
+    licence: p.licence_number ? String(p.licence_number) : '-',
+    email: p.email,
+    formule: p.licence_type || '-',
+    creneau: p.club_group || '-',
+    status: 'Actif',
+    _profile: p,
+  }
 }
 
-// --- CONFIG TABLE ---
+async function loadMembers() {
+  pending.value = true
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('full_name', { ascending: true })
+    if (error) throw error
+    allRows.value = (data as Profile[]).map(profileToAdherent)
+  } catch (e: any) {
+    console.error('Erreur chargement membres:', e.message)
+  } finally {
+    pending.value = false
+  }
+}
+
+onMounted(() => loadMembers())
+
+// ---- KPI ----
+const stats = computed(() => ({
+  totalMembres: allRows.value.length,
+  licencesActives: allRows.value.filter(r => r.licence !== '-').length,
+  placesDispo: Math.max(0, 180 - allRows.value.length),
+  totalPlaces: 180,
+  inscriptionsAttente: allRows.value.filter(r => r.status === 'En attente').length,
+}))
+
+// ---- Table ----
 const columns: TableColumn<Adherent>[] = [
-	{
-		accessorKey: 'name',
-		header: 'Nom & Prénom'
-	},
-	{
-		accessorKey: 'licence',
-		header: 'N° Licence FFME'
-	},
-	{
-		accessorKey: 'email',
-		header: 'Email'
-	},
-	{
-		accessorKey: 'formule',
-		header: 'Formule'
-	},
-	{
-		accessorKey: 'creneau',
-		header: 'Créneau'
-	},
-	{
-		accessorKey: 'status',
-		header: 'Statut'
-	},
-	{
-		id: 'actions',
-		header: 'Actions'
-	}
+  { accessorKey: 'name', header: 'Nom & Prénom' },
+  { accessorKey: 'licence', header: 'N° Licence FFME' },
+  { accessorKey: 'email', header: 'Email' },
+  { accessorKey: 'formule', header: 'Formule' },
+  { accessorKey: 'creneau', header: 'Créneau' },
+  { accessorKey: 'status', header: 'Statut' },
+  { id: 'actions', header: 'Actions' },
 ]
 
-// --- DONNÉES MOCK ---
-const rows = ref<Adherent[]>([
-	{
-		id: 1,
-		name: 'Marie Dupont',
-		licence: 'FFM-2024-12345',
-		email: 'marie.dupont@email.com',
-		formule: 'Adulte Autonome',
-		creneau: 'Lundi 20h',
-		status: 'Actif'
-	},
-	{
-		id: 2,
-		name: 'Pierre Martin',
-		licence: 'FFM-2024-12346',
-		email: 'p.martin@email.com',
-		formule: 'Adulte Autonome',
-		creneau: 'Jeudi 20h',
-		status: 'Actif'
-	},
-	{
-		id: 3,
-		name: 'Lucas Bernard',
-		licence: 'FFM-2024-12347',
-		email: 'lucas.b@email.com',
-		formule: 'École Escalade',
-		creneau: 'Mercredi 14h',
-		status: 'Inactif'
-	},
-	{
-		id: 4,
-		name: 'Julie Petit',
-		licence: 'FFM-2024-12350',
-		email: 'julie.petit@email.com',
-		formule: 'École Escalade',
-		creneau: 'Samedi 10h',
-		status: 'En attente'
-	},
-	{
-		id: 5,
-		name: 'Antoine Roux',
-		licence: 'FFM-2024-12351',
-		email: 'a.roux@email.com',
-		formule: 'Licence Sèche',
-		creneau: '-',
-		status: 'Actif'
-	},
-	{
-		id: 6,
-		name: 'Emma Girard',
-		licence: 'FFM-2024-12352',
-		email: 'emma.g@email.com',
-		formule: 'École Escalade',
-		creneau: 'Mercredi 14h',
-		status: 'Actif'
-	},
-	{
-		id: 7,
-		name: 'Thomas Moreau',
-		licence: 'FFM-2024-12353',
-		email: 't.moreau@email.com',
-		formule: 'Adulte Autonome',
-		creneau: 'Mardi 18h30',
-		status: 'Actif'
-	},
-	{
-		id: 8,
-		name: 'Sophie Laurent',
-		licence: 'FFM-2024-12354',
-		email: 'sophie.l@email.com',
-		formule: 'Adulte Autonome',
-		creneau: 'Vendredi 19h',
-		status: 'En attente'
-	}
-])
-// --- LOGIQUE FILTRE & PAGINATION ---
+// ---- Filtre & Pagination ----
 const search = ref('')
 const page = ref(1)
 const pageCount = 5
 
 const filteredRows = computed(() => {
-	let data = rows.value
-
-	if (search.value) {
-		data = data.filter(row => {
-			return Object.values(row).some(value => {
-				return String(value).toLowerCase().includes(search.value.toLowerCase())
-			})
-		})
-	}
-
-	// Pagination
-	const start = (page.value - 1) * pageCount
-	const end = start + pageCount
-	return data.slice(start, end)
+  let data = allRows.value
+  if (search.value) {
+    const q = search.value.toLowerCase()
+    data = data.filter(row =>
+      Object.values(row).some(v => String(v).toLowerCase().includes(q))
+    )
+  }
+  const start = (page.value - 1) * pageCount
+  return data.slice(start, start + pageCount)
 })
 
-
-const getStatusColor = (status) => {
-	switch (status) {
-		case 'Actif':
-			return 'success'
-		case 'Inactif':
-			return 'error'
-		case 'En attente':
-			return 'warning'
-		default:
-			return 'neutral'
-	}
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'Actif': return 'success'
+    case 'Inactif': return 'error'
+    case 'En attente': return 'warning'
+    default: return 'neutral'
+  }
 }
 
-// --- LOGIQUE ACTIONS CRUD ---
-// --- MODAL & FORM ---
+// ---- Modal CRUD ----
 const isModalOpen = ref(false)
 const editMode = ref(false)
 const form = ref<Adherent>({
-	id: 0,
-	name: '',
-	licence: '',
-	email: '',
-	formule: 'Adulte Autonome',
-	creneau: '',
-	status: 'Actif'
+  id: '', name: '', licence: '', email: '',
+  formule: 'Adulte Autonome', creneau: '', status: 'Actif',
 })
-
-// --- ACTIONS DROPDOWN ---
-function getDropdownActions(adherent: Adherent): DropdownMenuItem[][] {
-	return [
-		[
-			{
-				label: 'Modifier',
-				icon: 'i-lucide-edit',
-				onSelect: () => openModal(adherent)
-			},
-			{
-				label: 'Voir détails',
-				icon: 'i-lucide-eye',
-				onSelect: () => openModal(adherent)
-			}
-		],
-		[
-			{
-				label: adherent.status === 'Actif' ? 'Désactiver' : 'Activer',
-				icon: adherent.status === 'Actif' ? 'i-lucide-user-x' : 'i-lucide-user-check',
-				onSelect: () => toggleStatus(adherent)
-			}
-		],
-		[
-			{
-				label: 'Supprimer',
-				icon: 'i-lucide-trash',
-				color: 'error',
-				onSelect: () => deleteMember(adherent.id)
-			}
-		]
-	]
-}
-
-// --- CRUD FUNCTIONS ---
-const openModal = (member: Adherent | null = null) => {
-	if (member) {
-		editMode.value = true
-		form.value = { ...member }
-	} else {
-		editMode.value = false
-		form.value = {
-			id: 0,
-			name: '',
-			licence: '',
-			email: '',
-			formule: 'Adulte Autonome',
-			creneau: '',
-			status: 'Actif'
-		}
-	}
-	isModalOpen.value = true
-}
-
-const saveMember = () => {
-	if (editMode.value) {
-		const index = rows.value.findIndex(r => r.id === form.value.id)
-		if (index !== -1) {
-			rows.value[index] = { ...form.value }
-		}
-	} else {
-		rows.value.push({ ...form.value, id: Date.now() })
-	}
-	isModalOpen.value = false  // ✅ Ferme la modal
-}
-
 const modalTitle = computed(() =>
-		editMode.value ? 'Modifier un adhérent' : 'Ajouter un adhérent'
+  editMode.value ? 'Modifier un adhérent' : 'Ajouter un adhérent'
 )
 
+const openModal = (member: Adherent | null = null) => {
+  if (member) {
+    editMode.value = true
+    form.value = { ...member }
+  } else {
+    editMode.value = false
+    form.value = {
+      id: '', name: '', licence: '', email: '',
+      formule: 'Adulte Autonome', creneau: '', status: 'Actif',
+    }
+  }
+  isModalOpen.value = true
+}
 
-const deleteMember = (id: number) => {
-	if (confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) {
-		rows.value = rows.value.filter(r => r.id !== id)
-	}
+const saveMember = async () => {
+  saving.value = true
+  try {
+    if (editMode.value && form.value.id) {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: form.value.name,
+          email: form.value.email,
+          licence_number: form.value.licence && form.value.licence !== '-'
+            ? parseInt(form.value.licence) : null,
+          licence_type: form.value.formule,
+          club_group: form.value.creneau !== '-' ? form.value.creneau : null,
+        })
+        .eq('id', form.value.id)
+      if (error) throw error
+    }
+    isModalOpen.value = false
+    await loadMembers()
+  } catch (e: any) {
+    console.error('Erreur sauvegarde:', e.message)
+  } finally {
+    saving.value = false
+  }
+}
+
+const deleteMember = async (id: string) => {
+  if (!confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) return
+  try {
+    const { error } = await supabase.from('profiles').delete().eq('id', id)
+    if (error) throw error
+    await loadMembers()
+  } catch (e: any) {
+    console.error('Erreur suppression:', e.message)
+  }
 }
 
 const toggleStatus = (adherent: Adherent) => {
-	const index = rows.value.findIndex(r => r.id === adherent.id)
-	if (index !== -1) {
-		rows.value[index].status = adherent.status === 'Actif' ? 'Inactif' : 'Actif'
-	}
+  const index = allRows.value.findIndex(r => r.id === adherent.id)
+  if (index !== -1) {
+    allRows.value[index].status = adherent.status === 'Actif' ? 'Inactif' : 'Actif'
+  }
+}
+
+function getDropdownActions(adherent: Adherent): DropdownMenuItem[][] {
+  return [
+    [
+      { label: 'Modifier', icon: 'i-lucide-edit', onSelect: () => openModal(adherent) },
+      { label: 'Voir détails', icon: 'i-lucide-eye', onSelect: () => openModal(adherent) },
+    ],
+    [
+      {
+        label: adherent.status === 'Actif' ? 'Désactiver' : 'Activer',
+        icon: adherent.status === 'Actif' ? 'i-lucide-user-x' : 'i-lucide-user-check',
+        onSelect: () => toggleStatus(adherent),
+      },
+    ],
+    [
+      {
+        label: 'Supprimer', icon: 'i-lucide-trash',
+        color: 'error' as const,
+        onSelect: () => deleteMember(adherent.id),
+      },
+    ],
+  ]
+}
+
+const exportCSV = () => {
+  const headers = ['Nom', 'Licence', 'Email', 'Formule', 'Créneau', 'Statut']
+  const csvRows = [
+    headers.join(';'),
+    ...allRows.value.map(r =>
+      [r.name, r.licence, r.email, r.formule, r.creneau, r.status].join(';')
+    ),
+  ]
+  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = `membres-asc-${new Date().toISOString().split('T')[0]}.csv`
+  link.click()
 }
 </script>
