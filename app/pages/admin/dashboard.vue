@@ -1,5 +1,17 @@
 <template>
-	<div class="min-h-screen bg-gray-50 p-4 md:p-8 page-content">
+ <div v-if="!authReady" class="min-h-screen flex items-center justify-center bg-gray-50">
+    <div class="flex flex-col items-center gap-6">
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-[#7FD857] rounded-2xl shadow-lg">
+        <UIcon name="i-lucide-mountain" class="w-8 h-8 text-[#0F1729]" />
+      </div>
+      <div class="w-8 h-8 border-3 border-gray-200 border-t-[#7FD857] rounded-full animate-spin" />
+      <p class="text-gray-500 text-sm font-medium">Chargement de l'espace admin…</p>
+    </div>
+  </div>
+
+	<div v-else  class="min-h-screen bg-gray-50 p-4 md:p-8 page-content">
+
+		
 
 		<!-- TITRE & HEADER -->
 		<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -267,6 +279,9 @@ import type { TableColumn } from '#ui/components/Table.vue'
 import type { DropdownMenuItem } from '#ui/components/DropdownMenu.vue'
 import type { Profile, Adherent } from '~/types/auth'
 
+const user = useSupabaseUser()
+const route = useRoute()
+
 const supabase = useSupabaseClient()
 const pending = ref(true)
 const saving = ref(false)
@@ -303,7 +318,32 @@ async function loadMembers() {
   }
 }
 
-onMounted(() => loadMembers())
+const authReady = ref(false)
+
+// Remplace le onMounted existant par celui-ci
+onMounted(async () => {
+  const uid = user.value?.id ?? (user.value as any)?.sub
+
+  if (!uid) {
+    await navigateTo('/login', { query: { redirect: useRoute().fullPath } })
+    return
+  }
+
+  const { data, error } = await supabase
+    .from('user_roles')
+    .select('role_code')
+    .eq('user_id', uid)
+    .in('role_code', ['admin', 'secretary'])
+    .limit(1)
+
+  if (error || !data || data.length === 0) {
+    await navigateTo('/')
+    return
+  }
+
+  authReady.value = true
+  await loadMembers()
+})
 
 // ---- KPI ----
 const stats = computed(() => ({
