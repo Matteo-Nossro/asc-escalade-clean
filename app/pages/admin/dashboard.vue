@@ -292,8 +292,9 @@ const allRows = ref<Adherent[]>([])
 function profileToAdherent(p: Profile): Adherent {
   return {
     id: p.id,
-    name: p.full_name || `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Sans nom',
-    licence: p.licence_number ? String(p.licence_number) : '-',
+ 	name: p.first_name && p.last_name
+      ? `${p.first_name} ${p.last_name}`
+      : p.full_name || 'Sans nom',    licence: p.licence_number ? String(p.licence_number) : '-',
     email: p.email,
     formule: p.licence_type || '-',
     creneau: p.club_group || '-',
