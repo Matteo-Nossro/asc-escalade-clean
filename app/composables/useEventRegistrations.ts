@@ -1,4 +1,3 @@
-// app/composables/useEventRegistrations.ts
 import { ref } from 'vue'
 import type { Registration } from '~/types/auth'
 
@@ -7,6 +6,8 @@ export const useEventRegistrations = () => {
   const user = useSupabaseUser()
   const registrations = ref<Registration[]>([])
   const loading = ref(false)
+
+  const getUserId = () => user.value?.id ?? (user.value as any)?.sub
 
   async function fetchByEvent(eventId: string) {
     loading.value = true
@@ -35,15 +36,16 @@ export const useEventRegistrations = () => {
   }
 
   async function register(params: { eventId: string; userId?: string; notes?: string }) {
-    if (!user.value) throw new Error('Non authentifié')
-    const targetUserId = params.userId || user.value.id
-    const isForChild = targetUserId !== user.value.id
+    const uid = getUserId()
+    if (!uid) throw new Error('Non authentifie')
+    const targetUserId = params.userId || uid
+    const isForChild = targetUserId !== uid
     const { error } = await supabase
       .from('registrations')
       .insert({
         user_id: targetUserId,
         event_id: params.eventId,
-        registered_by: isForChild ? user.value.id : null,
+        registered_by: isForChild ? uid : null,
         notes: params.notes || null,
         status: 'pending',
       })
@@ -70,25 +72,27 @@ export const useEventRegistrations = () => {
   }
 
   async function isRegistered(eventId: string, userId?: string): Promise<boolean> {
-    if (!user.value) return false
+    const uid = getUserId()
+    if (!uid) return false
     const { data } = await supabase
       .from('registrations')
       .select('id')
       .eq('event_id', eventId)
-      .eq('user_id', userId || user.value.id)
+      .eq('user_id', userId || uid)
       .neq('status', 'cancelled')
       .maybeSingle()
     return !!data
   }
 
   async function fetchMine() {
-    if (!user.value) return
+    const uid = getUserId()
+    if (!uid) return
     loading.value = true
     try {
       const { data, error } = await supabase
         .from('registrations')
         .select('*, event:events!event_id(title, starts_at, slug)')
-        .or(`user_id.eq.${user.value.id},registered_by.eq.${user.value.id}`)
+        .or(`user_id.eq.${uid},registered_by.eq.${uid}`)
         .neq('status', 'cancelled')
         .order('registered_at', { ascending: false })
       if (error) throw error

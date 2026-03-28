@@ -370,6 +370,7 @@ import type { Profile, RoleCode, ParentAccessLink } from '~/types/auth'
 
 definePageMeta({
   layout: false,
+  ssr: false,
 })
 
 const supabase = useSupabaseClient()
