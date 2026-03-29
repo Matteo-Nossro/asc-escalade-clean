@@ -316,7 +316,7 @@
 						<UFormField label="Statut" required>
 							<USelect
 									v-model="form.status"
-									:options="['Actif', 'Inactif', 'En attente']"
+									:items="['Actif', 'Inactif', 'En attente']"
 							/>
 						</UFormField>
 					</div>
@@ -334,13 +334,13 @@
 						<UFormField label="Formule" required>
 							<USelect
 									v-model="form.formule"
-									:options="['Licence Sèche', 'Adulte Autonome', 'École Escalade']"
+									:items="['Licence Sèche', 'Adulte Autonome', 'École Escalade']"
 							/>
 						</UFormField>
 						<UFormField label="Créneau">
 							<USelect
 									v-model="form.creneau"
-									:options="['-', 'Lundi 20h', 'Mardi 18h30', 'Mercredi 14h', 'Jeudi 20h', 'Vendredi 19h', 'Samedi 10h']"
+									:items="['-', 'Lundi 20h', 'Mardi 18h30', 'Mercredi 14h', 'Jeudi 20h', 'Vendredi 19h', 'Samedi 10h']"
 							/>
 						</UFormField>
 					</div>
