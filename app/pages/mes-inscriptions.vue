@@ -51,6 +51,13 @@
                     {{ enrollment.group.level }}
                   </UBadge>
                   <UBadge
+                    :color="enrollment.status === 'confirmed' ? 'success' : 'warning'"
+                    variant="soft"
+                    size="xs"
+                  >
+                    {{ enrollment.status === 'confirmed' ? 'Confirmé' : 'En attente de validation' }}
+                  </UBadge>
+                  <UBadge
                     v-if="enrollment.user_id !== ownUid"
                     color="warning"
                     variant="soft"

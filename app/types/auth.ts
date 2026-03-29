@@ -121,6 +121,9 @@ export interface GroupMember {
   user_id: string
   enrolled_by: string | null
   enrolled_at: string
+  status: 'pending' | 'confirmed' | 'cancelled'    // ← AJOUTER
+  admin_note: string | null                          // ← AJOUTER
+  reviewed_at: string | null                         // ← AJOUTER
   group?: Pick<Group, 'id' | 'name' | 'level'>
   profile?: Pick<Profile, 'id' | 'full_name'>
 }

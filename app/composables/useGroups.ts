@@ -58,6 +58,7 @@ export const useGroups = () => {
           .from('group_members')
           .select('*', { count: 'exact', head: true })
           .eq('group_id', g.id)
+          .eq('status', 'confirmed')
         g._members_count = count ?? 0
       }
 
@@ -83,6 +84,7 @@ export const useGroups = () => {
           profile:profiles!user_id(id, full_name)
         `)
         .or(`user_id.eq.${uid},enrolled_by.eq.${uid}`)
+        .neq('status', 'cancelled')                        
         .order('enrolled_at', { ascending: false })
 
       if (error) throw error
