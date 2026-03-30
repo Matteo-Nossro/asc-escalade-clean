@@ -18,7 +18,7 @@
           <UFormField label="Niveau">
             <USelect
               v-model="groupForm.level"
-              :items="['Débutant', 'Intermédiaire', 'Confirmé', 'Tous niveaux']"
+              :items="['Débutant', 'Intermédiaire', 'Confirmé', 'Compétition', 'Tous niveaux']"
               placeholder="Sélectionner un niveau…"
               class="w-full"
             />
