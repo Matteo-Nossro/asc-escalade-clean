@@ -94,7 +94,13 @@ const filledPartners = computed(() => {
 ```
 
 ### 7. Conflits de noms de composants
-Nuxt auto-importe tous les composants dans `app/storyblok/`. Plusieurs fichiers `Header.vue` dans des sous-dossiers différents génèrent un conflit WARN. Ce conflit n'affecte pas les composants enregistrés manuellement dans le plugin (ils ont des technical names différents), mais crée du bruit dans les logs.
+Nuxt auto-importe tous les composants dans `app/storyblok/`. Plusieurs fichiers `Header.vue` dans des sous-dossiers différents génèrent un conflit WARN. Ce conflit n'affecte pas les composants enregistrés manuellement dans le plugin, mais crée du bruit dans les logs.
+
+### 8. userId Supabase côté SSR
+L'id utilisateur peut être dans `.id` (client) ou `.sub` (SSR/JWT). Toujours utiliser :
+```ts
+const uid = user.value?.id ?? (user.value as any)?.sub
+```
 
 ---
 
@@ -122,7 +128,11 @@ const colors: Record<string, string> = {
 }
 ```
 
+---
+
 ## Composables disponibles
+
+### Storyblok / CMS
 
 | Composable | Usage |
 |---|---|
@@ -130,6 +140,36 @@ const colors: Record<string, string> = {
 | `usePosts()` | `.getPosts(type?)`, `.getPostBySlug(slug)` |
 | `useEvents()` | `.getEvents()` → posts avec eventDate |
 | `useBreakpoints()` | `isMobile`, `isTablet`, `isDesktop`, `breakpoint` |
+
+### Supabase / Auth & métier
+
+| Composable | Usage |
+|---|---|
+| `useAuth()` | `profile`, `roles`, `isAdmin`, `isStaff`, `isParent`, `fetchProfile()`, `updateProfile()`, `loginWithEmail()`, `loginWithOAuth()`, `signUp()`, `logout()`, `hasRole()` |
+| `useFamily()` | `children`, `fetchChildren()`, `linkChild()`, `updateAccess()`, `unlinkChild()` — liens parent → enfants |
+| `useGroups()` | `groups`, `myEnrollments`, `fetchGroups()`, `fetchMyEnrollments()`, `enroll()`, `unenroll()`, `isEnrolled()`, `formatSchedule()` + CRUD admin |
+| `useEventRegistrations()` | `registrations`, `fetchByEvent()`, `fetchMine()`, `register()`, `cancel()`, `confirm()`, `isRegistered()`, `countByEvent()` |
+| `useEnrollmentRequests()` | `pendingRequests`, `fetchPendingRequests()`, `approveRequest()`, `rejectRequest()` — workflow admin |
+
+---
+
+## Composants admin (`components/admin/`)
+
+Le dashboard admin est découpé en composants autonomes. Tous les composants passent par des props + emit, pas d'état partagé global.
+
+| Composant | Props principales | Emits |
+|---|---|---|
+| `AdminKpiCard` | `label`, `value`, `subValue?`, `icon`, `iconBg`, `iconColor` | — |
+| `AdminKpiCards` | `stats` (object KPIs) | — |
+| `AdminPendingRequests` | `requests`, `processingRequestId` | `open-review` |
+| `AdminMembersTable` | `rows`, `totalCount`, `pending`, `search`, `roleFilter`, `page`… | `open-modal`, `toggle-status`, `delete`, `export-csv` |
+| `AdminGroupsList` | `groups`, `loading`, `formatSchedule` | `open-modal`, `show-members`, `delete` |
+| `AdminModalsMemberModal` | `open`, `editMode`, `form`, `saving`, options… | `update:open`, `save`, `add-child`, `remove-child`… |
+| `AdminModalsReviewModal` | `open`, `request`, `action`, `note`, `processing`, `emailPreview` | `update:open`, `update:note`, `confirm` |
+| `AdminModalsGroupModal` | `open`, `editingGroup`, `groupForm`, `savingGroup`, options… | `update:open`, `save`, `add-instructor`, `add-schedule`… |
+| `AdminModalsGroupMembersModal` | `open`, `title`, `members`, `loading`, `removingMemberId` | `update:open`, `remove-member` |
+
+---
 
 ## Commandes
 
@@ -143,4 +183,6 @@ Variables d'environnement requises (`.env`) :
 ```
 STORYBLOK_TOKEN=...
 STORYBLOK_REGION=eu
+SUPABASE_URL=...
+SUPABASE_KEY=...
 ```
