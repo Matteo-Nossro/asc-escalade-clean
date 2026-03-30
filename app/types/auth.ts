@@ -79,6 +79,15 @@ export interface Adherent {
   _profile?: Profile
 }
 
+export interface AdherentWithRoles extends Adherent {
+  roles: RoleCode[]
+  first_name: string
+  last_name: string
+  groupId: string
+  groupNames: string[]
+  linkedChildren: { id: string; name: string; linkId: string }[]
+}
+
 
 // ─── Groupes ─────────────────────────────────────────────────────────────────
 
