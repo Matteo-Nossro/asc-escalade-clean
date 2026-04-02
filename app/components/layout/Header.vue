@@ -6,6 +6,10 @@
       <NuxtLink to="/" class="header__logo">
         <template v-if="config?.logo_image?.filename">
           <img :src="config.logo_image.filename" :alt="config.logo_text_top || 'Logo'" class="h-11 w-auto object-contain" />
+          <div class="header__logo-text">
+            <span class="header__logo-vertical">{{ config?.logo_text_top || 'ASC' }}</span>
+            <span class="header__logo-pulse">{{ config?.logo_text_bottom || 'ESCALADE' }}</span>
+          </div>
         </template>
         <template v-else>
           <div class="header__logo-icon">
@@ -103,6 +107,10 @@
               <div class="flex items-center gap-3">
                 <template v-if="config?.logo_image?.filename">
                   <img :src="config.logo_image.filename" class="h-8 w-auto object-contain" />
+                  <div class="header__logo-text">
+                    <span class="header__logo-vertical">{{ config?.logo_text_top || 'ASC' }}</span>
+                    <span class="header__logo-pulse">{{ config?.logo_text_bottom || 'ESCALADE' }}</span>
+                  </div>
                 </template>
                 <template v-else>
                   <div class="header__logo-text">

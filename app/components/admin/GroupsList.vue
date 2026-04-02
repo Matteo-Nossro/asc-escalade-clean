@@ -16,11 +16,12 @@
       <div class="w-6 h-6 border-2 border-gray-200 border-t-[#7FD857] rounded-full animate-spin" />
     </div>
 
-    <div v-else class="divide-y divide-gray-100">
+    <div v-else class="divide-y divide-gray-100" data-testid="groups-list">
       <div
         v-for="group in groups"
         :key="group.id"
         class="p-5 hover:bg-gray-50/50 transition-colors"
+        :data-testid="`group-row-${group.id}`"
       >
         <div class="flex flex-col sm:flex-row justify-between gap-4">
           <div class="flex-1">
@@ -67,6 +68,7 @@
               color="neutral"
               variant="soft"
               size="sm"
+              :data-testid="`btn-group-members-${group.id}`"
               @click="emit('show-members', group)"
             >
               Membres
@@ -76,6 +78,7 @@
               color="neutral"
               variant="ghost"
               size="sm"
+              :data-testid="`btn-group-edit-${group.id}`"
               @click="emit('open-modal', group)"
             />
             <UButton
@@ -83,6 +86,7 @@
               color="error"
               variant="ghost"
               size="sm"
+              :data-testid="`btn-group-delete-${group.id}`"
               @click="emit('delete', group.id)"
             />
           </div>
@@ -93,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Group, GroupSchedule } from '~/types/auth'
+import type { Group, GroupSchedule } from '../../types/auth'
 
 defineProps<{
   groups: Group[]

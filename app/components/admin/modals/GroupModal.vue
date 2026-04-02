@@ -8,7 +8,7 @@
     <template #body>
       <div class="space-y-4">
         <UFormField label="Nom du groupe" required>
-          <UInput v-model="groupForm.name" placeholder="Ex: Adultes Autonomes" required class="w-full" />
+          <UInput v-model="groupForm.name" placeholder="Ex: Adultes Autonomes" required class="w-full" data-testid="input-group-name" />
         </UFormField>
 
         <div class="grid grid-cols-2 gap-4">
@@ -122,6 +122,7 @@
         <UButton
           class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546]"
           :loading="savingGroup"
+          data-testid="btn-group-submit"
           @click="emit('save')"
         >
           {{ editingGroup ? 'Mettre à jour' : 'Créer' }}

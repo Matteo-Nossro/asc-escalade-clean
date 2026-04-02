@@ -2,6 +2,7 @@
   <div
     v-if="requests.length > 0"
     class="bg-white rounded-xl shadow-sm border border-orange-200 overflow-hidden mb-8"
+    data-testid="section-pending-requests"
   >
     <div class="p-4 border-b border-orange-100 bg-orange-50/50 flex justify-between items-center">
       <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
@@ -60,6 +61,7 @@
               variant="soft"
               size="sm"
               :loading="processingRequestId === request.id"
+              :data-testid="`btn-approve-${request.id}`"
               @click="emit('open-review', request, 'approve')"
             >
               Accepter
@@ -70,6 +72,7 @@
               variant="soft"
               size="sm"
               :loading="processingRequestId === request.id"
+              :data-testid="`btn-reject-${request.id}`"
               @click="emit('open-review', request, 'reject')"
             >
               Refuser

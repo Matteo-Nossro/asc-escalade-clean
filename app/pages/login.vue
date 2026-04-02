@@ -41,6 +41,7 @@
 								required
 								:disabled="loading"
 								class="w-full"
+								data-testid="input-login-email"
 								:ui="{
                 wrapper: 'w-full',
                 base: 'w-full'
@@ -59,6 +60,7 @@
 								required
 								:disabled="loading"
 								class="w-full"
+								data-testid="input-login-password"
 								:ui="{
                 wrapper: 'w-full',
                 base: 'w-full',
@@ -102,6 +104,7 @@
 							:loading="loading"
 							:disabled="loading"
 							class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold shadow-lg hover:shadow-xl transition-all"
+							data-testid="btn-login-submit"
 					>
 						<template #leading>
 							<UIcon name="i-lucide-log-in" class="w-5 h-5" />

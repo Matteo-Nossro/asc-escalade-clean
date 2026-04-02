@@ -20,6 +20,7 @@ export interface Profile {
   club_group: string | null
   avatar_url: string | null
   emergency_contact: string | null
+  status: 'Actif' | 'Inactif' | 'En attente' | null
   created_at: string
   updated_at: string
 }

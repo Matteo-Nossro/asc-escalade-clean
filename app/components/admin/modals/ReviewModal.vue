@@ -63,6 +63,7 @@
         <UButton
           :color="action === 'approve' ? 'success' : 'error'"
           :loading="processing"
+          data-testid="btn-review-confirm"
           @click="emit('confirm')"
         >
           <template #leading>

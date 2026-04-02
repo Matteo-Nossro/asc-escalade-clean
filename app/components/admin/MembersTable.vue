@@ -10,6 +10,7 @@
           icon="i-heroicons-magnifying-glass"
           placeholder="Rechercher un membre..."
           class="w-full sm:w-64"
+          data-testid="input-members-search"
           @update:model-value="emit('update:search', $event)"
         />
         <USelect
@@ -43,7 +44,7 @@
       }"
     >
       <template #name-cell="{ row }">
-        <div class="font-medium text-gray-900">{{ row.original.name }}</div>
+        <div class="font-medium text-gray-900" :data-testid="`member-name-${row.original.id}`">{{ row.original.name }}</div>
       </template>
 
       <template #licence-cell="{ row }">
@@ -105,6 +106,7 @@
               variant="ghost"
               size="sm"
               aria-label="Actions"
+              :data-testid="`member-actions-${row.original.id}`"
             />
           </UDropdownMenu>
         </div>

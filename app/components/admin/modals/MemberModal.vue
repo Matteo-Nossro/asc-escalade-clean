@@ -9,10 +9,10 @@
       <form @submit.prevent="emit('save')" class="space-y-4 w-full">
         <div class="grid grid-cols-2 gap-4">
           <UFormField label="Prénom" required>
-            <UInput v-model="form.first_name" placeholder="Marie" required class="w-full" />
+            <UInput v-model="form.first_name" placeholder="Marie" required class="w-full" data-testid="input-member-firstname" />
           </UFormField>
           <UFormField label="Nom" required>
-            <UInput v-model="form.last_name" placeholder="Dupont" required class="w-full" />
+            <UInput v-model="form.last_name" placeholder="Dupont" required class="w-full" data-testid="input-member-lastname" />
           </UFormField>
         </div>
 
@@ -30,7 +30,7 @@
         </div>
 
         <UFormField label="Email" required>
-          <UInput v-model="form.email" type="email" placeholder="email@exemple.com" required class="w-full" />
+          <UInput v-model="form.email" type="email" placeholder="email@exemple.com" required class="w-full" data-testid="input-member-email" />
         </UFormField>
 
         <div class="grid grid-cols-2 gap-4">
@@ -117,6 +117,7 @@
           color="primary"
           class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546]"
           :loading="saving"
+          data-testid="btn-member-submit"
           @click="emit('save')"
         >
           {{ editMode ? 'Mettre à jour' : 'Enregistrer' }}
