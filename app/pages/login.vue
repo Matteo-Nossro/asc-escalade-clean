@@ -140,14 +140,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 definePageMeta({
   layout: false,
   middleware: 'guest'
 })
 
-const { loginWithEmail, loginWithOAuth } = useAuth()
+const { loginWithEmail, loginWithOAuth, user } = useAuth()
 const route = useRoute()
 
 const credentials = ref({
@@ -172,6 +172,16 @@ const handleLogin = async () => {
     await loginWithEmail(credentials.value.email, credentials.value.password)
 
     const redirect = (route.query.redirect as string) || '/admin/dashboard'
+
+    // Attendre que la session soit propagée dans user avant de naviguer
+    // (sinon auth.global.ts voit encore user = null)
+    if (!user.value) {
+      await new Promise<void>((resolve) => {
+        const stop = watch(user, (val) => { if (val) { stop(); resolve() } })
+        setTimeout(() => { stop(); resolve() }, 2000)
+      })
+    }
+
     await navigateTo(redirect)
 
   } catch (err: any) {
