@@ -49,9 +49,8 @@ const getUserId = () => user.value?.id ?? (user.value as any)?.sub
         .from('user_roles')
         .select('role_code')
         .eq('user_id', uid)     
-        .single()
       if (rolesError) throw rolesError
-      roles.value = (rolesData as UserRole[]).map((r) => r.role_code)
+      roles.value = (rolesData ?? []).map((r: any) => r.role_code as RoleCode)
     } catch (e: any) {
       error.value = e.message
       profile.value = null

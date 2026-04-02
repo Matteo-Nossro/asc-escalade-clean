@@ -7,29 +7,34 @@
     <!-- Image de fond -->
     <div class="absolute inset-0 z-0">
       <!-- Image Storyblok optimisée -->
-      <NuxtImg
+      <img
         v-if="blok.backgroundImage?.filename"
-        provider="storyblok"
-        :src="blok.backgroundImage.filename"
+        :src="`${blok.backgroundImage.filename}/m/1920x1080/filters:quality(70):format(webp)`"
+        :srcset="`
+          ${blok.backgroundImage.filename}/m/640x360/filters:quality(70):format(webp) 640w,
+          ${blok.backgroundImage.filename}/m/1024x576/filters:quality(70):format(webp) 1024w,
+          ${blok.backgroundImage.filename}/m/1920x1080/filters:quality(70):format(webp) 1920w
+        `"
+        sizes="100vw"
         :alt="blok.backgroundImage.alt || 'Hero background'"
-        format="webp"
-        :quality="70"
-        :width="1920"
-        :height="1080"
-        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1920px"
+        fetchpriority="high"
+        loading="eager"
         class="w-full h-full object-cover"
       />
 
-      <!-- Fallback Unsplash optimisé via Nuxt Image (remote) -->
-      <NuxtImg
+      <!-- Fallback si pas d'image Storyblok -->
+      <img
         v-else
-        src="https://images.unsplash.com/photo-1516592673884-4a382d1124c2?q=80&w=2070&auto=format&fit=crop"
+        src="https://images.unsplash.com/photo-1516592673884-4a382d1124c2?q=70&w=1920&auto=format&fit=crop&fm=webp"
+        srcset="
+          https://images.unsplash.com/photo-1516592673884-4a382d1124c2?q=70&w=640&auto=format&fit=crop&fm=webp 640w,
+          https://images.unsplash.com/photo-1516592673884-4a382d1124c2?q=70&w=1024&auto=format&fit=crop&fm=webp 1024w,
+          https://images.unsplash.com/photo-1516592673884-4a382d1124c2?q=70&w=1920&auto=format&fit=crop&fm=webp 1920w
+        "
+        sizes="100vw"
         alt="Mur d'escalade intérieur"
-        format="webp"
-        :quality="70"
-        :width="1920"
-        :height="1080"
-        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1920px"
+        fetchpriority="high"
+        loading="eager"
         class="w-full h-full object-cover"
       />
 
@@ -125,6 +130,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { gsap } from 'gsap'
 
 defineProps<{ blok: any }>()

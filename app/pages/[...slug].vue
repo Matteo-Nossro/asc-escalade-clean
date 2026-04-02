@@ -14,6 +14,17 @@ const { story } = await useAsyncStoryblok(
     bridge: {},
   },
 )
+
+// Cache tag Netlify pour l'invalidation ISR ciblée
+const resolvedSlug = slug && slug.length > 0 ? slug.join('/') : 'accueil'
+useStoryblokCacheTag(resolvedSlug)
+
+// SEO : lit seo_title / seo_description / seo_og_image depuis le blok Storyblok
+// Ces champs sont à ajouter sur chaque content-type de page dans Storyblok.
+// En leur absence, les valeurs par défaut du site sont utilisées.
+if (story.value) {
+  useSeo({ blok: story.value.content })
+}
 </script>
 
 <template>

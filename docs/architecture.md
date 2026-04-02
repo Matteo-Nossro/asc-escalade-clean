@@ -8,9 +8,19 @@
 | `/club`, `/tarifs`, etc. | `pages/[...slug].vue` | Pages Storyblok |
 | `/posts/:slug` | `pages/posts/[slug].vue` | Article/sortie individuel |
 | `/login`, `/callback` | pages dédiées | Auth |
-| `/admin/dashboard` | page dédiée | Admin |
+| `/profil` | `pages/profil.vue` | Profil utilisateur + enfants (famille) |
+| `/mes-inscriptions` | `pages/mes-inscriptions.vue` | Inscriptions groupes & événements |
+| `/admin/dashboard` | `pages/admin/dashboard.vue` | Admin (admin/secrétaire uniquement) |
 
 Le catch-all `[...slug].vue` résout le slug Storyblok et délègue le rendu à `StoryblokComponent`.
+
+### Middleware
+
+`middleware/auth.global.ts` s'exécute côté client sur chaque navigation :
+- Redirige vers `/login` si la route commence par `/admin`, `/profil` ou `/mes-inscriptions` et que l'utilisateur n'est pas connecté.
+- Redirige vers `/` si la route commence par `/admin` et que l'utilisateur n'a pas le rôle `admin` ou `secretary`.
+
+---
 
 ## Flux de données Storyblok
 
@@ -41,29 +51,92 @@ useEvents()
                          eventDate : "YYYY-MM-DD HH:MM" → split(' ')[0] → "YYYY-MM-DD"
 ```
 
+---
+
+## Supabase — Auth & données métier
+
+### Tables
+
+| Table | Usage |
+|---|---|
+| `profiles` | Profil étendu (nom, prénom, licence FFME, type, coordonnées…) |
+| `user_roles` | Rôles par utilisateur (`admin`, `secretary`, `parent`) |
+| `parent_access` | Lien parent → enfant (access_type : `read`, `register`, `full`) |
+| `groups` | Groupes d'escalade (nom, max_members, level, referent_id…) |
+| `group_schedules` | Créneaux horaires par groupe (day_of_week, start_time, end_time) |
+| `group_instructors` | Initiateurs par groupe |
+| `group_members` | Inscriptions aux groupes (status : `pending`, `confirmed`, `cancelled`) |
+| `events` | Événements (title, starts_at, slug…) |
+| `registrations` | Inscriptions aux événements (status : `pending`, `confirmed`, `cancelled`) |
+| `notification_logs` | File d'emails à envoyer (SMTP non encore branché) |
+
+### Workflow d'inscription (groupes & events)
+
+Une inscription créée par un membre passe en `status: 'pending'`. L'admin la voit dans la section "Demandes d'inscription" du dashboard et peut l'accepter (`confirmed`) ou la refuser (`cancelled`). À chaque action, un log est inséré dans `notification_logs`.
+
+Un parent peut inscrire un enfant : `enrolled_by` / `registered_by` contient alors l'id du parent.
+
+### Rôles
+
+| Code | Accès |
+|---|---|
+| `admin` | Accès total dashboard |
+| `secretary` | Accès total dashboard |
+| `parent` | `/profil` + `/mes-inscriptions`, peut inscrire ses enfants |
+
+---
+
 ## Structure des dossiers clés
 
 ```
 app/
-├── app.vue                  # UApp + LayoutHeader + NuxtPage + LayoutFooter
-├── plugins/storyblok.ts     # Enregistrement de tous les composants Storyblok
+├── app.vue                      # UApp + LayoutHeader + NuxtPage + LayoutFooter
+├── plugins/storyblok.ts         # Enregistrement de tous les composants Storyblok
+├── middleware/
+│   └── auth.global.ts           # Guard auth + guard admin
 ├── composables/
-│   ├── useSiteConfig.ts     # Config globale (logo, nav, footer)
-│   ├── usePosts.ts          # Articles + sorties
-│   ├── useEvents.ts         # Posts avec eventDate (calendrier)
-│   └── useBreakpoints.ts    # Responsive (windowWidth, isMobile, isTablet…)
-├── components/layout/
-│   ├── Header.vue           # Nav responsive, données depuis useSiteConfig()
-│   └── Footer.vue           # Footer 5 colonnes, données depuis useSiteConfig()
-├── components/ui/Tag.vue    # Badge coloré réutilisable
-├── storyblok/               # Composants Storyblok (voir storyblok.md)
+│   ├── useSiteConfig.ts         # Config globale (logo, nav, footer)
+│   ├── usePosts.ts              # Articles + sorties
+│   ├── useEvents.ts             # Posts avec eventDate (calendrier)
+│   ├── useBreakpoints.ts        # Responsive (windowWidth, isMobile, isTablet…)
+│   ├── useAuth.ts               # Auth Supabase, profil, rôles
+│   ├── useFamily.ts             # Liens parent → enfants (parent_access)
+│   ├── useGroups.ts             # Groupes, inscriptions, CRUD admin
+│   ├── useEventRegistrations.ts # Inscriptions aux événements
+│   └── useEnrollmentRequests.ts # Workflow approbation admin (groupes + events)
+├── components/
+│   ├── layout/
+│   │   ├── Header.vue           # Nav responsive
+│   │   └── Footer.vue           # Footer 5 colonnes
+│   ├── ui/Tag.vue               # Badge coloré réutilisable
+│   └── admin/
+│       ├── KpiCard.vue          # Carte statistique individuelle (label, value, icon)
+│       ├── KpiCards.vue         # Grille de 4 KpiCards
+│       ├── PendingRequests.vue  # Section demandes en attente
+│       ├── MembersTable.vue     # Tableau membres + filtre/pagination
+│       ├── GroupsList.vue       # Liste des groupes avec créneaux
+│       └── modals/
+│           ├── MemberModal.vue       # Ajout/édition d'un adhérent
+│           ├── ReviewModal.vue       # Validation/refus demande d'inscription
+│           ├── GroupModal.vue        # Création/édition d'un groupe
+│           └── GroupMembersModal.vue # Liste des membres d'un groupe
 ├── pages/
-│   ├── [...slug].vue        # Catch-all CMS
-│   └── posts/[slug].vue     # Détail post (image hero, sidebar, related)
-└── types/post.ts            # Interface Post TypeScript
+│   ├── [...slug].vue            # Catch-all CMS
+│   ├── posts/[slug].vue         # Détail post
+│   ├── login.vue                # Connexion (email + OAuth)
+│   ├── callback.vue             # Callback OAuth
+│   ├── profil.vue               # Profil utilisateur + gestion enfants
+│   ├── mes-inscriptions.vue     # Inscriptions groupes & événements
+│   └── admin/dashboard.vue      # Dashboard admin
+├── types/
+│   ├── post.ts                  # Interface Post (Storyblok)
+│   └── auth.ts                  # Interfaces Supabase (Profile, Group, GroupMember…)
+└── storyblok/                   # Composants Storyblok (voir storyblok.md)
 ```
 
-## Interface Post
+---
+
+## Interface Post (Storyblok)
 
 ```typescript
 interface Post {
@@ -77,6 +150,21 @@ interface Post {
   featured?, eventDate?   // eventDate → affiché dans le calendrier homepage
 }
 ```
+
+## Types Supabase principaux (`types/auth.ts`)
+
+```typescript
+Profile          // Profil étendu (licence, coordonnées, avatar…)
+RoleCode         // 'parent' | 'admin' | 'secretary'
+AdherentWithRoles // Adherent + roles[], groupNames[], linkedChildren[]
+Group            // Groupe + schedules?, instructors?, referent?, _members_count?
+GroupSchedule    // day_of_week, start_time, end_time
+GroupMember      // Inscription groupe + status, admin_note, profile?
+Registration     // Inscription event + status, profile?
+ParentAccessLink // Lien parent-enfant + access_type
+```
+
+---
 
 ## Content types Storyblok (pages)
 

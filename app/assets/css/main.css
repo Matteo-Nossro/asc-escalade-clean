@@ -33,7 +33,7 @@
 }
 /* Espacement pour le header fixe */
 .page-content {
-    padding-top: 80px; /* Hauteur du header (ajuster selon votre header) */
+    padding-top: 6rem; /* Hauteur du header (ajuster selon votre header) */
 }
 
 /* Pour les pages avec hero plein écran */
@@ -44,6 +44,6 @@
 /* Ajustement responsive */
 @media (max-width: 768px) {
     .page-content {
-        padding-top: 70px;
+        padding-top: 6rem;
     }
 }

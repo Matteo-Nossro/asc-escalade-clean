@@ -117,6 +117,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import Tag from '~/components/ui/Tag.vue'
+import { useSeo } from '../../composables/useSeo'
 
 const props = defineProps({
 	blok: {
@@ -164,13 +165,9 @@ const getCategoryColor = (category: string) => {
 	return colors[category] || '#7FD857'
 }
 
-useHead({
-	title: props.blok.seo_title || 'Actualités - ASC Escalade',
-	meta: [
-		{
-			name: 'description',
-			content: props.blok.seo_description || 'Suivez toute l\'actualité du club l\'ASC Escalade : événements, compétitions, nouveautés et vie du club d\'escalade de Dole.'
-		}
-	]
+useSeo({
+	blok: props.blok,
+	title: props.blok.seo_title || 'Actualités',
+	description: props.blok.seo_description || 'Suivez toute l\'actualité du club l\'ASC Escalade : événements, compétitions, nouveautés et vie du club d\'escalade.',
 })
 </script>
