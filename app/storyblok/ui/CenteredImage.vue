@@ -6,30 +6,13 @@
         :class="imageContainerClass"
         :style="imageContainerStyle"
       >
-
-        <!-- Avec lien -->
-        <NuxtLink
-          v-if="resolvedLink"
-          :to="resolvedLink"
-          :target="blok.link?.target"
-          class="block w-full h-full group"
-        >
+        <!-- Sans lien -->
+        <div class="block w-full h-full group">
           <img
             v-if="blok.image?.filename"
             :src="`${blok.image.filename}/m/${imageDimensions}/filters:quality(75):format(webp)`"
             :alt="blok.image.alt || 'Image mise en avant'"
             :class="['w-full transition-transform duration-500 group-hover:scale-105', imageClass]"
-            loading="lazy"
-          />
-        </NuxtLink>
-
-        <!-- Sans lien -->
-        <div v-else class="w-full h-full">
-          <img
-            v-if="blok.image?.filename"
-            :src="`${blok.image.filename}/m/${imageDimensions}/filters:quality(75):format(webp)`"
-            :alt="blok.image.alt || 'Image mise en avant'"
-            :class="['w-full', imageClass]"
             loading="lazy"
           />
         </div>
@@ -94,20 +77,5 @@ const imageClass = computed(() => {
   }
 })
 
-// Lien résolu
-const resolvedLink = computed(() => {
-  if (!props.blok.link) return null
 
-  if (props.blok.link.linktype === 'story') {
-    return props.blok.link.cached_url?.startsWith('/')
-      ? props.blok.link.cached_url
-      : `/${props.blok.link.cached_url}`
-  }
-
-  if (props.blok.link.linktype === 'url') {
-    return props.blok.link.url
-  }
-
-  return null
-})
 </script>

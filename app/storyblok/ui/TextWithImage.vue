@@ -12,10 +12,10 @@
             <UIcon v-if="blok.icon" :name="blok.icon" class="w-8 h-8 text-[#7FD857]" />
             <h2 class="text-3xl font-bold text-[#0F1729]">{{ blok.title }}</h2>
           </div>
-          <div
+          <StoryblokRichText
+            :doc="blok.content"
             class="space-y-6 text-gray-600 leading-relaxed text-justify prose max-w-none"
-            v-html="renderRichText(blok.content)"
-          ></div>
+          />
         </div>
 
         <!-- Colonne Visuel -->
@@ -27,28 +27,17 @@
           <img
             v-if="blok.image?.filename"
             :src="`${blok.image.filename}/m/${imageDimensions}/filters:quality(75):format(webp)`"
+            :srcset="`
+              ${blok.image.filename}/m/640x0/filters:quality(75):format(webp) 640w,
+              ${blok.image.filename}/m/1024x0/filters:quality(75):format(webp) 1024w,
+              ${blok.image.filename}/m/1200x0/filters:quality(75):format(webp) 1200w
+            `"
+            sizes="(max-width: 1024px) 100vw, 50vw"
             :alt="blok.image.alt || blok.title"
             :class="['transition-transform duration-700 group-hover:scale-105', imageClass]"
             :style="imageStyle"
             loading="lazy"
           />
-
-          <!-- Visuel SVG de secours -->
-          <template v-else>
-            <svg class="absolute bottom-0 w-full text-gray-200 opacity-50 transition-transform duration-700 group-hover:scale-105" viewBox="0 0 1440 320" preserveAspectRatio="none">
-              <path fill="currentColor" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-            </svg>
-            <div class="absolute w-64 h-64 border border-gray-200 rounded-full opacity-50"></div>
-            <div class="absolute w-80 h-80 border border-gray-100 rounded-full opacity-30"></div>
-            <div class="relative z-10 flex flex-col items-center">
-              <div class="w-0 h-0 border-l-[60px] border-l-transparent border-r-[60px] border-r-transparent border-b-[100px] border-b-gray-100 mb-[-60px]"></div>
-              <span class="text-6xl font-extrabold text-[#0F1729]/10 select-none tracking-widest">{{ blok.year || '1998' }}</span>
-              <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-bold text-[#0F1729] bg-white px-4 py-1 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                {{ blok.year_label || 'Création' }}
-              </span>
-            </div>
-          </template>
-
         </div>
       </div>
     </UContainer>
