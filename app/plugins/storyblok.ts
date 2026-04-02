@@ -70,6 +70,7 @@ import TarifsGrilleTarifs from '../storyblok/tarifs/GrilleTarifs.vue'
 // ==========================================
 import UiBouton from '../storyblok/ui/Bouton.vue'
 import UiCarrousel from '../storyblok/ui/Carrousel.vue'
+import ActionBouton from '../storyblok/ui/ActionBouton.vue'
 
 
 export default defineNuxtPlugin(({ vueApp }) => {
@@ -116,6 +117,7 @@ export default defineNuxtPlugin(({ vueApp }) => {
   vueApp.component('tarifs-grille-tarifs', TarifsGrilleTarifs)
 
   // UI général
+  vueApp.component('action-bouton', ActionBouton)
   vueApp.component('bouton', UiBouton)
   vueApp.component('carrousel', UiCarrousel)
   vueApp.component('accordions', Accordions)
