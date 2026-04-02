@@ -281,6 +281,8 @@
 <script setup lang="ts">
 import type { Post } from '~/types/post'
 import Tag from '~/components/ui/Tag.vue'
+import { useSeo } from '../../composables/useSeo'
+import { useStoryblokCacheTag } from '../../composables/useStoryblokCacheTag'
 
 const route = useRoute()
 const slug = route.params.slug as string
@@ -292,6 +294,9 @@ const { data: post } = await useAsyncData(`post-${slug}`, () => getPostBySlug(sl
 if (!post.value) {
   throw createError({ statusCode: 404, statusMessage: 'Article non trouvé' })
 }
+
+// Cache tag Netlify pour l'invalidation ISR ciblée
+useStoryblokCacheTag(`posts/${slug}`)
 
 const p = computed(() => post.value!)
 
@@ -370,14 +375,11 @@ const getDifficultyColor = (difficulty?: string) => {
   return colors[difficulty] || '#6B7280'
 }
 
-useHead({
+useSeo({
   title: p.value.title,
-  meta: [
-    { name: 'description', content: p.value.excerpt },
-    { property: 'og:title', content: p.value.title },
-    { property: 'og:description', content: p.value.excerpt },
-    { property: 'og:image', content: p.value.image },
-  ]
+  description: p.value.excerpt,
+  image: p.value.image,
+  type: 'article',
 })
 </script>
 

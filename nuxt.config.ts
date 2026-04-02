@@ -10,6 +10,26 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
+  app: {
+    head: {
+      htmlAttrs: { lang: 'fr' },
+      charset: 'utf-8',
+      viewport: 'width=device-width, initial-scale=1',
+      title: 'ASC Escalade',
+      meta: [
+        {
+          name: 'description',
+          content: "Club d'escalade de Chevigny-Saint-Sauveur. Séances en salle et en falaise pour tous les niveaux.",
+        },
+        { property: 'og:site_name', content: 'ASC Escalade' },
+        { name: 'twitter:card', content: 'summary_large_image' },
+      ],
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      ],
+    },
+  },
+
   supabase: {
     url: process.env.SUPABASE_URL,
     key: process.env.SUPABASE_KEY,
@@ -46,14 +66,26 @@ export default defineNuxtConfig({
   },
   css: ['~/assets/css/main.css'],
 
-  ssr:true,
-  
-  routeRules: {},
+  ssr: true,
+
+  routeRules: {
+    // Pages de contenu Storyblok — ISR avec revalidation on-demand via Netlify
+    '/': { isr: true },
+    '/club': { isr: true },
+    '/tarifs': { isr: true },
+    '/contact': { isr: true },
+    '/sorties': { isr: true },
+    '/actualites': { isr: true },
+    '/posts/**': { isr: true },
+    // Pages dynamiques (admin, login, profil…) — pas d'ISR
+  },
 
     devServer: {
     https: isDev,
   },
   runtimeConfig: {
+    // Secret partagé avec le webhook Storyblok pour l'invalidation du cache
+    storyblokWebhookSecret: process.env.STORYBLOK_WEBHOOK_SECRET || '',
     public: {
       storyblokVersion: process.env.STORYBLOK_VERSION || 'published'
     }
