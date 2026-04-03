@@ -1,5 +1,6 @@
 <template>
- <div v-if="!authReady" class="min-h-screen flex items-center justify-center bg-gray-50">
+  <!-- Loading auth -->
+  <div v-if="!authReady" class="min-h-screen flex items-center justify-center bg-gray-50">
     <div class="flex flex-col items-center gap-6">
       <div class="inline-flex items-center justify-center w-16 h-16 bg-[#7FD857] rounded-2xl shadow-lg">
         <UIcon name="i-lucide-mountain" class="w-8 h-8 text-[#0F1729]" />
@@ -9,479 +10,248 @@
     </div>
   </div>
 
-	<div v-else  class="min-h-screen bg-gray-50 p-4 md:p-8 page-content">
+  <div v-else class="min-h-screen bg-gray-50 p-4 md:p-8 page-content">
 
-		
-
-		<!-- TITRE & HEADER -->
-		<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-			<div>
-				<h1 class="text-2xl font-bold text-gray-900">Administration</h1>
-				<p class="text-gray-500">Gérez les adhérents et les inscriptions du club.</p>
-			</div>
-			<UButton
-					icon="i-heroicons-user-plus"
-					size="lg"
-					color="primary"
-					class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546] font-bold"
-					@click="openModal()"
-			>
-				Ajouter un adhérent
-			</UButton>
-		</div>
-
-		<!-- 1. KPI CARDS -->
-		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-			<div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between items-start">
-				<div>
-					<p class="text-gray-500 text-sm font-medium">Total membres</p>
-					<h3 class="text-3xl font-bold text-gray-900 mt-2">{{ stats.totalMembres }}</h3>
-				</div>
-				<div class="p-2 bg-green-50 rounded-lg text-green-600">
-					<UIcon name="i-heroicons-users" class="w-6 h-6"/>
-				</div>
-			</div>
-
-			<div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between items-start">
-				<div>
-					<p class="text-gray-500 text-sm font-medium">Licences actives</p>
-					<h3 class="text-3xl font-bold text-gray-900 mt-2">{{ stats.licencesActives }}</h3>
-				</div>
-				<div class="p-2 bg-blue-50 rounded-lg text-blue-600">
-					<UIcon name="i-heroicons-check-badge" class="w-6 h-6"/>
-				</div>
-			</div>
-
-			<div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between items-start">
-				<div>
-					<p class="text-gray-500 text-sm font-medium">Places disponibles</p>
-					<h3 class="text-3xl font-bold text-gray-900 mt-2">{{ stats.placesDispo }}
-						<span class="text-gray-400 text-lg font-normal">/ {{ stats.totalPlaces }}</span>
-					</h3>
-				</div>
-				<div class="p-2 bg-purple-50 rounded-lg text-purple-600">
-					<UIcon name="i-heroicons-ticket" class="w-6 h-6"/>
-				</div>
-			</div>
-
-			<div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between items-start">
-				<div>
-					<p class="text-gray-500 text-sm font-medium">Inscriptions en attente</p>
-					<h3 class="text-3xl font-bold text-gray-900 mt-2">{{ stats.inscriptionsAttente }}</h3>
-				</div>
-				<div class="p-2 bg-yellow-50 rounded-lg text-yellow-600">
-					<UIcon name="i-heroicons-clock" class="w-6 h-6"/>
-				</div>
-			</div>
-		</div>
-
-		<!-- 2. TABLEAU DES MEMBRES -->
-		<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-
-			<!-- Barre d'outils -->
-			<div class="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-4 justify-between items-center">
-				<h2 class="text-lg font-bold text-gray-900">Liste des membres</h2>
-				<div class="flex gap-2 w-full sm:w-auto">
-					<UInput
-							v-model="search"
-							icon="i-heroicons-magnifying-glass"
-							placeholder="Rechercher un membre..."
-							class="w-full sm:w-64"
-					/>
-					<UButton
-							color="white"
-							variant="solid"
-							icon="i-heroicons-arrow-down-tray"
-							label="Exporter"
-							class="hidden sm:flex"
-							@click="exportCSV"
-					/>
-				</div>
-			</div>
-
-			<!-- Table -->
-			<UTable
-					:data="filteredRows"
-					:columns="columns"
-					:loading="pending"
-					class="w-full"
-					:ui="{
-          th: { base: 'uppercase text-xs font-bold text-gray-500 tracking-wider bg-gray-50/50 py-3' },
-          td: { base: 'py-4 text-sm text-gray-700' },
-          wrapper: 'bg-white'
-        }"
-			>
-				<!-- Slot Nom avec Avatar -->
-				<template #name-cell="{ row }">
-					<div class="flex items-center gap-3">
-						<div class="font-medium text-gray-900">{{ row.original.name }}</div>
-					</div>
-				</template>
-
-				<!-- Slot Licence -->
-				<template #licence-cell="{ row }">
-					<span class="font-mono text-xs text-gray-600">{{ row.original.licence }}</span>
-				</template>
-
-				<!-- Slot Formule -->
-				<template #formule-cell="{ row }">
-					<span class="text-sm font-medium text-gray-700">{{ row.original.formule }}</span>
-				</template>
-
-				<!-- Slot Créneau -->
-				<template #creneau-cell="{ row }">
-					<span class="text-sm text-gray-600">{{ row.original.creneau }}</span>
-				</template>
-
-				<!-- Slot Statut avec Tag -->
-				<template #status-cell="{ row }">
-					<UBadge
-							:color="getStatusColor(row.original.status)"
-							size="md"
-							variant="soft"
-							class="font-bold tracking-wide"
-					>
-						{{ row.original.status }}
-					</UBadge>
-				</template>
-
-				<!-- Slot Actions avec Dropdown -->
-				<template #actions-cell="{ row }">
-					<div class="flex items-center gap-2 justify-end">
-						<!-- Option 1: Dropdown Menu (recommandé pour gagner de la place) -->
-						<UDropdownMenu :items="getDropdownActions(row.original)">
-							<UButton
-									icon="i-lucide-ellipsis-vertical"
-									color="neutral"
-									variant="ghost"
-									size="sm"
-									aria-label="Actions"
-							/>
-						</UDropdownMenu>
-
-						<!-- Option 2: Boutons individuels (décommentez si vous préférez) -->
-						<!--
-						<UButton
-							icon="i-lucide-edit"
-							color="neutral"
-							variant="ghost"
-							size="sm"
-							@click="openModal(row.original)"
-							aria-label="Modifier"
-						/>
-						<UButton
-							icon="i-lucide-trash"
-							color="error"
-							variant="ghost"
-							size="sm"
-							@click="deleteMember(row.original.id)"
-							aria-label="Supprimer"
-						/>
-						-->
-					</div>
-				</template>
-
-			</UTable>
-
-			<!-- Pagination -->
-			<div class="p-4 border-t border-gray-100 flex justify-between items-center">
-				<p class="text-sm text-gray-500">
-					{{ filteredRows.length }} membre(s) sur {{ allRows.length }}
-				</p>
-				<UPagination
-						v-model="page"
-						:page-count="pageCount"
-						:total="allRows.length"
-				/>
-			</div>
-
-		</div>
-
-
-		<!-- ═══ SECTION GROUPES (Admin) ═══ -->
-		<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-8">
-		<div class="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-4 justify-between items-center">
-			<h2 class="text-lg font-bold text-gray-900">Groupes & Créneaux</h2>
-			<UButton
-			icon="i-lucide-plus"
-			size="sm"
-			class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546] font-bold"
-			@click="openGroupModal()"
-			>
-			Nouveau groupe
-			</UButton>
-		</div>
-
-		<div v-if="groupsLoading" class="p-8 flex justify-center">
-			<div class="w-6 h-6 border-2 border-gray-200 border-t-[#7FD857] rounded-full animate-spin" />
-		</div>
-
-		<div v-else class="divide-y divide-gray-100">
-			<div
-			v-for="group in adminGroups"
-			:key="group.id"
-			class="p-5 hover:bg-gray-50/50 transition-colors"
-			>
-			<div class="flex flex-col sm:flex-row justify-between gap-4">
-				<div class="flex-1">
-				<div class="flex items-center gap-2 mb-1">
-					<h3 class="font-bold text-gray-900">{{ group.name }}</h3>
-					<UBadge v-if="group.level" color="info" variant="soft" size="xs">
-					{{ group.level }}
-					</UBadge>
-					<UBadge
-					:color="(group._members_count || 0) >= group.max_members ? 'error' : 'success'"
-					variant="soft"
-					size="xs"
-					>
-					{{ group._members_count || 0 }} / {{ group.max_members }}
-					</UBadge>
-				</div>
-
-				<!-- Créneaux -->
-				<div class="flex flex-wrap gap-1 mt-2">
-					<span
-					v-for="sched in group.schedules"
-					:key="sched.id"
-					class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded"
-					>
-					{{ formatScheduleAdmin(sched) }}
-					</span>
-				</div>
-
-				<!-- Référent + Initiateurs -->
-				<div class="flex flex-wrap gap-3 mt-2 text-xs text-gray-500">
-					<span v-if="group.referent">
-					Référent : <strong class="text-gray-700">{{ group.referent.full_name }}</strong>
-					</span>
-					<span v-if="group.instructors?.length">
-					Initiateurs :
-					<strong class="text-gray-700">
-						{{ group.instructors.map(i => i.profile?.full_name).join(', ') }}
-					</strong>
-					</span>
-				</div>
-				</div>
-
-				<div class="flex items-start gap-2">
-				<UButton
-					icon="i-lucide-users"
-					color="neutral"
-					variant="soft"
-					size="sm"
-					@click="showGroupMembersModal(group)"
-				>
-					Membres
-				</UButton>
-				<UButton
-					icon="i-lucide-edit"
-					color="neutral"
-					variant="ghost"
-					size="sm"
-					@click="openGroupModal(group)"
-				/>
-				<UButton
-					icon="i-lucide-trash"
-					color="error"
-					variant="ghost"
-					size="sm"
-					@click="handleDeleteGroup(group.id)"
-				/>
-				</div>
-			</div>
-			</div>
-		</div>
-		</div>
-
-		<!-- 3. MODAL CRUD -->
-		<UModal v-model:open="isModalOpen" :title="modalTitle">
-			<template #body>
-				<form @submit.prevent="saveMember" class="space-y-4">
-					<UFormField label="Nom & Prénom" required>
-						<UInput
-								v-model="form.name"
-								placeholder="Ex: Marie Dupont"
-								required
-						/>
-					</UFormField>
-
-					<div class="grid grid-cols-2 gap-4">
-						<UFormField label="N° Licence FFME" required>
-							<UInput
-									v-model="form.licence"
-									placeholder="Ex: FFM-2024-12345"
-									required
-							/>
-						</UFormField>
-						<UFormField label="Statut" required>
-							<USelect
-									v-model="form.status"
-									:items="['Actif', 'Inactif', 'En attente']"
-							/>
-						</UFormField>
-					</div>
-
-					<UFormField label="Email" required>
-						<UInput
-								v-model="form.email"
-								type="email"
-								placeholder="email@exemple.com"
-								required
-						/>
-					</UFormField>
-
-					<div class="grid grid-cols-2 gap-4">
-						<UFormField label="Formule" required>
-							<USelect
-									v-model="form.formule"
-									:items="['Licence Sèche', 'Adulte Autonome', 'École Escalade']"
-							/>
-						</UFormField>
-						<UFormField label="Créneau">
-							<USelect
-									v-model="form.creneau"
-									:items="['-', 'Lundi 20h', 'Mardi 18h30', 'Mercredi 14h', 'Jeudi 20h', 'Vendredi 19h', 'Samedi 10h']"
-							/>
-						</UFormField>
-					</div>
-				</form>
-			</template>
-
-			<template #footer="{ close }">
-				<div class="flex justify-end gap-3">
-					<UButton
-							color="neutral"
-							variant="soft"
-							@click="close"
-					>
-						Annuler
-					</UButton>
-					<UButton
-							@click="saveMember"
-							color="primary"
-							class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546]"
-							:loading="saving"
-					>
-						{{ editMode ? 'Mettre à jour' : 'Enregistrer' }}
-					</UButton>
-				</div>
-			</template>
-		</UModal>
-		<!-- MODAL GROUPE -->
-<UModal v-model:open="isGroupModalOpen" :title="editingGroup ? 'Modifier le groupe' : 'Nouveau groupe'">
-  <template #body>
-    <div class="space-y-4">
-      <UFormField label="Nom du groupe" required>
-        <UInput v-model="groupForm.name" placeholder="Ex: Adultes Autonomes" required />
-      </UFormField>
-
-      <div class="grid grid-cols-2 gap-4">
-        <UFormField label="Effectif max" required>
-          <UInput v-model.number="groupForm.max_members" type="number" min="1" required />
-        </UFormField>
-        <UFormField label="Niveau">
-          <USelect
-            v-model="groupForm.level"
-            :options="['', 'Débutant', 'Intermédiaire', 'Confirmé', 'Tous niveaux']"
-          />
-        </UFormField>
-      </div>
-
-      <UFormField label="Description">
-        <UInput v-model="groupForm.description" placeholder="Description du groupe" />
-      </UFormField>
-
-      <!-- Créneaux -->
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
       <div>
-        <div class="flex items-center justify-between mb-2">
-          <label class="text-sm font-medium text-gray-700">Créneaux horaires</label>
-          <UButton
-            icon="i-lucide-plus"
-            size="xs"
-            variant="soft"
-            @click="addScheduleRow"
-          >
-            Ajouter
-          </UButton>
-        </div>
-
-        <div class="space-y-2">
-          <div
-            v-for="(sched, index) in groupForm.schedules"
-            :key="index"
-            class="flex items-center gap-2 bg-gray-50 rounded-lg p-2"
-          >
-            <USelect
-              v-model.number="sched.day_of_week"
-              :options="dayOptions"
-              class="w-32"
-              size="sm"
-            />
-            <UInput
-              v-model="sched.start_time"
-              type="time"
-              size="sm"
-              class="w-28"
-            />
-            <span class="text-gray-400 text-sm">→</span>
-            <UInput
-              v-model="sched.end_time"
-              type="time"
-              size="sm"
-              class="w-28"
-            />
-            <UButton
-              icon="i-lucide-x"
-              color="error"
-              variant="ghost"
-              size="xs"
-              @click="groupForm.schedules.splice(index, 1)"
-            />
-          </div>
-
-          <p v-if="groupForm.schedules.length === 0" class="text-sm text-gray-400 text-center py-2">
-            Aucun créneau défini
-          </p>
-        </div>
+        <h1 class="text-2xl font-bold text-gray-900">Administration</h1>
+        <p class="text-gray-500">Gérez les adhérents et les inscriptions du club.</p>
       </div>
-    </div>
-  </template>
-
-  <template #footer="{ close }">
-    <div class="flex justify-end gap-3">
-      <UButton color="neutral" variant="soft" @click="close">
-        Annuler
-      </UButton>
       <UButton
-        class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546]"
-        :loading="savingGroup"
-        @click="saveGroup"
+        icon="i-heroicons-user-plus"
+        size="lg"
+        color="primary"
+        class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546] font-bold"
+        data-testid="btn-add-member"
+        @click="openMemberModal(null)"
       >
-        {{ editingGroup ? 'Mettre à jour' : 'Créer' }}
+        Ajouter un adhérent
       </UButton>
     </div>
-  </template>
-</UModal>
-	</div>
+
+    <!-- KPI -->
+    <AdminKpiCards :stats="stats" />
+
+    <!-- Demandes en attente -->
+    <AdminPendingRequests
+      :requests="pendingRequests"
+      :processing-request-id="processingReviewId"
+      @open-review="openReviewModal"
+    />
+
+    <!-- Table des membres -->
+    <AdminMembersTable
+      :rows="filteredRows"
+      :total-count="filteredTotal"
+      :pending="pending"
+      :search="search"
+      :role-filter="roleFilter"
+      :role-filter-options="roleFilterOptions"
+      :page="page"
+      :page-count="pageCount"
+      @update:search="search = $event; page = 1"
+      @update:role-filter="roleFilter = $event; page = 1"
+      @update:page="page = $event"
+      @open-modal="openMemberModal"
+      @toggle-status="toggleStatus"
+      @delete="deleteMember"
+      @export-csv="exportCSV"
+    />
+
+    <!-- Groupes -->
+    <AdminGroupsList
+      :groups="adminGroups"
+      :loading="groupsLoading"
+      :format-schedule="formatScheduleAdmin"
+      @open-modal="openGroupModal"
+      @show-members="showGroupMembersModal"
+      @delete="handleDeleteGroup"
+    />
+
+    <!-- Modal membre -->
+    <AdminModalsMemberModal
+      :open="isModalOpen"
+      :edit-mode="editMode"
+      :form="memberForm"
+      :saving="saving"
+      :licence-type-options="licenceTypeOptions"
+      :group-select-options="groupSelectOptions"
+      :available-roles="availableRoles"
+      :linkable-children="linkableChildrenOptions"
+      :child-to-link="childToLink"
+      @update:open="isModalOpen = $event"
+      @save="saveMember"
+      @update:child-to-link="childToLink = $event"
+      @add-child="addChildLink"
+      @remove-child="removeChildLink"
+    />
+
+    <!-- Modal groupe -->
+    <AdminModalsGroupModal
+      :open="isGroupModalOpen"
+      :editing-group="editingGroup"
+      :group-form="groupForm"
+      :saving-group="savingGroup"
+      :member-select-options="memberSelectOptions"
+      :available-instructor-options="availableInstructorOptions"
+      :instructor-to-add="instructorToAdd"
+      @update:open="isGroupModalOpen = $event"
+      @save="saveGroup"
+      @update:instructor-to-add="instructorToAdd = $event"
+      @add-instructor="addInstructor"
+      @remove-instructor="removeInstructor"
+      @add-schedule="addScheduleRow"
+      @remove-schedule="groupForm.schedules.splice($event, 1)"
+    />
+
+    <!-- Modal membres d'un groupe -->
+    <AdminModalsGroupMembersModal
+      :open="isGroupMembersModalOpen"
+      :title="groupMembersTitle"
+      :members="groupMembersList"
+      :loading="loadingGroupMembers"
+      :removing-member-id="removingMemberId"
+      @update:open="isGroupMembersModalOpen = $event"
+      @remove-member="removeMemberFromGroup"
+    />
+
+    <!-- Modal validation demande -->
+    <AdminModalsReviewModal
+      :open="isReviewModalOpen"
+      :request="reviewRequest"
+      :action="reviewAction"
+      :note="reviewNote"
+      :processing="!!processingReviewId"
+      :email-preview="emailPreview"
+      @update:open="isReviewModalOpen = $event"
+      @update:note="reviewNote = $event"
+      @confirm="confirmReview"
+    />
+  </div>
 </template>
+
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import type { TableColumn } from '#ui/components/Table.vue'
-import type { DropdownMenuItem } from '#ui/components/DropdownMenu.vue'
-import type { Profile, Adherent } from '~/types/auth'
-import type { Group, GroupSchedule } from '~/types/auth'
-
+import type { AdherentWithRoles, Group, GroupMember } from '~/types/auth'
+import type { EnrollmentRequest } from '~/composables/useEnrollmentRequests'
 
 const user = useSupabaseUser()
-const route = useRoute()
-
 const supabase = useSupabaseClient()
+
+// ── Auth guard ────────────────────────────────────────────────────────────────
+const authReady = ref(false)
+
+onMounted(async () => {
+  const uid = user.value?.id ?? (user.value as any)?.sub
+  if (!uid) {
+    await navigateTo('/login', { query: { redirect: useRoute().fullPath } })
+    return
+  }
+  const { data } = await supabase
+    .from('user_roles')
+    .select('role_code')
+    .eq('user_id', uid)
+    .in('role_code', ['admin', 'secretary'])
+    .limit(1)
+  if (!data || data.length === 0) {
+    await navigateTo('/')
+    return
+  }
+  authReady.value = true
+  await Promise.all([loadMembers(), loadAdminGroups(), fetchPendingRequests()])
+})
+
+// ── Members ───────────────────────────────────────────────────────────────────
+const allRows = ref<AdherentWithRoles[]>([])
 const pending = ref(true)
-const saving = ref(false)
-const savingGroup = ref(false)
 
+function profileToAdherentWithRoles(p: any): AdherentWithRoles {
+  const roles = (p.roles || []).map((r: any) => r.role_code)
+  const confirmedMemberships = (p.memberships || []).filter(
+    (m: any) => m.status === 'confirmed' && m.group,
+  )
+  const groupNames = confirmedMemberships.map((m: any) => m.group.name)
+  const groupId = confirmedMemberships[0]?.group?.id || ''
+  return {
+    id: p.id,
+    name: p.first_name && p.last_name
+      ? `${p.first_name} ${p.last_name}`
+      : p.full_name || 'Sans nom',
+    first_name: p.first_name || '',
+    last_name: p.last_name || '',
+    licence: p.licence_number ? String(p.licence_number) : '-',
+    email: p.email || '',
+    formule: p.licence_type || '-',
+    creneau: groupNames[0] || '-',
+    status: p.status || 'Actif',
+    roles,
+    groupId,
+    groupNames,
+    linkedChildren: [],
+    _profile: p,
+  }
+}
 
+async function loadMembers() {
+  pending.value = true
+  try {
+    const data = await fetch('/api/admin/members').then(r => {
+      if (!r.ok) throw new Error(`Erreur ${r.status}`)
+      return r.json()
+    })
+    allRows.value = (data || []).map(profileToAdherentWithRoles)
+  } catch (e: any) {
+    console.error('Erreur chargement membres:', e.message)
+  } finally {
+    pending.value = false
+  }
+}
 
+// ── KPI ───────────────────────────────────────────────────────────────────────
+const stats = computed(() => ({
+  totalMembres: allRows.value.length,
+  licencesActives: allRows.value.filter(r => r.licence !== '-').length,
+  placesDispo: Math.max(0, 180 - allRows.value.length),
+  totalPlaces: 180,
+  inscriptionsAttente: pendingRequests.value.length,
+}))
+
+// ── Search / Filter / Pagination ──────────────────────────────────────────────
+const search = ref('')
+const roleFilter = ref<string | null>(null)
+const page = ref(1)
+const pageCount = 10
+
+const roleFilterOptions = [
+  { label: 'Tous les rôles', value: null },
+  { label: 'Admin', value: 'admin' },
+  { label: 'Secrétaire', value: 'secretary' },
+  { label: 'Parent', value: 'parent' },
+]
+
+const filteredAndSorted = computed(() => {
+  let data = allRows.value
+  if (search.value) {
+    const q = search.value.toLowerCase()
+    data = data.filter(r =>
+      `${r.name} ${r.email} ${r.licence}`.toLowerCase().includes(q),
+    )
+  }
+  if (roleFilter.value) {
+    data = data.filter(r => r.roles.includes(roleFilter.value as any))
+  }
+  return data
+})
+
+const filteredRows = computed(() => {
+  const start = (page.value - 1) * pageCount
+  return filteredAndSorted.value.slice(start, start + pageCount)
+})
+
+const filteredTotal = computed(() => filteredAndSorted.value.length)
+
+// ── Groups ────────────────────────────────────────────────────────────────────
 const {
   groups: adminGroups,
   loading: groupsLoading,
@@ -491,136 +261,225 @@ const {
   updateGroup,
   deleteGroup,
   replaceSchedules,
+  setInstructors,
   fetchGroupMembers,
 } = useGroups()
+
+// ── Pending Requests ──────────────────────────────────────────────────────────
+const { pendingRequests, fetchPendingRequests, approveRequest, rejectRequest } = useEnrollmentRequests()
+
+// ── Member Modal ──────────────────────────────────────────────────────────────
+const isModalOpen = ref(false)
+const editMode = ref(false)
+const saving = ref(false)
+const childToLink = ref<string | null>(null)
+
+const memberForm = ref({
+  id: '',
+  first_name: '',
+  last_name: '',
+  name: '',
+  licence: '',
+  email: '',
+  formule: 'Adulte Autonome',
+  creneau: '-',
+  status: 'Actif' as 'Actif' | 'Inactif' | 'En attente',
+  roles: [] as string[],
+  groupId: null as string | null,
+  linkedChildren: [] as { id: string; name: string; linkId: string }[],
+})
+
+const licenceTypeOptions = [
+  { label: 'Licence Sèche', value: 'Licence Sèche' },
+  { label: 'Adulte Autonome', value: 'Adulte Autonome' },
+  { label: 'École Escalade', value: 'École Escalade' },
+]
+
+const groupSelectOptions = computed(() => [
+  { label: '— Aucun groupe —', value: null as string | null },
+  ...adminGroups.value.map((g: any) => ({ label: g.name, value: g.id as string | null })),
+])
+
+const availableRoles = [
+  { code: 'admin', label: 'Admin' },
+  { code: 'secretary', label: 'Secrétaire' },
+  { code: 'parent', label: 'Parent' },
+]
+
+const linkableChildrenOptions = computed(() =>
+  allRows.value
+    .filter(r => !memberForm.value.linkedChildren.some(c => c.id === r.id) && r.id !== memberForm.value.id)
+    .map(r => ({ label: r.name, value: r.id })),
+)
+
+function openMemberModal(member: AdherentWithRoles | null = null) {
+  if (member) {
+    editMode.value = true
+    memberForm.value = {
+      id: member.id,
+      first_name: member.first_name,
+      last_name: member.last_name,
+      name: member.name,
+      licence: member.licence,
+      email: member.email,
+      formule: member.formule !== '-' ? member.formule : 'Adulte Autonome',
+      creneau: member.creneau,
+      status: member.status,
+      roles: [...member.roles],
+      groupId: member.groupId || null,
+      linkedChildren: [...member.linkedChildren],
+    }
+  } else {
+    editMode.value = false
+    memberForm.value = {
+      id: '', first_name: '', last_name: '', name: '',
+      licence: '', email: '',
+      formule: 'Adulte Autonome', creneau: '-',
+      status: 'Actif', roles: [], groupId: null, linkedChildren: [],
+    }
+  }
+  childToLink.value = null
+  isModalOpen.value = true
+}
+
+async function saveMember() {
+  saving.value = true
+  try {
+    if (editMode.value && memberForm.value.id) {
+      const uid = memberForm.value.id
+      const fullName = `${memberForm.value.first_name} ${memberForm.value.last_name}`.trim()
+
+      const { error: profileErr } = await supabase.from('profiles').update({
+        first_name: memberForm.value.first_name || null,
+        last_name: memberForm.value.last_name || null,
+        full_name: fullName || null,
+        email: memberForm.value.email,
+        licence_number: memberForm.value.licence && memberForm.value.licence !== '-'
+          ? parseInt(memberForm.value.licence) : null,
+        licence_type: memberForm.value.formule !== '-' ? memberForm.value.formule : null,
+      }).eq('id', uid)
+      if (profileErr) throw profileErr
+
+      await supabase.from('user_roles').delete().eq('user_id', uid)
+      if (memberForm.value.roles.length) {
+        await supabase.from('user_roles').insert(
+          memberForm.value.roles.map(r => ({ user_id: uid, role_code: r })),
+        )
+      }
+
+      if (memberForm.value.groupId) {
+        await supabase.from('group_members').delete().eq('user_id', uid).eq('status', 'confirmed')
+        await supabase.from('group_members').insert({
+          group_id: memberForm.value.groupId,
+          user_id: uid,
+          status: 'confirmed',
+        })
+      }
+    } else {
+      const res = await fetch('/api/admin/create-member', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: memberForm.value.email,
+          first_name: memberForm.value.first_name,
+          last_name: memberForm.value.last_name,
+          licence: memberForm.value.licence || null,
+          formule: memberForm.value.formule || null,
+          roles: memberForm.value.roles,
+          groupId: memberForm.value.groupId || null,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.statusMessage || `Erreur ${res.status}`)
+      }
+    }
+    isModalOpen.value = false
+    await loadMembers()
+  } catch (e: any) {
+    console.error('Erreur sauvegarde membre:', e.message)
+  } finally {
+    saving.value = false
+  }
+}
+
+async function addChildLink() {
+  if (!childToLink.value || !memberForm.value.id) return
+  const child = allRows.value.find(r => r.id === childToLink.value)
+  if (!child) return
+  const { data, error } = await supabase.from('parent_access_links').insert({
+    parent_id: memberForm.value.id,
+    child_id: childToLink.value,
+    access_type: 'full',
+  }).select().single()
+  if (error) { console.error(error.message); return }
+  memberForm.value.linkedChildren.push({ id: child.id, name: child.name, linkId: data.id })
+  childToLink.value = null
+}
+
+async function removeChildLink(childId: string) {
+  const link = memberForm.value.linkedChildren.find(c => c.id === childId)
+  if (!link) return
+  await supabase.from('parent_access_links').delete().eq('id', link.linkId)
+  memberForm.value.linkedChildren = memberForm.value.linkedChildren.filter(c => c.id !== childId)
+}
+
+async function toggleStatus(adherent: AdherentWithRoles) {
+  const newStatus = adherent.status === 'Actif' ? 'Inactif' : 'Actif'
+  const { error } = await supabase.from('profiles').update({ status: newStatus }).eq('id', adherent.id)
+  if (error) { console.error(error.message); return }
+  const idx = allRows.value.findIndex(r => r.id === adherent.id)
+  if (idx !== -1) allRows.value[idx].status = newStatus as any
+}
+
+async function deleteMember(id: string) {
+  if (!confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) return
+  const { error } = await supabase.from('profiles').delete().eq('id', id)
+  if (error) { console.error(error.message); return }
+  await loadMembers()
+}
+
+function exportCSV() {
+  const headers = ['Nom', 'Licence', 'Email', 'Formule', 'Groupe(s)', 'Rôles', 'Statut']
+  const csvRows = [
+    headers.join(';'),
+    ...allRows.value.map(r =>
+      [r.name, r.licence, r.email, r.formule, r.groupNames.join('/'), r.roles.join('/'), r.status].join(';'),
+    ),
+  ]
+  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = `membres-asc-${new Date().toISOString().split('T')[0]}.csv`
+  link.click()
+}
+
+// ── Group Modal ───────────────────────────────────────────────────────────────
+const isGroupModalOpen = ref(false)
+const editingGroup = ref<Group | null>(null)
+const savingGroup = ref(false)
+const instructorToAdd = ref<string | null>(null)
 
 const groupForm = ref({
   name: '',
   max_members: 20,
-  level: '',
+  level: null as string | null,
   description: '',
+  referent_id: null as string | null,
+  instructor_ids: [] as string[],
   schedules: [] as { day_of_week: number; start_time: string; end_time: string }[],
 })
 
-const dayOptions = [
-  { label: 'Lundi', value: 1 },
-  { label: 'Mardi', value: 2 },
-  { label: 'Mercredi', value: 3 },
-  { label: 'Jeudi', value: 4 },
-  { label: 'Vendredi', value: 5 },
-  { label: 'Samedi', value: 6 },
-  { label: 'Dimanche', value: 7 },
-]
+const memberSelectOptions = computed(() => [
+  { label: '— Aucun —', value: null as string | null },
+  ...allRows.value.map(r => ({ label: r.name, value: r.id as string | null })),
+])
 
-
-// ---- Données ----
-const allRows = ref<Adherent[]>([])
-
-function profileToAdherent(p: Profile): Adherent {
-  return {
-    id: p.id,
- 	name: p.first_name && p.last_name
-      ? `${p.first_name} ${p.last_name}`
-      : p.full_name || 'Sans nom',    licence: p.licence_number ? String(p.licence_number) : '-',
-    email: p.email,
-    formule: p.licence_type || '-',
-    creneau: p.club_group || '-',
-    status: 'Actif',
-    _profile: p,
-  }
-}
-
-async function loadMembers() {
-  pending.value = true
-  try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('full_name', { ascending: true })
-    if (error) throw error
-    allRows.value = (data as Profile[]).map(profileToAdherent)
-  } catch (e: any) {
-    console.error('Erreur chargement membres:', e.message)
-  } finally {
-    pending.value = false
-  }
-}
-
-async function saveGroup() {
-  savingGroup.value = true
-  try {
-    if (editingGroup.value) {
-      // Mise à jour du groupe
-      await updateGroup(editingGroup.value.id, {
-        name: groupForm.value.name,
-        max_members: groupForm.value.max_members,
-        level: groupForm.value.level || null,
-        description: groupForm.value.description || null,
-      } as any)
-
-      // Remplacer les créneaux
-      await replaceSchedules(editingGroup.value.id, groupForm.value.schedules)
-    } else {
-      // Création
-      await createGroup(
-        {
-          name: groupForm.value.name,
-          max_members: groupForm.value.max_members,
-          level: groupForm.value.level || null,
-          description: groupForm.value.description || null,
-        } as any,
-        groupForm.value.schedules
-      )
-    }
-
-    isGroupModalOpen.value = false
-    await loadAdminGroups()
-  } catch (e: any) {
-    console.error('Erreur sauvegarde groupe:', e.message)
-  } finally {
-    savingGroup.value = false
-  }
-}
-
-const authReady = ref(false)
-
-// Remplace le onMounted existant par celui-ci
-onMounted(async () => {
-  const uid = user.value?.id ?? (user.value as any)?.sub
-
-  if (!uid) {
-    await navigateTo('/login', { query: { redirect: useRoute().fullPath } })
-    return
-  }
-
-  const { data, error } = await supabase
-    .from('user_roles')
-    .select('role_code')
-    .eq('user_id', uid)
-    .in('role_code', ['admin', 'secretary'])
-    .limit(1)
-
-  if (error || !data || data.length === 0) {
-    await navigateTo('/')
-    return
-  }
-
-  authReady.value = true
-  await loadMembers()
-  await loadAdminGroups()
-})
-
-// Fonctions groupes
-const isGroupModalOpen = ref(false)
-const editingGroup = ref<Group | null>(null)
-
-function addScheduleRow() {
-  groupForm.value.schedules.push({
-    day_of_week: 1,
-    start_time: '18:00',
-    end_time: '20:00',
-  })
-}
+const availableInstructorOptions = computed(() =>
+  allRows.value
+    .filter(r => !groupForm.value.instructor_ids.includes(r.id))
+    .map(r => ({ label: r.name, value: r.id as string | null })),
+)
 
 function openGroupModal(group: Group | null = null) {
   if (group) {
@@ -628,25 +487,78 @@ function openGroupModal(group: Group | null = null) {
     groupForm.value = {
       name: group.name,
       max_members: group.max_members,
-      level: group.level || '',
+      level: group.level || null,
       description: group.description || '',
+      referent_id: group.referent_id || null,
+      instructor_ids: (group.instructors || []).map((i: any) => i.user_id),
       schedules: (group.schedules || []).map(s => ({
         day_of_week: s.day_of_week,
-        start_time: s.start_time.slice(0, 5),   // "20:00:00" → "20:00"
+        start_time: s.start_time.slice(0, 5),
         end_time: s.end_time.slice(0, 5),
       })),
     }
   } else {
     editingGroup.value = null
     groupForm.value = {
-      name: '',
-      max_members: 20,
-      level: '',
-      description: '',
-      schedules: [],
+      name: '', max_members: 20, level: null, description: '',
+      referent_id: null, instructor_ids: [], schedules: [],
     }
   }
+  instructorToAdd.value = null
   isGroupModalOpen.value = true
+}
+
+function addScheduleRow() {
+  groupForm.value.schedules.push({ day_of_week: 1, start_time: '18:00', end_time: '20:00' })
+}
+
+function addInstructor() {
+  if (!instructorToAdd.value) return
+  if (!groupForm.value.instructor_ids.includes(instructorToAdd.value)) {
+    groupForm.value.instructor_ids.push(instructorToAdd.value)
+  }
+  instructorToAdd.value = null
+}
+
+function removeInstructor(uid: string) {
+  groupForm.value.instructor_ids = groupForm.value.instructor_ids.filter(id => id !== uid)
+}
+
+async function saveGroup() {
+  savingGroup.value = true
+  try {
+    if (editingGroup.value) {
+      await updateGroup(editingGroup.value.id, {
+        name: groupForm.value.name,
+        max_members: groupForm.value.max_members,
+        level: groupForm.value.level,
+        description: groupForm.value.description || null,
+        referent_id: groupForm.value.referent_id,
+      } as any)
+      await replaceSchedules(editingGroup.value.id, groupForm.value.schedules)
+      await setInstructors(editingGroup.value.id, groupForm.value.instructor_ids)
+    } else {
+      const newGroup = await createGroup(
+        {
+          name: groupForm.value.name,
+          max_members: groupForm.value.max_members,
+          level: groupForm.value.level,
+          description: groupForm.value.description || null,
+          referent_id: groupForm.value.referent_id,
+        } as any,
+        groupForm.value.schedules,
+      )
+      if (newGroup && groupForm.value.instructor_ids.length) {
+        await setInstructors(newGroup.id, groupForm.value.instructor_ids)
+      }
+    }
+    isGroupModalOpen.value = false
+    await loadAdminGroups()
+  } catch (e: any) {
+    console.error('Erreur sauvegarde groupe:', e.message)
+  } finally {
+    savingGroup.value = false
+  }
 }
 
 async function handleDeleteGroup(groupId: string) {
@@ -659,162 +571,86 @@ async function handleDeleteGroup(groupId: string) {
   }
 }
 
+// ── Group Members Modal ────────────────────────────────────────────────────────
+const isGroupMembersModalOpen = ref(false)
+const groupMembersTitle = ref('')
+const groupMembersList = ref<GroupMember[]>([])
+const loadingGroupMembers = ref(false)
+const removingMemberId = ref<string | null>(null)
+
 async function showGroupMembersModal(group: Group) {
-  const members = await fetchGroupMembers(group.id)
-  const names = members.map(m => m.profile?.full_name || 'Inconnu').join('\n')
-  alert(`Membres de ${group.name} (${members.length}) :\n\n${names}`)
-}
-
-// ---- KPI ----
-const stats = computed(() => ({
-  totalMembres: allRows.value.length,
-  licencesActives: allRows.value.filter(r => r.licence !== '-').length,
-  placesDispo: Math.max(0, 180 - allRows.value.length),
-  totalPlaces: 180,
-  inscriptionsAttente: allRows.value.filter(r => r.status === 'En attente').length,
-}))
-
-// ---- Table ----
-const columns: TableColumn<Adherent>[] = [
-  { accessorKey: 'name', header: 'Nom & Prénom' },
-  { accessorKey: 'licence', header: 'N° Licence FFME' },
-  { accessorKey: 'email', header: 'Email' },
-  { accessorKey: 'formule', header: 'Formule' },
-  { accessorKey: 'creneau', header: 'Créneau' },
-  { accessorKey: 'status', header: 'Statut' },
-  { id: 'actions', header: 'Actions' },
-]
-
-// ---- Filtre & Pagination ----
-const search = ref('')
-const page = ref(1)
-const pageCount = 5
-
-const filteredRows = computed(() => {
-  let data = allRows.value
-  if (search.value) {
-    const q = search.value.toLowerCase()
-    data = data.filter(row =>
-      Object.values(row).some(v => String(v).toLowerCase().includes(q))
-    )
-  }
-  const start = (page.value - 1) * pageCount
-  return data.slice(start, start + pageCount)
-})
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'Actif': return 'success'
-    case 'Inactif': return 'error'
-    case 'En attente': return 'warning'
-    default: return 'neutral'
-  }
-}
-
-// ---- Modal CRUD ----
-const isModalOpen = ref(false)
-const editMode = ref(false)
-const form = ref<Adherent>({
-  id: '', name: '', licence: '', email: '',
-  formule: 'Adulte Autonome', creneau: '', status: 'Actif',
-})
-const modalTitle = computed(() =>
-  editMode.value ? 'Modifier un adhérent' : 'Ajouter un adhérent'
-)
-
-const openModal = (member: Adherent | null = null) => {
-  if (member) {
-    editMode.value = true
-    form.value = { ...member }
-  } else {
-    editMode.value = false
-    form.value = {
-      id: '', name: '', licence: '', email: '',
-      formule: 'Adulte Autonome', creneau: '', status: 'Actif',
-    }
-  }
-  isModalOpen.value = true
-}
-
-const saveMember = async () => {
-  saving.value = true
+  groupMembersTitle.value = group.name
+  loadingGroupMembers.value = true
+  isGroupMembersModalOpen.value = true
   try {
-    if (editMode.value && form.value.id) {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          full_name: form.value.name,
-          email: form.value.email,
-          licence_number: form.value.licence && form.value.licence !== '-'
-            ? parseInt(form.value.licence) : null,
-          licence_type: form.value.formule,
-          club_group: form.value.creneau !== '-' ? form.value.creneau : null,
-        })
-        .eq('id', form.value.id)
-      if (error) throw error
-    }
-    isModalOpen.value = false
-    await loadMembers()
-  } catch (e: any) {
-    console.error('Erreur sauvegarde:', e.message)
+    groupMembersList.value = await fetchGroupMembers(group.id)
   } finally {
-    saving.value = false
+    loadingGroupMembers.value = false
   }
 }
 
-const deleteMember = async (id: string) => {
-  if (!confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) return
+async function removeMemberFromGroup(memberId: string) {
+  removingMemberId.value = memberId
   try {
-    const { error } = await supabase.from('profiles').delete().eq('id', id)
+    const { error } = await supabase.from('group_members').delete().eq('id', memberId)
     if (error) throw error
-    await loadMembers()
+    groupMembersList.value = groupMembersList.value.filter(m => m.id !== memberId)
+    await loadAdminGroups()
   } catch (e: any) {
-    console.error('Erreur suppression:', e.message)
+    console.error(e.message)
+  } finally {
+    removingMemberId.value = null
   }
 }
 
-const toggleStatus = (adherent: Adherent) => {
-  const index = allRows.value.findIndex(r => r.id === adherent.id)
-  if (index !== -1) {
-    allRows.value[index].status = adherent.status === 'Actif' ? 'Inactif' : 'Actif'
+// ── Review Modal ──────────────────────────────────────────────────────────────
+const isReviewModalOpen = ref(false)
+const reviewRequest = ref<EnrollmentRequest | null>(null)
+const reviewAction = ref<'approve' | 'reject'>('approve')
+const reviewNote = ref('')
+const processingReviewId = ref<string | null>(null)
+
+const emailPreview = computed(() => {
+  if (!reviewRequest.value) return ''
+  const req = reviewRequest.value
+  const typeLabel = req.type === 'group' ? 'au groupe' : "à l'événement"
+  if (reviewAction.value === 'approve') {
+    let msg = `Bonjour ${req.user_name},\n\nVotre demande d'inscription ${typeLabel} "${req.target_name}" a été acceptée.`
+    if (req.target_detail) msg += `\nDétails : ${req.target_detail}`
+    if (reviewNote.value) msg += `\n\nMessage : ${reviewNote.value}`
+    msg += '\n\nÀ bientôt au club !\nASC Escalade'
+    return msg
+  } else {
+    let msg = `Bonjour ${req.user_name},\n\nVotre demande d'inscription ${typeLabel} "${req.target_name}" n'a pas pu être acceptée.`
+    if (reviewNote.value) msg += `\n\nMotif : ${reviewNote.value}`
+    msg += "\n\nN'hésitez pas à nous contacter.\nASC Escalade"
+    return msg
   }
+})
+
+function openReviewModal(request: EnrollmentRequest, action: 'approve' | 'reject') {
+  reviewRequest.value = request
+  reviewAction.value = action
+  reviewNote.value = ''
+  isReviewModalOpen.value = true
 }
 
-function getDropdownActions(adherent: Adherent): DropdownMenuItem[][] {
-  return [
-    [
-      { label: 'Modifier', icon: 'i-lucide-edit', onSelect: () => openModal(adherent) },
-      { label: 'Voir détails', icon: 'i-lucide-eye', onSelect: () => openModal(adherent) },
-    ],
-    [
-      {
-        label: adherent.status === 'Actif' ? 'Désactiver' : 'Activer',
-        icon: adherent.status === 'Actif' ? 'i-lucide-user-x' : 'i-lucide-user-check',
-        onSelect: () => toggleStatus(adherent),
-      },
-    ],
-    [
-      {
-        label: 'Supprimer', icon: 'i-lucide-trash',
-        color: 'error' as const,
-        onSelect: () => deleteMember(adherent.id),
-      },
-    ],
-  ]
-}
-
-const exportCSV = () => {
-  const headers = ['Nom', 'Licence', 'Email', 'Formule', 'Créneau', 'Statut']
-  const csvRows = [
-    headers.join(';'),
-    ...allRows.value.map(r =>
-      [r.name, r.licence, r.email, r.formule, r.creneau, r.status].join(';')
-    ),
-  ]
-  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' })
-  const link = document.createElement('a')
-  link.href = URL.createObjectURL(blob)
-  link.download = `membres-asc-${new Date().toISOString().split('T')[0]}.csv`
-  link.click()
+async function confirmReview() {
+  if (!reviewRequest.value) return
+  const uid = user.value?.id ?? (user.value as any)?.sub
+  if (!uid) return
+  processingReviewId.value = reviewRequest.value.id
+  try {
+    if (reviewAction.value === 'approve') {
+      await approveRequest(reviewRequest.value, reviewNote.value, uid)
+    } else {
+      await rejectRequest(reviewRequest.value, reviewNote.value, uid)
+    }
+    isReviewModalOpen.value = false
+  } catch (e: any) {
+    console.error('Erreur traitement demande:', e.message)
+  } finally {
+    processingReviewId.value = null
+  }
 }
 </script>
