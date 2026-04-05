@@ -50,8 +50,8 @@
           />
         </template>
 
-        <!-- CONNECTÉ : dropdown -->
-        <template v-else>
+        <!-- CONNECTÉ : dropdown (desktop uniquement) -->
+        <template v-else-if="isDesktop">
           <UDropdownMenu :items="userMenuItems" class="header__user-menu">
             <UButton color="neutral" variant="ghost" size="md" class="header__btn-user">
               <div class="header__avatar">{{ initials }}</div>
@@ -398,12 +398,13 @@ const handleLogout = async () => {
     @media (max-width: 1024px) { display: flex; }
   }
   &__btn-user {
-  @media (max-width: 768px) { display: none; }
+    @media (max-width: 1024px) { display: none; }
   }
 
   &__user-menu {
-    @media (max-width: 768px) { display: none; }
+    @media (max-width: 1024px) { display: none; }
   }
+
 
   &__avatar {
     width: 32px;
