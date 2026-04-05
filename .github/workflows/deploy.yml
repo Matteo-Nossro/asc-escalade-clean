@@ -1,0 +1,41 @@
+name: Deploy
+
+on:
+  push:
+    branches: [dev]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Créer .env.prod
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          STORYBLOK_TOKEN: ${{ secrets.STORYBLOK_TOKEN }}
+          STORYBLOK_WEBHOOK_SECRET: ${{ secrets.STORYBLOK_WEBHOOK_SECRET }}
+        run: |
+          cat > .env.prod << ENVEOF
+          SUPABASE_URL=$SUPABASE_URL
+          SUPABASE_KEY=$SUPABASE_KEY
+          SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_SERVICE_ROLE_KEY
+          STORYBLOK_TOKEN=$STORYBLOK_TOKEN
+          STORYBLOK_VERSION=published
+          STORYBLOK_REGION=eu
+          STORYBLOK_WEBHOOK_SECRET=$STORYBLOK_WEBHOOK_SECRET
+          NODE_ENV=production
+          ENVEOF
+
+      - name: Build et déploiement
+        run: docker compose -f docker-compose.prod.yml up --build -d
+
+      - name: Nettoyage
+        if: always()
+        run: |
+          rm -f .env.prod
+          docker image prune -f
