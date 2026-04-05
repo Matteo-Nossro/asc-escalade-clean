@@ -38,8 +38,16 @@ jobs:
             -t ghcr.io/matteo-nossro/asc-escalade-clean:latest .
           docker push ghcr.io/matteo-nossro/asc-escalade-clean:latest
 
-      - name: Deploy via Portainer webhook
-        run: curl -X POST "${{ secrets.PORTAINER_WEBHOOK_URL }}"
+      - name: Deploy via Portainer API
+        run: |
+          STACK_ID=$(curl -s \
+            -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
+            ${{ secrets.PORTAINER_URL }}/api/stacks | \
+            jq -r '.[] | select(.Name=="asc-escalade") | .Id')
+
+          curl -sk -X POST \
+            -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
+            "${{ secrets.PORTAINER_URL }}/api/stacks/$STACK_ID/images/pull?endpointId=1"
 
       - name: Nettoyage
         if: always()
