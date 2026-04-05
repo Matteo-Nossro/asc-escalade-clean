@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   const client = serverSupabaseServiceRole(event)
 
   const body = await readBody(event)
-  const { email, first_name, last_name, licence, formule, roles, groupId } = body
+  const { email, first_name, last_name, licence, formule, roles, groupIds } = body
 
   if (!email) throw createError({ statusCode: 400, statusMessage: 'Email requis' })
 
@@ -46,21 +46,23 @@ export default defineEventHandler(async (event) => {
     if (rolesError) throw createError({ statusCode: 400, statusMessage: rolesError.message })
   }
 
-  // 4. Inscrire au groupe si sélectionné
-  if (groupId) {
-    const { data: existing } = await client
-      .from('group_members')
-      .select('id')
-      .eq('group_id', groupId)
-      .eq('user_id', userId)
-      .maybeSingle()
+  // 4. Inscrire aux groupes sélectionnés
+  if (groupIds?.length) {
+    for (const gid of groupIds as string[]) {
+      const { data: existing } = await client
+        .from('group_members')
+        .select('id')
+        .eq('group_id', gid)
+        .eq('user_id', userId)
+        .maybeSingle()
 
-    if (!existing) {
-      await client.from('group_members').insert({
-        group_id: groupId,
-        user_id: userId,
-        status: 'confirmed',
-      })
+      if (!existing) {
+        await client.from('group_members').insert({
+          group_id: gid,
+          user_id: userId,
+          status: 'confirmed',
+        })
+      }
     }
   }
 

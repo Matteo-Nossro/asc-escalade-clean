@@ -32,11 +32,12 @@
         <!-- Référent -->
         <UFormField label="Référent">
           <USelectMenu
-            v-model="groupForm.referent_id"
+            :model-value="memberSelectOptions.find(o => o.value === groupForm.referent_id) ?? null"
             :items="memberSelectOptions"
             placeholder="Aucun référent"
             :search-input="{ placeholder: 'Rechercher un membre…' }"
             class="w-full"
+            @update:model-value="groupForm.referent_id = $event?.value ?? null"
           />
         </UFormField>
 
@@ -57,13 +58,13 @@
           </div>
           <div class="flex gap-2">
             <USelectMenu
-              :model-value="instructorToAdd"
+              :model-value="availableInstructorOptions.find(o => o.value === instructorToAdd) ?? null"
               :items="availableInstructorOptions"
               placeholder="Ajouter un initiateur…"
               :search-input="{ placeholder: 'Rechercher un membre…' }"
               class="flex-1"
               size="sm"
-              @update:model-value="emit('update:instructorToAdd', $event)"
+              @update:model-value="emit('update:instructorToAdd', $event?.value ?? null)"
             />
             <UButton
               icon="i-lucide-plus"

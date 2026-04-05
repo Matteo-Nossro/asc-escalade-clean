@@ -85,6 +85,7 @@ export interface AdherentWithRoles extends Adherent {
   first_name: string
   last_name: string
   groupId: string
+  groupIds: string[]
   groupNames: string[]
   linkedChildren: { id: string; name: string; linkId: string }[]
 }

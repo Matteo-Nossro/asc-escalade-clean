@@ -172,7 +172,8 @@ function profileToAdherentWithRoles(p: any): AdherentWithRoles {
     (m: any) => m.status === 'confirmed' && m.group,
   )
   const groupNames = confirmedMemberships.map((m: any) => m.group.name)
-  const groupId = confirmedMemberships[0]?.group?.id || ''
+  const groupIds = confirmedMemberships.map((m: any) => m.group.id as string)
+  const groupId = groupIds[0] || ''
   return {
     id: p.id,
     name: p.first_name && p.last_name
@@ -187,6 +188,7 @@ function profileToAdherentWithRoles(p: any): AdherentWithRoles {
     status: p.status || 'Actif',
     roles,
     groupId,
+    groupIds,
     groupNames,
     linkedChildren: [],
     _profile: p,
@@ -285,7 +287,7 @@ const memberForm = ref({
   creneau: '-',
   status: 'Actif' as 'Actif' | 'Inactif' | 'En attente',
   roles: [] as string[],
-  groupId: null as string | null,
+  groupIds: [] as string[],
   linkedChildren: [] as { id: string; name: string; linkId: string }[],
 })
 
@@ -326,7 +328,7 @@ function openMemberModal(member: AdherentWithRoles | null = null) {
       creneau: member.creneau,
       status: member.status,
       roles: [...member.roles],
-      groupId: member.groupId || null,
+      groupIds: [...(member.groupIds || [])],
       linkedChildren: [...member.linkedChildren],
     }
   } else {
@@ -335,7 +337,7 @@ function openMemberModal(member: AdherentWithRoles | null = null) {
       id: '', first_name: '', last_name: '', name: '',
       licence: '', email: '',
       formule: 'Adulte Autonome', creneau: '-',
-      status: 'Actif', roles: [], groupId: null, linkedChildren: [],
+      status: 'Actif', roles: [], groupIds: [], linkedChildren: [],
     }
   }
   childToLink.value = null
@@ -367,13 +369,15 @@ async function saveMember() {
         )
       }
 
-      if (memberForm.value.groupId) {
-        await supabase.from('group_members').delete().eq('user_id', uid).eq('status', 'confirmed')
-        await supabase.from('group_members').insert({
-          group_id: memberForm.value.groupId,
-          user_id: uid,
-          status: 'confirmed',
-        })
+      await supabase.from('group_members').delete().eq('user_id', uid).eq('status', 'confirmed')
+      if (memberForm.value.groupIds.length) {
+        await supabase.from('group_members').insert(
+          memberForm.value.groupIds.map(gid => ({
+            group_id: gid,
+            user_id: uid,
+            status: 'confirmed',
+          })),
+        )
       }
     } else {
       const res = await fetch('/api/admin/create-member', {
@@ -386,12 +390,22 @@ async function saveMember() {
           licence: memberForm.value.licence || null,
           formule: memberForm.value.formule || null,
           roles: memberForm.value.roles,
-          groupId: memberForm.value.groupId || null,
+          groupIds: memberForm.value.groupIds,
         }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
         throw new Error(data.statusMessage || `Erreur ${res.status}`)
+      }
+      const { id: newUserId } = await res.json()
+      if (newUserId && memberForm.value.linkedChildren.length) {
+        await supabase.from('parent_access_links').insert(
+          memberForm.value.linkedChildren.map(c => ({
+            parent_id: newUserId,
+            child_id: c.id,
+            access_type: 'full',
+          })),
+        )
       }
     }
     isModalOpen.value = false
@@ -404,9 +418,17 @@ async function saveMember() {
 }
 
 async function addChildLink() {
-  if (!childToLink.value || !memberForm.value.id) return
+  if (!childToLink.value) return
   const child = allRows.value.find(r => r.id === childToLink.value)
   if (!child) return
+
+  if (!memberForm.value.id) {
+    // Mode création : stockage local, insertion après sauvegarde
+    memberForm.value.linkedChildren.push({ id: child.id, name: child.name, linkId: '' })
+    childToLink.value = null
+    return
+  }
+
   const { data, error } = await supabase.from('parent_access_links').insert({
     parent_id: memberForm.value.id,
     child_id: childToLink.value,
@@ -420,7 +442,9 @@ async function addChildLink() {
 async function removeChildLink(childId: string) {
   const link = memberForm.value.linkedChildren.find(c => c.id === childId)
   if (!link) return
-  await supabase.from('parent_access_links').delete().eq('id', link.linkId)
+  if (link.linkId) {
+    await supabase.from('parent_access_links').delete().eq('id', link.linkId)
+  }
   memberForm.value.linkedChildren = memberForm.value.linkedChildren.filter(c => c.id !== childId)
 }
 

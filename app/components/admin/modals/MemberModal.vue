@@ -33,14 +33,35 @@
           <UInput v-model="form.email" type="email" placeholder="email@exemple.com" required class="w-full" data-testid="input-member-email" />
         </UFormField>
 
-        <div class="grid grid-cols-2 gap-4">
-          <UFormField label="Type de licence">
-            <USelect v-model="form.formule" :items="licenceTypeOptions" class="w-full" />
-          </UFormField>
-          <UFormField label="Groupe">
-            <USelect v-model="form.groupId" :items="groupSelectOptions" class="w-full" />
-          </UFormField>
-        </div>
+        <UFormField label="Type de licence">
+          <USelect v-model="form.formule" :items="licenceTypeOptions" class="w-full" />
+        </UFormField>
+
+        <!-- Groupes (multi-sélection) -->
+        <UFormField label="Groupe(s)">
+          <div class="flex flex-wrap gap-2">
+            <label
+              v-for="group in groupSelectOptions"
+              :key="group.value ?? '__none__'"
+              class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-colors"
+              :class="group.value && form.groupIds.includes(group.value)
+                ? 'border-[#7FD857] bg-[#7FD857]/10'
+                : 'border-gray-200 hover:border-gray-300'"
+            >
+              <input
+                v-if="group.value"
+                type="checkbox"
+                :value="group.value"
+                v-model="form.groupIds"
+                class="sr-only"
+              />
+              <span class="text-sm font-medium text-gray-700">{{ group.label }}</span>
+            </label>
+          </div>
+          <p v-if="groupSelectOptions.filter(g => g.value).length === 0" class="text-xs text-gray-400 mt-1">
+            Aucun groupe disponible
+          </p>
+        </UFormField>
 
         <!-- Rôles -->
         <UFormField label="Rôles">
@@ -62,7 +83,7 @@
         </UFormField>
 
         <!-- Lien parent → enfants -->
-        <div v-if="form.roles.includes('parent') && editMode" class="space-y-3">
+        <div v-if="form.roles.includes('parent')" class="space-y-3">
           <UFormField label="Enfants liés">
             <div class="space-y-2">
               <div
@@ -142,7 +163,7 @@ defineProps<{
     creneau: string
     status: 'Actif' | 'Inactif' | 'En attente'
     roles: string[]
-    groupId: string | null
+    groupIds: string[]
     linkedChildren: { id: string; name: string; linkId: string }[]
   }
   saving: boolean
