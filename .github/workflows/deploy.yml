@@ -12,28 +12,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Créer .env.prod
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build & Push image
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           STORYBLOK_TOKEN: ${{ secrets.STORYBLOK_TOKEN }}
-          STORYBLOK_WEBHOOK_SECRET: ${{ secrets.STORYBLOK_WEBHOOK_SECRET }}
         run: |
-          printf "SUPABASE_URL=%s\n" "$SUPABASE_URL" > .env.prod
-          printf "SUPABASE_KEY=%s\n" "$SUPABASE_KEY" >> .env.prod
-          printf "SUPABASE_SERVICE_ROLE_KEY=%s\n" "$SUPABASE_SERVICE_ROLE_KEY" >> .env.prod
-          printf "STORYBLOK_TOKEN=%s\n" "$STORYBLOK_TOKEN" >> .env.prod
-          printf "STORYBLOK_VERSION=published\n" >> .env.prod
-          printf "STORYBLOK_REGION=eu\n" >> .env.prod
-          printf "STORYBLOK_WEBHOOK_SECRET=%s\n" "$STORYBLOK_WEBHOOK_SECRET" >> .env.prod
-          printf "NODE_ENV=production\n" >> .env.prod
+          docker build \
+            --build-arg SUPABASE_URL="$SUPABASE_URL" \
+            --build-arg SUPABASE_KEY="$SUPABASE_KEY" \
+            --build-arg STORYBLOK_TOKEN="$STORYBLOK_TOKEN" \
+            --build-arg STORYBLOK_VERSION=published \
+            --build-arg STORYBLOK_REGION=eu \
+            -t ghcr.io/matteo-nossro/asc-escalade-clean:latest .
+          docker push ghcr.io/matteo-nossro/asc-escalade-clean:latest
 
-      - name: Build et déploiement
-        run: docker compose -f docker-compose.prod.yml --env-file .env.prod up --build -d
+      - name: Deploy via Portainer webhook
+        run: curl -X POST "${{ secrets.PORTAINER_WEBHOOK_URL }}"
 
       - name: Nettoyage
         if: always()
-        run: |
-          rm -f .env.prod
-          docker image prune -f
+        run: docker image prune -f
