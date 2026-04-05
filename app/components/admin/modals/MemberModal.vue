@@ -44,7 +44,7 @@
               v-for="group in groupSelectOptions"
               :key="group.value ?? '__none__'"
               class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-colors"
-              :class="group.value && form.groupIds.includes(group.value)
+              :class="group.value !== null && form.groupIds.includes(group.value)
                 ? 'border-[#7FD857] bg-[#7FD857]/10'
                 : 'border-gray-200 hover:border-gray-300'"
             >

@@ -20,19 +20,17 @@ jobs:
           STORYBLOK_TOKEN: ${{ secrets.STORYBLOK_TOKEN }}
           STORYBLOK_WEBHOOK_SECRET: ${{ secrets.STORYBLOK_WEBHOOK_SECRET }}
         run: |
-          cat > .env.prod << ENVEOF
-          SUPABASE_URL=$SUPABASE_URL
-          SUPABASE_KEY=$SUPABASE_KEY
-          SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_SERVICE_ROLE_KEY
-          STORYBLOK_TOKEN=$STORYBLOK_TOKEN
-          STORYBLOK_VERSION=published
-          STORYBLOK_REGION=eu
-          STORYBLOK_WEBHOOK_SECRET=$STORYBLOK_WEBHOOK_SECRET
-          NODE_ENV=production
-          ENVEOF
+          printf "SUPABASE_URL=%s\n" "$SUPABASE_URL" > .env.prod
+          printf "SUPABASE_KEY=%s\n" "$SUPABASE_KEY" >> .env.prod
+          printf "SUPABASE_SERVICE_ROLE_KEY=%s\n" "$SUPABASE_SERVICE_ROLE_KEY" >> .env.prod
+          printf "STORYBLOK_TOKEN=%s\n" "$STORYBLOK_TOKEN" >> .env.prod
+          printf "STORYBLOK_VERSION=published\n" >> .env.prod
+          printf "STORYBLOK_REGION=eu\n" >> .env.prod
+          printf "STORYBLOK_WEBHOOK_SECRET=%s\n" "$STORYBLOK_WEBHOOK_SECRET" >> .env.prod
+          printf "NODE_ENV=production\n" >> .env.prod
 
       - name: Build et déploiement
-        run: docker compose -f docker-compose.prod.yml up --build -d
+        run: docker compose -f docker-compose.prod.yml --env-file .env.prod up --build -d
 
       - name: Nettoyage
         if: always()
