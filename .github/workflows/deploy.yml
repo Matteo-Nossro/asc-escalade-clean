@@ -4,12 +4,13 @@ on:
   push:
     branches: [dev]
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   deploy:
     runs-on: self-hosted
-    permissions:
-      contents: read
-      packages: write
 
     steps:
       - name: Checkout
@@ -22,14 +23,18 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           STORYBLOK_TOKEN: ${{ secrets.STORYBLOK_TOKEN }}
+          STORYBLOK_WEBHOOK_SECRET: ${{ secrets.STORYBLOK_WEBHOOK_SECRET }}
         run: |
           docker build \
             --build-arg SUPABASE_URL="$SUPABASE_URL" \
             --build-arg SUPABASE_KEY="$SUPABASE_KEY" \
+            --build-arg SUPABASE_SECRET_KEY="$SUPABASE_SECRET_KEY" \
             --build-arg STORYBLOK_TOKEN="$STORYBLOK_TOKEN" \
             --build-arg STORYBLOK_VERSION=published \
             --build-arg STORYBLOK_REGION=eu \
+            --build-arg STORYBLOK_WEBHOOK_SECRET="$STORYBLOK_WEBHOOK_SECRET" \
             -t ghcr.io/matteo-nossro/asc-escalade-clean:latest .
           docker push ghcr.io/matteo-nossro/asc-escalade-clean:latest
 
