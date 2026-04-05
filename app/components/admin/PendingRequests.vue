@@ -14,7 +14,7 @@
       </h2>
     </div>
 
-    <div class="divide-y divide-gray-100">
+    <div class="divide-y divide-gray-100 max-h-[70vh] overflow-y-auto">
       <div
         v-for="request in requests"
         :key="request.id"

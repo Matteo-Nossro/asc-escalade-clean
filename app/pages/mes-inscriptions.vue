@@ -47,13 +47,13 @@
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-1">
                   <h3 class="font-bold text-gray-900">{{ enrollment.group?.name }}</h3>
-                  <UBadge v-if="enrollment.group?.level" color="info" variant="soft" size="xs">
+                  <UBadge v-if="enrollment.group?.level" color="info" variant="soft" size="md">
                     {{ enrollment.group.level }}
                   </UBadge>
                   <UBadge
                     :color="enrollment.status === 'confirmed' ? 'success' : 'warning'"
                     variant="soft"
-                    size="xs"
+                    size="md"
                   >
                     {{ enrollment.status === 'confirmed' ? 'Confirmé' : 'En attente de validation' }}
                   </UBadge>
@@ -61,7 +61,7 @@
                     v-if="enrollment.user_id !== ownUid"
                     color="warning"
                     variant="soft"
-                    size="xs"
+                    size="md"
                   >
                     {{ enrollment.profile?.full_name }}
                   </UBadge>
@@ -71,12 +71,12 @@
                   <span
                     v-for="sched in getGroupSchedules(enrollment.group_id)"
                     :key="sched.id"
-                    class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-lg"
+                    class="text-sm bg-gray-100 text-gray-700 px-2 py-1 rounded-lg"
                   >
                     {{ formatSchedule(sched) }}
                   </span>
                 </div>
-                <p class="text-xs text-gray-400 mt-2">
+                <p class="text-sm text-gray-400 mt-2">
                   Inscrit le {{ formatDate(enrollment.enrolled_at) }}
                 </p>
               </div>
@@ -130,7 +130,7 @@
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-1">
                   <h3 class="font-bold text-gray-900">{{ reg.event?.title }}</h3>
-                  <UBadge :color="getStatusColor(reg.status)" variant="soft" size="xs">
+                  <UBadge :color="getStatusColor(reg.status)" variant="soft" size="md">
                     {{ getStatusLabel(reg.status) }}
                   </UBadge>
                 </div>
@@ -173,7 +173,7 @@
             >
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-1">
-                  <UBadge color="warning" variant="soft" size="sm">
+                  <UBadge color="warning" variant="soft" size="md">
                     {{ enrollment.profile?.full_name }}
                   </UBadge>
                   <span class="text-gray-400">→</span>
@@ -183,7 +183,7 @@
                   <span
                     v-for="sched in getGroupSchedules(enrollment.group_id)"
                     :key="sched.id"
-                    class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-lg"
+                    class="text-sm bg-gray-100 text-gray-700 px-2 py-1 rounded-lg"
                   >
                     {{ formatSchedule(sched) }}
                   </span>
@@ -194,7 +194,7 @@
                 <UButton
                   color="error"
                   variant="soft"
-                  size="sm"
+                  size="md"
                   icon="i-lucide-log-out"
                   @click="handleUnenrollGroup(enrollment.id)"
                   :loading="unenrolling === enrollment.id"
@@ -219,7 +219,7 @@
             <UButton
               :variant="enrollForUserId === ownUid ? 'solid' : 'soft'"
               :class="enrollForUserId === ownUid ? 'bg-[#7FD857] text-[#0F1729]' : ''"
-              size="sm"
+              size="md"
               @click="enrollForUserId = ownUid"
             >
               Moi
@@ -229,7 +229,7 @@
               :key="child.child_id"
               :variant="enrollForUserId === child.child_id ? 'solid' : 'soft'"
               :class="enrollForUserId === child.child_id ? 'bg-[#7FD857] text-[#0F1729]' : ''"
-              size="sm"
+              size="md"
               @click="enrollForUserId = child.child_id"
             >
               {{ child.child?.full_name || 'Enfant' }}
@@ -250,10 +250,10 @@
                 <p v-if="group.description" class="text-sm text-gray-500">{{ group.description }}</p>
               </div>
               <div class="text-right">
-                <UBadge v-if="group.level" color="info" variant="soft" size="xs">
+                <UBadge v-if="group.level" color="info" variant="soft" size="md">
                   {{ group.level }}
                 </UBadge>
-                <p class="text-xs text-gray-400 mt-1">
+                <p class="text-sm text-gray-400 mt-1">
                   {{ group._members_count || 0 }} / {{ group.max_members }}
                 </p>
               </div>
@@ -264,20 +264,20 @@
               <span
                 v-for="sched in group.schedules"
                 :key="sched.id"
-                class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded"
+                class="text-sm bg-gray-100 text-gray-600 px-2 py-0.5 rounded"
               >
                 {{ formatSchedule(sched) }}
               </span>
             </div>
 
             <UButton
-              size="sm"
+              size="md"
               :disabled="(group._members_count || 0) >= group.max_members || enrollingGroup === group.id"
               :loading="enrollingGroup === group.id"
               class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold"
               @click="handleEnrollGroup(group.id)"
             >
-              {{ (group._members_count || 0) >= group.max_members ? 'Complet' : 'Rejoindre' }}
+              {{ (group._members_count || 0) >= group.max_members ? 'Complet' : 'Demandez à rejoindre' }}
             </UButton>
           </div>
 

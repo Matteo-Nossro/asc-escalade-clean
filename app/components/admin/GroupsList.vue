@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-8">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-8 ">
     <div class="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-4 justify-between items-center">
       <h2 class="text-lg font-bold text-gray-900">Groupes & Créneaux</h2>
       <UButton
@@ -16,7 +16,7 @@
       <div class="w-6 h-6 border-2 border-gray-200 border-t-[#7FD857] rounded-full animate-spin" />
     </div>
 
-    <div v-else class="divide-y divide-gray-100" data-testid="groups-list">
+    <div v-else class="divide-y divide-gray-100 max-h-[70vh] overflow-y-auto" data-testid="groups-list">
       <div
         v-for="group in groups"
         :key="group.id"
@@ -27,13 +27,13 @@
           <div class="flex-1">
             <div class="flex items-center gap-2 mb-1">
               <h3 class="font-bold text-gray-900">{{ group.name }}</h3>
-              <UBadge v-if="group.level" color="info" variant="soft" size="xs">
+              <UBadge v-if="group.level" color="info" variant="soft" size="sm">
                 {{ group.level }}
               </UBadge>
               <UBadge
                 :color="(group._members_count || 0) >= group.max_members ? 'error' : 'success'"
                 variant="soft"
-                size="xs"
+                size="sm"
               >
                 {{ group._members_count || 0 }} / {{ group.max_members }}
               </UBadge>
@@ -43,7 +43,7 @@
               <span
                 v-for="sched in group.schedules"
                 :key="sched.id"
-                class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded"
+                class="text-sm bg-gray-100 text-gray-600 px-2 py-0.5 rounded"
               >
                 {{ formatSchedule(sched) }}
               </span>

@@ -36,7 +36,7 @@
       :data="rows"
       :columns="columns"
       :loading="pending"
-      class="w-full"
+      class="w-full max-h-[70vh] overflow-y-auto"
       :ui="{
         th: { base: 'uppercase text-xs font-bold text-gray-500 tracking-wider bg-gray-50/50 py-3' },
         td: { base: 'py-4 text-sm text-gray-700' },
@@ -62,7 +62,7 @@
             :key="g"
             color="neutral"
             variant="soft"
-            size="xs"
+            size="md"
           >
             {{ g }}
           </UBadge>
@@ -77,7 +77,7 @@
             :key="role"
             :color="getRoleBadgeColor(role)"
             variant="soft"
-            size="xs"
+            size="md"
             class="font-bold"
           >
             {{ getRoleLabel(role) }}
