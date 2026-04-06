@@ -198,10 +198,12 @@ function profileToAdherentWithRoles(p: any): AdherentWithRoles {
 async function loadMembers() {
   pending.value = true
   try {
-    const data = await fetch('/api/admin/members').then(r => {
-      if (!r.ok) throw new Error(`Erreur ${r.status}`)
-      return r.json()
-    })
+    const res = await fetch('/api/admin/members')
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      throw new Error(body.statusMessage || body.message || `Erreur ${res.status}`)
+    }
+    const data = await res.json()
     allRows.value = (data || []).map(profileToAdherentWithRoles)
   } catch (e: any) {
     console.error('Erreur chargement membres:', e.message)

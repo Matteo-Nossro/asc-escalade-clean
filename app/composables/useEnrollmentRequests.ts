@@ -151,22 +151,19 @@ export const useEnrollmentRequests = () => {
 
     if (error) throw error
 
-    // Créer un log de notification (sera envoyé par SMTP plus tard)
-    await supabase.from('notification_logs').insert({
-      recipient_id: request.user_id,
-      type: `${request.type}_approved`,
-      subject: `Inscription confirmée — ${request.target_name}`,
-      body: buildApprovalMessage(request, adminNote),
-      metadata: {
-        request_id: request.id,
-        request_type: request.type,
-        target_id: request.target_id,
-        target_name: request.target_name,
-        admin_note: adminNote,
+    await $fetch('/api/admin/send-email', {
+      method: 'POST',
+      body: {
+        to: request.user_email,
+        userName: request.user_name,
+        action: 'approve',
+        requestType: request.type,
+        targetName: request.target_name,
+        targetDetail: request.target_detail || undefined,
+        adminNote: adminNote || undefined,
       },
-    })
+    }).catch(e => console.error('[send-email] approve error:', e?.data || e?.message || e))
 
-    // Retirer de la liste locale
     pendingRequests.value = pendingRequests.value.filter(r => r.id !== request.id)
   }
 
@@ -187,49 +184,20 @@ export const useEnrollmentRequests = () => {
 
     if (error) throw error
 
-    // Log de notification
-    await supabase.from('notification_logs').insert({
-      recipient_id: request.user_id,
-      type: `${request.type}_rejected`,
-      subject: `Inscription refusée — ${request.target_name}`,
-      body: buildRejectionMessage(request, adminNote),
-      metadata: {
-        request_id: request.id,
-        request_type: request.type,
-        target_id: request.target_id,
-        target_name: request.target_name,
-        admin_note: adminNote,
+    await $fetch('/api/admin/send-email', {
+      method: 'POST',
+      body: {
+        to: request.user_email,
+        userName: request.user_name,
+        action: 'reject',
+        requestType: request.type,
+        targetName: request.target_name,
+        targetDetail: request.target_detail || undefined,
+        adminNote: adminNote || undefined,
       },
-    })
+    }).catch(e => console.error('[send-email] reject error:', e?.data || e?.message || e))
 
     pendingRequests.value = pendingRequests.value.filter(r => r.id !== request.id)
-  }
-
-  // ─── Helpers ──────────────────────────────────────────────────────────
-
-  function buildApprovalMessage(request: EnrollmentRequest, note: string): string {
-    const typeLabel = request.type === 'group' ? 'au groupe' : "à l'événement"
-    let msg = `Bonjour ${request.user_name},\n\n`
-    msg += `Votre demande d'inscription ${typeLabel} "${request.target_name}" a été acceptée.\n`
-    if (request.target_detail) {
-      msg += `Détails : ${request.target_detail}\n`
-    }
-    if (note) {
-      msg += `\nMessage de l'administration :\n${note}\n`
-    }
-    msg += `\nÀ bientôt au club !\nASC Escalade`
-    return msg
-  }
-
-  function buildRejectionMessage(request: EnrollmentRequest, note: string): string {
-    const typeLabel = request.type === 'group' ? 'au groupe' : "à l'événement"
-    let msg = `Bonjour ${request.user_name},\n\n`
-    msg += `Votre demande d'inscription ${typeLabel} "${request.target_name}" n'a pas pu être acceptée.\n`
-    if (note) {
-      msg += `\nMotif :\n${note}\n`
-    }
-    msg += `\nN'hésitez pas à nous contacter pour plus d'informations.\nASC Escalade`
-    return msg
   }
 
   return {

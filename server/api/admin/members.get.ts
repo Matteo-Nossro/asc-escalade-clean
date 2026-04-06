@@ -20,7 +20,10 @@ export default defineEventHandler(async (event) => {
     `)
     .order('full_name')
 
-  if (error) throw createError({ statusCode: 500, statusMessage: error.message })
+  if (error) {
+    console.error('[api/admin/members] Supabase error:', error)
+    throw createError({ statusCode: 500, statusMessage: error.message })
+  }
 
   return data ?? []
 })

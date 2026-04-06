@@ -91,8 +91,8 @@ export default defineNuxtConfig({
     https: isDev,
   },
   runtimeConfig: {
-    // Secret partagé avec le webhook Storyblok pour l'invalidation du cache
     storyblokWebhookSecret: process.env.STORYBLOK_WEBHOOK_SECRET || '',
+    resendApiKey: process.env.RESEND_API_KEY || '',
     public: {
       storyblokVersion: process.env.STORYBLOK_VERSION || 'published'
     }
