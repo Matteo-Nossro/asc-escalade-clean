@@ -53,6 +53,30 @@ useEvents()
 
 ---
 
+## API serveur (`server/api/`)
+
+### Contact public
+
+| Route | Méthode | Description |
+|---|---|---|
+| `/api/contact` | POST | Formulaire de contact → email via Resend. Protections : honeypot, délai min 3s, rate-limit 3/h/IP |
+
+### Admin (service role Supabase)
+
+| Route | Méthode | Description |
+|---|---|---|
+| `/api/admin/members` | GET | Tous les profils + rôles + inscriptions groupes |
+| `/api/admin/create-member` | POST | Crée compte Auth + profil + rôles + inscriptions groupes |
+| `/api/admin/send-email` | POST | Email notification approbation/refus inscription via Resend |
+
+### CMS / Cache
+
+| Route | Méthode | Description |
+|---|---|---|
+| `/api/revalidate` | POST | Webhook Storyblok → purge cache Netlify CDN ciblée par tag (fallback : purge globale). Vérifie le header `webhook-secret` |
+
+---
+
 ## Supabase — Auth & données métier
 
 ### Tables
@@ -99,6 +123,8 @@ app/
 │   ├── usePosts.ts              # Articles + sorties
 │   ├── useEvents.ts             # Posts avec eventDate (calendrier)
 │   ├── useBreakpoints.ts        # Responsive (windowWidth, isMobile, isTablet…)
+│   ├── useSeo.ts                # Balises meta/OG depuis Storyblok ou options explicites
+│   ├── useStoryblokCacheTag.ts  # Pose les headers Netlify-Cache-Tag (SSR only)
 │   ├── useAuth.ts               # Auth Supabase, profil, rôles
 │   ├── useFamily.ts             # Liens parent → enfants (parent_access)
 │   ├── useGroups.ts             # Groupes, inscriptions, CRUD admin
@@ -132,6 +158,14 @@ app/
 │   ├── post.ts                  # Interface Post (Storyblok)
 │   └── auth.ts                  # Interfaces Supabase (Profile, Group, GroupMember…)
 └── storyblok/                   # Composants Storyblok (voir storyblok.md)
+server/
+├── api/
+│   ├── contact.post.ts          # Formulaire contact → Resend (public)
+│   ├── revalidate.post.ts       # Webhook Storyblok → purge cache Netlify
+│   └── admin/
+│       ├── members.get.ts       # Liste profils + rôles + groupes (service role)
+│       ├── create-member.post.ts # Crée compte Auth + profil + rôles + groupes
+│       └── send-email.post.ts   # Email notification approbation/refus via Resend
 ```
 
 ---

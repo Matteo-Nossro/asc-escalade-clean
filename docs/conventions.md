@@ -140,6 +140,8 @@ const colors: Record<string, string> = {
 | `usePosts()` | `.getPosts(type?)`, `.getPostBySlug(slug)` |
 | `useEvents()` | `.getEvents()` → posts avec eventDate |
 | `useBreakpoints()` | `isMobile`, `isTablet`, `isDesktop`, `breakpoint` |
+| `useSeo(opts?)` | Pose les balises meta/OG. Priorité : `opts.title/description/image` > `blok.seo_*` > `blok.title` > défaut site. Passe `{ blok }` pour lecture automatique des champs Storyblok |
+| `useStoryblokCacheTag(...slugs)` | Pose le header `Netlify-Cache-Tag` côté SSR pour invalidation CDN ciblée. No-op côté client/dev |
 
 ### Supabase / Auth & métier
 
@@ -185,4 +187,6 @@ STORYBLOK_TOKEN=...
 STORYBLOK_REGION=eu
 SUPABASE_URL=...
 SUPABASE_KEY=...
+RESEND_API_KEY=...              # Emails (contact + notifications admin)
+STORYBLOK_WEBHOOK_SECRET=...   # Revalidation ISR via webhook Storyblok
 ```

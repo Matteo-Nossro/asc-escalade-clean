@@ -92,6 +92,7 @@ vueApp.component('technical-name', ImportedComponent)
 | `galerie` | `ui/Galerie.vue` | `photos` (**Multi-Asset**) |
 | `bouton` | `ui/Bouton.vue` | — |
 | `carrousel` | `ui/Carrousel.vue` | — |
+| `action-bouton` | `ui/ActionBouton.vue` | `text` (Text), `link` (Link — supporte url, story, asset, email) |
 
 ---
 
