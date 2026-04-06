@@ -12,6 +12,8 @@
 		</h3>
 
 		<form @submit.prevent="onSubmit" class="space-y-8 relative z-10 w-full">
+			<!-- Honeypot anti-bot — caché des humains -->
+			<input v-model="form.botField" type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0;" aria-hidden="true" />
 
 			<!-- LIGNE 1 : NOM & EMAIL -->
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
@@ -103,6 +105,8 @@
 					</template>
 					{{ success ? 'Envoyé !' : 'Envoyer le message' }}
 				</UButton>
+
+				<p v-if="errorMsg" class="mt-3 text-sm text-red-500">{{ errorMsg }}</p>
 			</div>
 
 		</form>
@@ -110,36 +114,48 @@
 </template>
 
 <script setup>
-const props = defineProps({
-	blok: {
-		type: Object,
-		required: true
-	}
-})
+defineProps({ blok: { type: Object, required: true } })
 
 const loading = ref(false)
 const success = ref(false)
+const errorMsg = ref('')
+const startTime = ref(Date.now())
 
 const form = reactive({
-	name: '',
-	email: '',
-	subject: '',
-	message: ''
+  name: '',
+  email: '',
+  subject: '',
+  message: '',
+  botField: '', // honeypot — jamais affiché
 })
 
-const onSubmit = () => {
-	if (!form.name || !form.email) return
-	loading.value = true
-	setTimeout(() => {
-		loading.value = false
-		success.value = true
-		setTimeout(() => {
-			success.value = false
-			form.name = ''
-			form.email = ''
-			form.subject = ''
-			form.message = ''
-		}, 3000)
-	}, 1500)
+async function onSubmit() {
+  if (!form.name || !form.email || !form.message) return
+  loading.value = true
+  errorMsg.value = ''
+  try {
+    await $fetch('/api/contact', {
+      method: 'POST',
+      body: {
+        name: form.name,
+        email: form.email,
+        subject: form.subject,
+        message: form.message,
+        botField: form.botField,
+        timestamp: startTime.value,
+      },
+    })
+    success.value = true
+    form.name = ''
+    form.email = ''
+    form.subject = ''
+    form.message = ''
+    setTimeout(() => { success.value = false }, 4000)
+  } catch (e) {
+    errorMsg.value = e?.data?.statusMessage ?? 'Une erreur est survenue, veuillez réessayer.'
+  } finally {
+    loading.value = false
+    startTime.value = Date.now()
+  }
 }
 </script>
