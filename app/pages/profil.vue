@@ -135,7 +135,7 @@
               </UFormField>
             </div>
 
-            <UFormField label="Adresse email">
+            <UFormField label="Adresse email" required :error="formErrors.email">
               <UInput
                 v-model="form.email"
                 type="email"
@@ -148,7 +148,7 @@
             </UFormField>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <UFormField label="Téléphone fixe">
+              <UFormField label="Téléphone fixe" :error="formErrors.phone">
                 <UInput
                   v-model="form.phone"
                   type="tel"
@@ -160,7 +160,7 @@
                 />
               </UFormField>
 
-              <UFormField label="Portable">
+              <UFormField label="Portable" :error="formErrors.mobile">
                 <UInput
                   v-model="form.mobile"
                   type="tel"
@@ -235,7 +235,7 @@
             </UFormField>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <UFormField label="Code postal">
+              <UFormField label="Code postal" :error="formErrors.postal_code">
                 <UInput
                   v-model="form.postal_code"
                   placeholder="21000"
@@ -272,7 +272,7 @@
             Photo de profil
           </h3>
 
-          <UFormField label="URL de la photo">
+          <UFormField label="URL de la photo" :error="formErrors.avatar_url">
             <UInput
               v-model="form.avatar_url"
               type="url"
@@ -381,6 +381,32 @@ const saving = ref(false)
 const successMessage = ref('')
 const errorMessage = ref('')
 const userRoles = ref<RoleCode[]>([])
+const formErrors = ref({ email: '', phone: '', mobile: '', postal_code: '', avatar_url: '' })
+
+function validate(): boolean {
+  const e = { email: '', phone: '', mobile: '', postal_code: '', avatar_url: '' }
+  if (!form.value.email.trim()) {
+    e.email = "L'email est requis"
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.value.email)) {
+    e.email = "Format d'email invalide"
+  }
+  if (form.value.phone) {
+    const digits = form.value.phone.replace(/\D/g, '')
+    if (digits.length < 10 || digits.length > 11) e.phone = 'Numéro de téléphone invalide'
+  }
+  if (form.value.mobile) {
+    const digits = form.value.mobile.replace(/\D/g, '')
+    if (digits.length < 10 || digits.length > 11) e.mobile = 'Numéro de portable invalide'
+  }
+  if (form.value.postal_code && !/^\d{5}$/.test(form.value.postal_code)) {
+    e.postal_code = 'Code postal invalide (5 chiffres)'
+  }
+  if (form.value.avatar_url && !/^https?:\/\/.+/.test(form.value.avatar_url)) {
+    e.avatar_url = "L'URL doit commencer par http:// ou https://"
+  }
+  formErrors.value = e
+  return !Object.values(e).some(v => v)
+}
 
 // ─── Gestion parent / enfant ──────────────────────────────────────────────────
 
@@ -638,6 +664,7 @@ onMounted(async () => {
 // ─── Sauvegarde ──────────────────────────────────────────────────────────────
 
 async function saveProfile() {
+  if (!validate()) return
   // Si enfant, on update le profil enfant. Sinon, le sien.
   const targetId = (editingChildId.value as string) || (getUserId() as string)
   if (!targetId) return

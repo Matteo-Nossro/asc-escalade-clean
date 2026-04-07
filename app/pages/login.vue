@@ -31,14 +31,13 @@
 				<form @submit.prevent="handleLogin" class="space-y-6">
 
 					<!-- Email -->
-					<UFormField label="Adresse email" required>
+					<UFormField label="Adresse email" required :error="fieldErrors.email">
 						<UInput
 								v-model="credentials.email"
 								type="email"
 								placeholder="votre.email@exemple.com"
 								icon="i-lucide-mail"
 								size="lg"
-								required
 								:disabled="loading"
 								class="w-full"
 								data-testid="input-login-email"
@@ -50,14 +49,13 @@
 					</UFormField>
 
 					<!-- Mot de passe -->
-					<UFormField label="Mot de passe" required>
+					<UFormField label="Mot de passe" required :error="fieldErrors.password">
 						<UInput
 								v-model="credentials.password"
 								:type="showPassword ? 'text' : 'password'"
 								placeholder="••••••••"
 								icon="i-lucide-lock"
 								size="lg"
-								required
 								:disabled="loading"
 								class="w-full"
 								data-testid="input-login-password"
@@ -158,16 +156,26 @@ const showPassword = ref(false)
 const rememberMe = ref(false)
 const loading = ref(false)
 const error = ref('')
+const fieldErrors = ref({ email: '', password: '' })
 
 const handleLogin = async () => {
+  fieldErrors.value = { email: '', password: '' }
+  let valid = true
+  if (!credentials.value.email.trim()) {
+    fieldErrors.value.email = "L'email est requis"
+    valid = false
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.value.email)) {
+    fieldErrors.value.email = "Format d'email invalide"
+    valid = false
+  }
+  if (!credentials.value.password) {
+    fieldErrors.value.password = 'Le mot de passe est requis'
+    valid = false
+  }
+  if (!valid) return
   try {
     loading.value = true
     error.value = ''
-
-    if (!credentials.value.email || !credentials.value.password) {
-      error.value = 'Veuillez remplir tous les champs'
-      return
-    }
 
     await loginWithEmail(credentials.value.email, credentials.value.password)
 
