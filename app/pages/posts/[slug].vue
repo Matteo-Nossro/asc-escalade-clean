@@ -145,9 +145,13 @@
                 <span class="text-2xl font-bold text-[#7FD857]">{{ p.price }}€</span>
               </div>
 
-              <div v-if="p.maxParticipants" class="flex justify-between items-center pb-3 border-b border-gray-100">
+              <div v-if="supabaseEvent?.max_participants || p.maxParticipants" class="flex justify-between items-center pb-3 border-b border-gray-100">
                 <span class="text-gray-600">Places</span>
-                <span class="font-bold text-gray-900">{{ p.currentParticipants }} / {{ p.maxParticipants }}</span>
+                <span class="font-bold text-gray-900">
+                  {{ supabaseEvent ? supabaseEvent.current_participants : p.currentParticipants }}
+                  /
+                  {{ supabaseEvent ? supabaseEvent.max_participants : p.maxParticipants }}
+                </span>
               </div>
 
               <div v-if="p.difficulty" class="flex justify-between items-center pb-3 border-b border-gray-100">
@@ -166,30 +170,60 @@
               </div>
             </div>
 
-            <!-- Progression des places -->
-            <div v-if="p.maxParticipants && p.currentParticipants" class="mb-6">
+            <!-- Progression des places (données Supabase si dispo, sinon Storyblok) -->
+            <div v-if="(supabaseEvent ?? p).maxParticipants || supabaseEvent?.max_participants" class="mb-6">
               <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
                 <div
                   class="h-full bg-[#7FD857] transition-all duration-300"
-                  :style="{ width: `${(p.currentParticipants / p.maxParticipants) * 100}%` }"
+                  :style="{
+                    width: supabaseEvent
+                      ? `${(supabaseEvent.current_participants / supabaseEvent.max_participants) * 100}%`
+                      : `${(p.currentParticipants / p.maxParticipants) * 100}%`
+                  }"
                 ></div>
               </div>
               <p class="text-xs text-gray-500 mt-2">
-                {{ p.maxParticipants - p.currentParticipants }} place(s) restante(s)
+                <template v-if="supabaseEvent">
+                  {{ supabaseEvent.max_participants - supabaseEvent.current_participants }} place(s) restante(s)
+                </template>
+                <template v-else>
+                  {{ p.maxParticipants - p.currentParticipants }} place(s) restante(s)
+                </template>
               </p>
             </div>
 
+            <!-- Bouton S'inscrire branché sur Supabase -->
             <UButton
+              v-if="supabaseEvent"
               size="xl"
               block
               class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold"
               icon="i-heroicons-check"
-              :disabled="p.currentParticipants && p.maxParticipants && p.currentParticipants >= p.maxParticipants"
+              :disabled="supabaseEvent.current_participants >= supabaseEvent.max_participants && supabaseEvent.max_participants > 0"
+              @click="showRegistrationModal = true"
             >
-              {{ (p.currentParticipants && p.maxParticipants && p.currentParticipants >= p.maxParticipants) ? 'Complet' : 'S\'inscrire' }}
+              {{ supabaseEvent.current_participants >= supabaseEvent.max_participants && supabaseEvent.max_participants > 0 ? 'Complet' : 'S\'inscrire' }}
+            </UButton>
+
+            <!-- Fallback si l'event n'est pas encore synchronisé dans Supabase -->
+            <UButton
+              v-else
+              size="xl"
+              block
+              class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold"
+              icon="i-heroicons-check"
+              disabled
+            >
+              S'inscrire
             </UButton>
 
             <p class="text-xs text-gray-500 text-center mt-3">Réservé aux membres du club</p>
+
+            <EventRegistrationModal
+              v-if="supabaseEvent"
+              v-model="showRegistrationModal"
+              :event="supabaseEvent"
+            />
           </div>
 
           <!-- Card Contact (actualités) -->
@@ -283,6 +317,7 @@ import type { Post } from '~/types/post'
 import Tag from '~/components/ui/Tag.vue'
 import { useSeo } from '../../composables/useSeo'
 import { useStoryblokCacheTag } from '../../composables/useStoryblokCacheTag'
+import EventRegistrationModal from '~/components/EventRegistrationModal.vue'
 
 const route = useRoute()
 const slug = route.params.slug as string
@@ -299,6 +334,15 @@ if (!post.value) {
 useStoryblokCacheTag(`posts/${slug}`)
 
 const p = computed(() => post.value!)
+
+const showRegistrationModal = ref(false)
+const supabaseEvent = ref<any>(null)
+
+// Charger l'event Supabase si c'est une sortie avec eventDate
+if (p.value.type === 'sortie' && p.value.eventDate) {
+  const { getEventBySlug } = useRegistration()
+  supabaseEvent.value = await getEventBySlug(p.value.slug).catch(() => null)
+}
 
 const allPosts = await getPosts(p.value.type)
 

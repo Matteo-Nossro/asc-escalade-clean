@@ -93,8 +93,14 @@ export default defineNuxtConfig({
   runtimeConfig: {
     storyblokWebhookSecret: process.env.STORYBLOK_WEBHOOK_SECRET || '',
     resendApiKey: process.env.RESEND_API_KEY || '',
+    supabaseUrl: process.env.SUPABASE_URL || '',
+    supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY || '',
+    helloassoClientId: process.env.HELLOASSO_CLIENT_ID || '',
+    helloassoClientSecret: process.env.HELLOASSO_CLIENT_SECRET || '',
+    helloassoOrgSlug: process.env.HELLOASSO_ORG_SLUG || '',
     public: {
-      storyblokVersion: process.env.STORYBLOK_VERSION || 'published'
+      storyblokVersion: process.env.STORYBLOK_VERSION || 'published',
+      siteUrl: process.env.SITE_URL || 'http://localhost:3000',
     }
   },
 
