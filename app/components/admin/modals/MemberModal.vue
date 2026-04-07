@@ -6,18 +6,18 @@
     @update:open="emit('update:open', $event)"
   >
     <template #body>
-      <form @submit.prevent="emit('save')" class="space-y-4 w-full">
+      <form @submit.prevent="handleSave" class="space-y-4 w-full">
         <div class="grid grid-cols-2 gap-4">
-          <UFormField label="Prénom" required>
-            <UInput v-model="form.first_name" placeholder="Marie" required class="w-full" data-testid="input-member-firstname" />
+          <UFormField label="Prénom" required :error="errors.first_name">
+            <UInput v-model="form.first_name" placeholder="Marie" class="w-full" data-testid="input-member-firstname" />
           </UFormField>
-          <UFormField label="Nom" required>
-            <UInput v-model="form.last_name" placeholder="Dupont" required class="w-full" data-testid="input-member-lastname" />
+          <UFormField label="Nom" required :error="errors.last_name">
+            <UInput v-model="form.last_name" placeholder="Dupont" class="w-full" data-testid="input-member-lastname" />
           </UFormField>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-          <UFormField label="N° Licence FFME">
+          <UFormField label="N° Licence FFME" :error="errors.licence">
             <UInput v-model="form.licence" placeholder="Ex: 12345678" class="w-full" />
           </UFormField>
           <UFormField label="Statut" required>
@@ -29,8 +29,8 @@
           </UFormField>
         </div>
 
-        <UFormField label="Email" required>
-          <UInput v-model="form.email" type="email" placeholder="email@exemple.com" required class="w-full" data-testid="input-member-email" />
+        <UFormField label="Email" required :error="errors.email">
+          <UInput v-model="form.email" type="email" placeholder="email@exemple.com" class="w-full" data-testid="input-member-email" />
         </UFormField>
 
         <UFormField label="Type de licence">
@@ -139,7 +139,7 @@
           class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546]"
           :loading="saving"
           data-testid="btn-member-submit"
-          @click="emit('save')"
+          @click="handleSave"
         >
           {{ editMode ? 'Mettre à jour' : 'Enregistrer' }}
         </UButton>
@@ -149,7 +149,9 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+import { ref } from 'vue'
+
+const props = defineProps<{
   open: boolean
   editMode: boolean
   form: {
@@ -181,6 +183,34 @@ const emit = defineEmits<{
   'add-child': []
   'remove-child': [childId: string]
 }>()
+
+const errors = ref({ first_name: '', last_name: '', email: '', licence: '' })
+
+function handleSave() {
+  errors.value = { first_name: '', last_name: '', email: '', licence: '' }
+  let valid = true
+  if (!props.form.first_name.trim()) {
+    errors.value.first_name = 'Le prénom est requis'
+    valid = false
+  }
+  if (!props.form.last_name.trim()) {
+    errors.value.last_name = 'Le nom est requis'
+    valid = false
+  }
+  if (!props.form.email.trim()) {
+    errors.value.email = "L'email est requis"
+    valid = false
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(props.form.email)) {
+    errors.value.email = "Format d'email invalide"
+    valid = false
+  }
+  if (props.form.licence && !/^\d{6,10}$/.test(props.form.licence.trim())) {
+    errors.value.licence = 'Numéro de licence invalide (6 à 10 chiffres)'
+    valid = false
+  }
+  if (!valid) return
+  emit('save')
+}
 
 function getRoleBadgeColor(role: string): string {
   return ({ admin: 'error', secretary: 'info', parent: 'success' } as Record<string, string>)[role] || 'neutral'

@@ -228,6 +228,7 @@ export const useGroups = () => {
       .from('group_members')
       .select('*, profile:profiles!user_id(id, full_name)')
       .eq('group_id', groupId)
+      .eq('status', 'confirmed')
       .order('enrolled_at')
 
     if (error) throw error

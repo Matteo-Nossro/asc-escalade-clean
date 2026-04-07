@@ -20,6 +20,21 @@
           size="md"
           @update:model-value="emit('update:roleFilter', $event)"
         />
+        <USelect
+          :model-value="groupFilter"
+          :items="groupFilterOptions"
+          class="w-44"
+          size="md"
+          @update:model-value="emit('update:groupFilter', $event)"
+        />
+        <UButton
+          color="neutral"
+          variant="ghost"
+          icon="i-lucide-refresh-cw"
+          :loading="pending"
+          aria-label="Rafraîchir"
+          @click="emit('refresh')"
+        />
         <UButton
           color="white"
           variant="solid"
@@ -28,6 +43,14 @@
           class="hidden sm:flex"
           @click="emit('export-csv')"
         />
+        <UButton
+          icon="i-heroicons-user-plus"
+          class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546] font-bold"
+          data-testid="btn-add-member"
+          @click="emit('add-member')"
+        >
+          Ajouter un adhérent
+        </UButton>
       </div>
     </div>
 
@@ -140,6 +163,8 @@ const props = defineProps<{
   search: string
   roleFilter: string | null
   roleFilterOptions: { label: string; value: string | null }[]
+  groupFilter: string | null
+  groupFilterOptions: { label: string; value: string | null }[]
   page: number
   pageCount: number
 }>()
@@ -147,11 +172,14 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:search': [value: string]
   'update:roleFilter': [value: string | null]
+  'update:groupFilter': [value: string | null]
   'update:page': [value: number]
   'open-modal': [adherent: AdherentWithRoles]
   'toggle-status': [adherent: AdherentWithRoles]
   'delete': [id: string]
   'export-csv': []
+  'refresh': []
+  'add-member': []
 }>()
 
 const columns: TableColumn<AdherentWithRoles>[] = [

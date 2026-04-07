@@ -2,14 +2,24 @@
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-8 ">
     <div class="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-4 justify-between items-center">
       <h2 class="text-lg font-bold text-gray-900">Groupes & Créneaux</h2>
-      <UButton
-        icon="i-lucide-plus"
-        size="sm"
-        class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546] font-bold"
-        @click="emit('open-modal', null)"
-      >
-        Nouveau groupe
-      </UButton>
+      <div class="flex gap-2">
+        <UButton
+          color="neutral"
+          variant="ghost"
+          icon="i-lucide-refresh-cw"
+          :loading="loading"
+          aria-label="Rafraîchir"
+          @click="emit('refresh')"
+        />
+        <UButton
+          icon="i-lucide-plus"
+          size="sm"
+          class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546] font-bold"
+          @click="emit('open-modal', null)"
+        >
+          Nouveau groupe
+        </UButton>
+      </div>
     </div>
 
     <div v-if="loading" class="p-8 flex justify-center">
@@ -109,5 +119,6 @@ const emit = defineEmits<{
   'open-modal': [group: Group | null]
   'show-members': [group: Group]
   'delete': [groupId: string]
+  'refresh': []
 }>()
 </script>

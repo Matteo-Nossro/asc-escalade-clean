@@ -13,21 +13,9 @@
   <div v-else class="min-h-screen bg-gray-50 p-4 md:p-8 page-content">
 
     <!-- Header -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">Administration</h1>
-        <p class="text-gray-500">Gérez les adhérents et les inscriptions du club.</p>
-      </div>
-      <UButton
-        icon="i-heroicons-user-plus"
-        size="lg"
-        color="primary"
-        class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546] font-bold"
-        data-testid="btn-add-member"
-        @click="openMemberModal(null)"
-      >
-        Ajouter un adhérent
-      </UButton>
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold text-gray-900">Administration</h1>
+      <p class="text-gray-500">Gérez les adhérents et les inscriptions du club.</p>
     </div>
 
     <!-- KPI -->
@@ -38,6 +26,7 @@
       :requests="pendingRequests"
       :processing-request-id="processingReviewId"
       @open-review="openReviewModal"
+      @refresh="fetchPendingRequests"
     />
 
     <!-- Table des membres -->
@@ -48,15 +37,20 @@
       :search="search"
       :role-filter="roleFilter"
       :role-filter-options="roleFilterOptions"
+      :group-filter="groupFilter"
+      :group-filter-options="groupFilterOptions"
       :page="page"
       :page-count="pageCount"
       @update:search="search = $event; page = 1"
       @update:role-filter="roleFilter = $event; page = 1"
+      @update:group-filter="groupFilter = $event; page = 1"
       @update:page="page = $event"
+      @add-member="openMemberModal(null)"
       @open-modal="openMemberModal"
       @toggle-status="toggleStatus"
       @delete="deleteMember"
       @export-csv="exportCSV"
+      @refresh="loadMembers"
     />
 
     <!-- Groupes -->
@@ -67,6 +61,7 @@
       @open-modal="openGroupModal"
       @show-members="showGroupMembersModal"
       @delete="handleDeleteGroup"
+      @refresh="loadAdminGroups"
     />
 
     <!-- Modal membre -->
@@ -138,6 +133,7 @@ import type { EnrollmentRequest } from '~/composables/useEnrollmentRequests'
 
 const user = useSupabaseUser()
 const supabase = useSupabaseClient()
+const toast = useToast()
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
 const authReady = ref(false)
@@ -224,6 +220,7 @@ const stats = computed(() => ({
 // ── Search / Filter / Pagination ──────────────────────────────────────────────
 const search = ref('')
 const roleFilter = ref<string | null>(null)
+const groupFilter = ref<string | null>(null)
 const page = ref(1)
 const pageCount = 10
 
@@ -233,6 +230,11 @@ const roleFilterOptions = [
   { label: 'Secrétaire', value: 'secretary' },
   { label: 'Parent', value: 'parent' },
 ]
+
+const groupFilterOptions = computed(() => [
+  { label: 'Tous les groupes', value: null as string | null },
+  ...adminGroups.value.map((g: any) => ({ label: g.name, value: g.id as string | null })),
+])
 
 const filteredAndSorted = computed(() => {
   let data = allRows.value
@@ -244,6 +246,9 @@ const filteredAndSorted = computed(() => {
   }
   if (roleFilter.value) {
     data = data.filter(r => r.roles.includes(roleFilter.value as any))
+  }
+  if (groupFilter.value) {
+    data = data.filter(r => r.groupIds.includes(groupFilter.value as string))
   }
   return data
 })
@@ -285,7 +290,7 @@ const memberForm = ref({
   name: '',
   licence: '',
   email: '',
-  formule: 'Adulte Autonome',
+  formule: 'Aucune licence',
   creneau: '-',
   status: 'Actif' as 'Actif' | 'Inactif' | 'En attente',
   roles: [] as string[],
@@ -294,9 +299,9 @@ const memberForm = ref({
 })
 
 const licenceTypeOptions = [
-  { label: 'Licence Sèche', value: 'Licence Sèche' },
-  { label: 'Adulte Autonome', value: 'Adulte Autonome' },
-  { label: 'École Escalade', value: 'École Escalade' },
+  { label: 'Aucune licence', value: 'Aucune licence' },
+  { label: 'Licence loisir', value: 'Licence loisir' },
+  { label: 'Licence compétition', value: 'Licence compétition' },
 ]
 
 const groupSelectOptions = computed(() => [
@@ -326,7 +331,7 @@ function openMemberModal(member: AdherentWithRoles | null = null) {
       name: member.name,
       licence: member.licence,
       email: member.email,
-      formule: member.formule !== '-' ? member.formule : 'Adulte Autonome',
+      formule: member.formule !== '-' ? member.formule : 'Aucune licence',
       creneau: member.creneau,
       status: member.status,
       roles: [...member.roles],
@@ -338,7 +343,7 @@ function openMemberModal(member: AdherentWithRoles | null = null) {
     memberForm.value = {
       id: '', first_name: '', last_name: '', name: '',
       licence: '', email: '',
-      formule: 'Adulte Autonome', creneau: '-',
+      formule: 'Aucune licence', creneau: '-',
       status: 'Actif', roles: [], groupIds: [], linkedChildren: [],
     }
   }
@@ -371,7 +376,7 @@ async function saveMember() {
         )
       }
 
-      await supabase.from('group_members').delete().eq('user_id', uid).eq('status', 'confirmed')
+      await supabase.from('group_members').delete().eq('user_id', uid)
       if (memberForm.value.groupIds.length) {
         await supabase.from('group_members').insert(
           memberForm.value.groupIds.map(gid => ({
@@ -412,8 +417,19 @@ async function saveMember() {
     }
     isModalOpen.value = false
     await loadMembers()
+    toast.add({
+      title: editMode.value ? 'Adhérent mis à jour' : 'Adhérent créé',
+      description: `${memberForm.value.first_name} ${memberForm.value.last_name}`,
+      color: 'success',
+      icon: 'i-lucide-check-circle',
+    })
   } catch (e: any) {
-    console.error('Erreur sauvegarde membre:', e.message)
+    toast.add({
+      title: editMode.value ? 'Erreur lors de la modification' : 'Erreur lors de la création',
+      description: e.message,
+      color: 'error',
+      icon: 'i-lucide-alert-circle',
+    })
   } finally {
     saving.value = false
   }
@@ -453,16 +469,36 @@ async function removeChildLink(childId: string) {
 async function toggleStatus(adherent: AdherentWithRoles) {
   const newStatus = adherent.status === 'Actif' ? 'Inactif' : 'Actif'
   const { error } = await supabase.from('profiles').update({ status: newStatus }).eq('id', adherent.id)
-  if (error) { console.error(error.message); return }
-  const idx = allRows.value.findIndex(r => r.id === adherent.id)
-  if (idx !== -1) allRows.value[idx].status = newStatus as any
+  if (error) {
+    toast.add({ title: 'Erreur', description: error.message, color: 'error', icon: 'i-lucide-alert-circle' })
+    return
+  }
+  allRows.value = allRows.value.map(r =>
+    r.id === adherent.id ? { ...r, status: newStatus as AdherentWithRoles['status'] } : r,
+  )
+  toast.add({
+    title: newStatus === 'Actif' ? 'Adhérent activé' : 'Adhérent désactivé',
+    description: adherent.name,
+    color: newStatus === 'Actif' ? 'success' : 'warning',
+    icon: newStatus === 'Actif' ? 'i-lucide-user-check' : 'i-lucide-user-x',
+  })
 }
 
 async function deleteMember(id: string) {
   if (!confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) return
+  const member = allRows.value.find(r => r.id === id)
   const { error } = await supabase.from('profiles').delete().eq('id', id)
-  if (error) { console.error(error.message); return }
+  if (error) {
+    toast.add({ title: 'Erreur lors de la suppression', description: error.message, color: 'error', icon: 'i-lucide-alert-circle' })
+    return
+  }
   await loadMembers()
+  toast.add({
+    title: 'Adhérent supprimé',
+    description: member?.name,
+    color: 'warning',
+    icon: 'i-lucide-trash',
+  })
 }
 
 function exportCSV() {
@@ -580,8 +616,19 @@ async function saveGroup() {
     }
     isGroupModalOpen.value = false
     await loadAdminGroups()
+    toast.add({
+      title: editingGroup.value ? 'Groupe mis à jour' : 'Groupe créé',
+      description: groupForm.value.name,
+      color: 'success',
+      icon: 'i-lucide-check-circle',
+    })
   } catch (e: any) {
-    console.error('Erreur sauvegarde groupe:', e.message)
+    toast.add({
+      title: editingGroup.value ? 'Erreur lors de la modification' : 'Erreur lors de la création',
+      description: e.message,
+      color: 'error',
+      icon: 'i-lucide-alert-circle',
+    })
   } finally {
     savingGroup.value = false
   }
@@ -589,11 +636,18 @@ async function saveGroup() {
 
 async function handleDeleteGroup(groupId: string) {
   if (!confirm('Supprimer ce groupe et toutes ses inscriptions ?')) return
+  const group = adminGroups.value.find((g: any) => g.id === groupId)
   try {
     await deleteGroup(groupId)
     await loadAdminGroups()
+    toast.add({
+      title: 'Groupe supprimé',
+      description: group?.name,
+      color: 'warning',
+      icon: 'i-lucide-trash',
+    })
   } catch (e: any) {
-    console.error('Erreur suppression groupe:', e.message)
+    toast.add({ title: 'Erreur lors de la suppression', description: e.message, color: 'error', icon: 'i-lucide-alert-circle' })
   }
 }
 
@@ -622,8 +676,9 @@ async function removeMemberFromGroup(memberId: string) {
     if (error) throw error
     groupMembersList.value = groupMembersList.value.filter(m => m.id !== memberId)
     await loadAdminGroups()
+    toast.add({ title: 'Membre retiré du groupe', color: 'success', icon: 'i-lucide-check-circle' })
   } catch (e: any) {
-    console.error(e.message)
+    toast.add({ title: 'Erreur', description: e.message, color: 'error', icon: 'i-lucide-alert-circle' })
   } finally {
     removingMemberId.value = null
   }
@@ -673,8 +728,14 @@ async function confirmReview() {
       await rejectRequest(reviewRequest.value, reviewNote.value, uid)
     }
     isReviewModalOpen.value = false
+    toast.add({
+      title: reviewAction.value === 'approve' ? 'Demande acceptée' : 'Demande refusée',
+      description: reviewRequest.value?.user_name,
+      color: reviewAction.value === 'approve' ? 'success' : 'warning',
+      icon: reviewAction.value === 'approve' ? 'i-lucide-check-circle' : 'i-lucide-x-circle',
+    })
   } catch (e: any) {
-    console.error('Erreur traitement demande:', e.message)
+    toast.add({ title: 'Erreur lors du traitement', description: e.message, color: 'error', icon: 'i-lucide-alert-circle' })
   } finally {
     processingReviewId.value = null
   }

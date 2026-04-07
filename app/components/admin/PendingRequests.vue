@@ -1,6 +1,5 @@
 <template>
   <div
-    v-if="requests.length > 0"
     class="bg-white rounded-xl shadow-sm border border-orange-200 overflow-hidden mb-8"
     data-testid="section-pending-requests"
   >
@@ -8,13 +7,25 @@
       <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
         <UIcon name="i-lucide-bell-ring" class="w-5 h-5 text-orange-500" />
         Demandes d'inscription
-        <UBadge color="warning" variant="solid" size="sm" class="font-bold">
+        <UBadge v-if="requests.length > 0" color="warning" variant="solid" size="sm" class="font-bold">
           {{ requests.length }}
         </UBadge>
       </h2>
+      <UButton
+        color="neutral"
+        variant="ghost"
+        icon="i-lucide-refresh-cw"
+        :loading="loading"
+        aria-label="Rafraîchir"
+        @click="emit('refresh')"
+      />
     </div>
 
-    <div class="divide-y divide-gray-100 max-h-[70vh] overflow-y-auto">
+    <div v-if="requests.length === 0" class="p-6 text-center text-sm text-gray-400">
+      Aucune demande en attente
+    </div>
+
+    <div v-else class="divide-y divide-gray-100 max-h-[70vh] overflow-y-auto">
       <div
         v-for="request in requests"
         :key="request.id"
@@ -40,7 +51,7 @@
 
             <div class="flex items-center gap-2 mt-2">
               <div class="w-6 h-6 rounded-md bg-[#7FD857] flex items-center justify-center text-xs font-bold text-[#0F1729]">
-                {{ request.user_name.split(' ').map((w: string) => w[0]).join('').slice(0, 2) }}
+                {{ request.user_name.split(' ').map(w => w[0]).join('').slice(0, 2) }}
               </div>
               <span class="text-sm text-gray-700">{{ request.user_name }}</span>
               <span class="text-xs text-gray-400">{{ request.user_email }}</span>
@@ -90,10 +101,12 @@ import type { EnrollmentRequest } from '~/composables/useEnrollmentRequests'
 defineProps<{
   requests: EnrollmentRequest[]
   processingRequestId: string | null
+  loading?: boolean
 }>()
 
 const emit = defineEmits<{
   'open-review': [request: EnrollmentRequest, action: 'approve' | 'reject']
+  'refresh': []
 }>()
 
 function formatDate(dateStr: string): string {

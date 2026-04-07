@@ -7,13 +7,13 @@
   >
     <template #body>
       <div class="space-y-4">
-        <UFormField label="Nom du groupe" required>
-          <UInput v-model="groupForm.name" placeholder="Ex: Adultes Autonomes" required class="w-full" data-testid="input-group-name" />
+        <UFormField label="Nom du groupe" required :error="errors.name">
+          <UInput v-model="groupForm.name" placeholder="Ex: Adultes Autonomes" class="w-full" data-testid="input-group-name" />
         </UFormField>
 
         <div class="grid grid-cols-2 gap-4">
-          <UFormField label="Effectif max" required>
-            <UInput v-model.number="groupForm.max_members" type="number" min="1" required class="w-full" />
+          <UFormField label="Effectif max" required :error="errors.max_members">
+            <UInput v-model.number="groupForm.max_members" type="number" min="1" class="w-full" />
           </UFormField>
           <UFormField label="Niveau">
             <USelect
@@ -124,7 +124,7 @@
           class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546]"
           :loading="savingGroup"
           data-testid="btn-group-submit"
-          @click="emit('save')"
+          @click="handleSave"
         >
           {{ editingGroup ? 'Mettre à jour' : 'Créer' }}
         </UButton>
@@ -134,6 +134,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import type { Group } from '~/types/auth'
 
 const props = defineProps<{
@@ -163,6 +164,23 @@ const emit = defineEmits<{
   'add-schedule': []
   'remove-schedule': [index: number]
 }>()
+
+const errors = ref({ name: '', max_members: '' })
+
+function handleSave() {
+  errors.value = { name: '', max_members: '' }
+  let valid = true
+  if (!props.groupForm.name.trim()) {
+    errors.value.name = 'Le nom du groupe est requis'
+    valid = false
+  }
+  if (!props.groupForm.max_members || props.groupForm.max_members < 1) {
+    errors.value.max_members = "L'effectif max doit être supérieur à 0"
+    valid = false
+  }
+  if (!valid) return
+  emit('save')
+}
 
 const dayOptions = [
   { label: 'Lundi', value: 1 },
