@@ -25,6 +25,17 @@
           </UFormField>
         </div>
 
+        <UFormField label="Prix (€)" :error="errors.price">
+          <UInput
+            v-model.number="groupForm.price"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="Ex: 120"
+            class="w-full"
+          />
+        </UFormField>
+
         <UFormField label="Description">
           <UInput v-model="groupForm.description" placeholder="Description du groupe" class="w-full" />
         </UFormField>
@@ -145,6 +156,7 @@ const props = defineProps<{
     max_members: number
     level: string | null
     description: string
+    price: number | null
     referent_id: string | null
     instructor_ids: string[]
     schedules: { day_of_week: number; start_time: string; end_time: string }[]
@@ -165,10 +177,10 @@ const emit = defineEmits<{
   'remove-schedule': [index: number]
 }>()
 
-const errors = ref({ name: '', max_members: '' })
+const errors = ref({ name: '', max_members: '', price: '' })
 
 function handleSave() {
-  errors.value = { name: '', max_members: '' }
+  errors.value = { name: '', max_members: '', price: '' }
   let valid = true
   if (!props.groupForm.name.trim()) {
     errors.value.name = 'Le nom du groupe est requis'
@@ -176,6 +188,10 @@ function handleSave() {
   }
   if (!props.groupForm.max_members || props.groupForm.max_members < 1) {
     errors.value.max_members = "L'effectif max doit être supérieur à 0"
+    valid = false
+  }
+  if (props.groupForm.price !== null && props.groupForm.price < 0) {
+    errors.value.price = 'Le prix ne peut pas être négatif'
     valid = false
   }
   if (!valid) return

@@ -3,31 +3,39 @@
     class="bg-white rounded-xl shadow-sm border border-orange-200 overflow-hidden mb-8"
     data-testid="section-pending-requests"
   >
-    <div class="p-4 border-b border-orange-100 bg-orange-50/50 flex justify-between items-center">
-      <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+    <div class="p-4 border-b border-orange-100 bg-orange-50/50 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
+      <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2 shrink-0">
         <UIcon name="i-lucide-bell-ring" class="w-5 h-5 text-orange-500" />
         Demandes d'inscription
         <UBadge v-if="requests.length > 0" color="warning" variant="solid" size="sm" class="font-bold">
-          {{ requests.length }}
+          {{ filteredRequests.length }}<template v-if="groupFilter !== null">/{{ requests.length }}</template>
         </UBadge>
       </h2>
-      <UButton
-        color="neutral"
-        variant="ghost"
-        icon="i-lucide-refresh-cw"
-        :loading="loading"
-        aria-label="Rafraîchir"
-        @click="emit('refresh')"
-      />
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <USelect
+          v-model="groupFilter"
+          :items="groupFilterOptions"
+          class="flex-1 sm:w-52"
+          size="sm"
+        />
+        <UButton
+          color="neutral"
+          variant="ghost"
+          icon="i-lucide-refresh-cw"
+          :loading="loading"
+          aria-label="Rafraîchir"
+          @click="emit('refresh')"
+        />
+      </div>
     </div>
 
-    <div v-if="requests.length === 0" class="p-6 text-center text-sm text-gray-400">
-      Aucune demande en attente
+    <div v-if="filteredRequests.length === 0" class="p-6 text-center text-sm text-gray-400">
+      {{ requests.length === 0 ? 'Aucune demande en attente' : 'Aucune demande pour ce groupe' }}
     </div>
 
     <div v-else class="divide-y divide-gray-100 max-h-[70vh] overflow-y-auto">
       <div
-        v-for="request in requests"
+        v-for="request in filteredRequests"
         :key="request.id"
         class="p-5 hover:bg-gray-50/50 transition-colors"
       >
@@ -65,7 +73,7 @@
             </p>
           </div>
 
-          <div class="flex items-start gap-2">
+          <div v-if="!readonly" class="flex items-start gap-2">
             <UButton
               icon="i-lucide-check"
               color="success"
@@ -96,18 +104,39 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import type { EnrollmentRequest } from '~/composables/useEnrollmentRequests'
 
-defineProps<{
+const props = defineProps<{
   requests: EnrollmentRequest[]
   processingRequestId: string | null
   loading?: boolean
+  readonly?: boolean
 }>()
 
 const emit = defineEmits<{
   'open-review': [request: EnrollmentRequest, action: 'approve' | 'reject']
   'refresh': []
 }>()
+
+const groupFilter = ref<string | null>(null)
+
+const groupFilterOptions = computed(() => {
+  const seen = new Set<string>()
+  const groups: { label: string; value: string | null }[] = [{ label: 'Tous les groupes', value: null }]
+  for (const r of props.requests) {
+    if (r.type === 'group' && !seen.has(r.target_id)) {
+      seen.add(r.target_id)
+      groups.push({ label: r.target_name, value: r.target_id })
+    }
+  }
+  return groups
+})
+
+const filteredRequests = computed(() => {
+  if (!groupFilter.value) return props.requests
+  return props.requests.filter(r => r.type === 'group' && r.target_id === groupFilter.value)
+})
 
 function formatDate(dateStr: string): string {
   try {
