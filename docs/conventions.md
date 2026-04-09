@@ -163,10 +163,10 @@ Le dashboard admin est découpé en composants autonomes. Tous les composants pa
 |---|---|---|
 | `AdminKpiCard` | `label`, `value`, `subValue?`, `icon`, `iconBg`, `iconColor` | — |
 | `AdminKpiCards` | `stats` (object KPIs) | — |
-| `AdminPendingRequests` | `requests`, `processingRequestId` | `open-review` |
-| `AdminMembersTable` | `rows`, `totalCount`, `pending`, `search`, `roleFilter`, `page`… | `open-modal`, `toggle-status`, `delete`, `export-csv` |
+| `AdminPendingRequests` | `requests`, `processingRequestId`, `loading?`, `readonly?` | `open-review`, `refresh` — filtre groupes **multi-select** |
+| `AdminMembersTable` | `rows`, `totalCount`, `pending`, `search`, `roleFilter`, `groupFilter`, `statusFilter`, `page`… | `open-modal`, `toggle-status`, `delete`, `export-csv` |
 | `AdminGroupsList` | `groups`, `loading`, `formatSchedule` | `open-modal`, `show-members`, `delete` |
-| `AdminModalsMemberModal` | `open`, `editMode`, `form`, `saving`, options… | `update:open`, `save`, `add-child`, `remove-child`… |
+| `AdminModalsMemberModal` | `open`, `editMode`, `form`, `saving`, options… | `update:open`, `save`, `add-child`, `remove-child`… — email optionnel |
 | `AdminModalsReviewModal` | `open`, `request`, `action`, `note`, `processing`, `emailPreview` | `update:open`, `update:note`, `confirm` |
 | `AdminModalsGroupModal` | `open`, `editingGroup`, `groupForm`, `savingGroup`, options… | `update:open`, `save`, `add-instructor`, `add-schedule`… |
 | `AdminModalsGroupMembersModal` | `open`, `title`, `members`, `loading`, `removingMemberId` | `update:open`, `remove-member` |

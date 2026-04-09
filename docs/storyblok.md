@@ -39,9 +39,10 @@ vueApp.component('technical-name', ImportedComponent)
 |---|---|---|
 | `club-hero` | `club/HeroClub.vue` | `title`, `subtitle` |
 | `club-histoire` | `club/Histoire.vue` | `title`, `content` (Richtext), `image` (Asset) |
+| `club-timeline` | `club/Timeline.vue` | `steps` (Blocks → `club-timeline-step`) — défilement horizontal GSAP. Fallback données statiques si `steps` vide |
 | `club-equipe` | `club/Equipe.vue` | `members` (Blocks → `club-membre`) |
 | `club-statistiques` | `club/Statistiques.vue` | `stats` (Blocks → `club-stat`) |
-| `club-galerie` | `club/Galerie.vue` | `photos` (**Multi-Asset**) |
+| `club-galerie` | `club/Galerie.vue` | `photos` (**Multi-Asset**) — 8 photos affichées, bouton "Voir plus" (+8) |
 | `club-partenaires` | `club/Partenaires.vue` | `title`, `subtitle`, `partners` (Blocks → `club-partenaire`) |
 
 **Nestables club :**
@@ -72,6 +73,7 @@ vueApp.component('technical-name', ImportedComponent)
 | `tarifs-planning` | `tarifs/Planning.vue` | `title`, `categories` (Blocks) |
 | `tarifs-bon-a-savoir` | `tarifs/BonASavoir.vue` | — |
 | `tarifs-grille-tarifs` | `tarifs/GrilleTarifs.vue` | — |
+| `groupes-accordeon` | `tarifs/Accordeon.vue` | `title` (Text) — accordéon des groupes d'escalade, données chargées depuis Supabase |
 
 ### Contact
 | Technical name | Composant | Champs |
@@ -89,7 +91,8 @@ vueApp.component('technical-name', ImportedComponent)
 | `tabs-section` | `ui/TabsSection.vue` | `tabs` (Blocks → `tab-item`) |
 | `text-with-image` | `ui/TextWithImage.vue` | `title`, `content` (Richtext), `image` (Asset), `image_position` |
 | `text-with-title` | `ui/TextWithTitle.vue` | `title`, `content` (Richtext) |
-| `galerie` | `ui/Galerie.vue` | `photos` (**Multi-Asset**) |
+| `galerie` | `ui/Galerie.vue` | `photos` (**Multi-Asset**) — 8 photos affichées, bouton "Voir plus" (+8) |
+| `before-after` | `ui/BeforeAfter.vue` | `title?`, `subtitle?`, `image_before` (Asset), `image_after` (Asset), `label_before?`, `label_after?`, `aspect_ratio?` (défaut `16/9`) |
 | `bouton` | `ui/Bouton.vue` | — |
 | `carrousel` | `ui/Carrousel.vue` | — |
 | `action-bouton` | `ui/ActionBouton.vue` | `text` (Text), `link` (Link — supporte url, story, asset, email) |

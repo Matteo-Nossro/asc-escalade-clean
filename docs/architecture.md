@@ -8,6 +8,7 @@
 | `/club`, `/tarifs`, etc. | `pages/[...slug].vue` | Pages Storyblok |
 | `/posts/:slug` | `pages/posts/[slug].vue` | Article/sortie individuel |
 | `/login`, `/callback` | pages dédiées | Auth |
+| `/register` | `pages/register.vue` | Inscription publique (3 étapes : type → profil parent → enfants) |
 | `/profil` | `pages/profil.vue` | Profil utilisateur + enfants (famille) |
 | `/mes-inscriptions` | `pages/mes-inscriptions.vue` | Inscriptions groupes & événements |
 | `/admin/dashboard` | `pages/admin/dashboard.vue` | Admin (admin/secrétaire uniquement) |
@@ -61,6 +62,12 @@ useEvents()
 |---|---|---|
 | `/api/contact` | POST | Formulaire de contact → email via Resend. Protections : honeypot, délai min 3s, rate-limit 3/h/IP |
 
+### Inscription publique
+
+| Route | Méthode | Description |
+|---|---|---|
+| `/api/register` | POST | Inscription publique : crée profil parent + rôle + profils enfants. Idempotente (upsert si profil existant). Utilise le service role pour bypasser les RLS. Le compte Auth est créé côté client via `supabase.auth.signUp()` avant l'appel. |
+
 ### Admin (service role Supabase)
 
 | Route | Méthode | Description |
@@ -83,7 +90,7 @@ useEvents()
 
 | Table | Usage |
 |---|---|
-| `profiles` | Profil étendu (nom, prénom, licence FFME, type, coordonnées…) |
+| `profiles` | Profil étendu (nom, prénom, licence FFME, type, coordonnées…). `email` nullable (profils enfants sans compte Auth). `id` n'a plus de FK vers `auth.users` (migration 20260409) |
 | `user_roles` | Rôles par utilisateur (`admin`, `secretary`, `parent`) |
 | `parent_access` | Lien parent → enfant (access_type : `read`, `register`, `full`) |
 | `groups` | Groupes d'escalade (nom, max_members, level, referent_id…) |
@@ -106,6 +113,7 @@ Un parent peut inscrire un enfant : `enrolled_by` / `registered_by` contient alo
 |---|---|
 | `admin` | Accès total dashboard |
 | `secretary` | Accès total dashboard |
+| `initiateur` | Dashboard en lecture seule (suivi administratif) |
 | `parent` | `/profil` + `/mes-inscriptions`, peut inscrire ses enfants |
 
 ---
@@ -151,6 +159,7 @@ app/
 │   ├── posts/[slug].vue         # Détail post
 │   ├── login.vue                # Connexion (email + OAuth)
 │   ├── callback.vue             # Callback OAuth
+│   ├── register.vue             # Inscription publique (stepper 3 étapes)
 │   ├── profil.vue               # Profil utilisateur + gestion enfants
 │   ├── mes-inscriptions.vue     # Inscriptions groupes & événements
 │   └── admin/dashboard.vue      # Dashboard admin
@@ -161,11 +170,15 @@ app/
 server/
 ├── api/
 │   ├── contact.post.ts          # Formulaire contact → Resend (public)
+│   ├── register.post.ts         # Inscription publique → crée profil parent + enfants (service role)
 │   ├── revalidate.post.ts       # Webhook Storyblok → purge cache Netlify
 │   └── admin/
 │       ├── members.get.ts       # Liste profils + rôles + groupes (service role)
 │       ├── create-member.post.ts # Crée compte Auth + profil + rôles + groupes
 │       └── send-email.post.ts   # Email notification approbation/refus via Resend
+supabase/
+└── migrations/
+    └── 20260409_profiles_children_support.sql  # email nullable + suppression FK id→auth.users
 ```
 
 ---

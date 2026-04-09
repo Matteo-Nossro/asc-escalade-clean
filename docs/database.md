@@ -9,10 +9,12 @@
 ### `profiles`
 Profil étendu lié à `auth.users`. Table principale pour les adhérents.
 
+> **Migration 20260409** : `email` rendu nullable (profils enfants sans compte Auth) + contrainte FK `profiles_id_fkey` (id → auth.users) supprimée pour permettre des profils enfants avec UUID autonome.
+
 ```sql
 CREATE TABLE public.profiles (
-  id uuid NOT NULL,                         -- = auth.users.id
-  email text NOT NULL,
+  id uuid NOT NULL,                         -- UUID autonome (plus de FK auth.users depuis migration 20260409)
+  email text,                               -- nullable : profils enfants sans compte Auth
   full_name text NOT NULL DEFAULT '',
   licence_number bigint UNIQUE,
   first_name text,
@@ -44,8 +46,8 @@ CREATE TABLE public.profiles (
   tshirt text,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
-  CONSTRAINT profiles_pkey PRIMARY KEY (id),
-  CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
+  CONSTRAINT profiles_pkey PRIMARY KEY (id)
+  -- profiles_id_fkey supprimée (migration 20260409)
 );
 ```
 
@@ -309,7 +311,7 @@ CREATE TABLE public.User (
 
 ```
 auth.users
-  ├── profiles (1:1)
+  ├── profiles (1:1 pour les parents/admins, ou UUID autonome pour les enfants)
   │     ├── user_roles (1:N) → roles
   │     ├── parent_access (parent_id) → profiles (child_id)
   │     ├── group_members (user_id) → groups
