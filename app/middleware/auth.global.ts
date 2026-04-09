@@ -17,7 +17,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
       .from('user_roles')
       .select('role_code')
       .eq('user_id', uid)                                    // ← uid
-      .in('role_code', ['admin', 'secretary'])
+      .in('role_code', ['admin', 'secretary', 'initiateur'])
       .limit(1)
 
     if (error || !data || data.length === 0) {

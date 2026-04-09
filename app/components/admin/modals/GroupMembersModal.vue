@@ -39,6 +39,7 @@
               </div>
             </div>
             <UButton
+              v-if="!isInitiateur"
               icon="i-lucide-user-minus"
               color="error"
               variant="ghost"
@@ -68,6 +69,7 @@ defineProps<{
   members: GroupMember[]
   loading: boolean
   removingMemberId: string | null
+  isInitiateur?: boolean
 }>()
 
 const emit = defineEmits<{

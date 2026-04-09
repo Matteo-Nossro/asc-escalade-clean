@@ -110,6 +110,7 @@
       :members="groupMembersList"
       :loading="loadingGroupMembers"
       :removing-member-id="removingMemberId"
+      :is-initiateur="isReadOnly"
       @update:open="isGroupMembersModalOpen = $event"
       @remove-member="removeMemberFromGroup"
     />
