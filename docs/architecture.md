@@ -211,3 +211,4 @@ ParentAccessLink // Lien parent-enfant + access_type
 | `contact-page` | Page contact layout 2 colonnes |
 | `actualites-page` | Page actualités |
 | `sorties-page` | Page sorties |
+

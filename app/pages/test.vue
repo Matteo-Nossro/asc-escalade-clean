@@ -150,6 +150,36 @@ const timelineBlok = {
             description: 'Le nouveau mur est inauguré au gymnase Boivin — accessible à tous, valides et non-valides. Financé par le Conseil Régional, la Mairie, la Fondation Prévadies et le club.',
             image: { filename: 'https://pplx-res.cloudinary.com/image/upload/pplx_search_images/acb7ef83d66df75d0f3dba7b77e32dca74b6995a.jpg', alt: '' }
         },
+        {
+            _uid: "11",
+            date: "2024",
+            title: "Engagement Sport Santé et RSO",
+            description: "Le club ouvre la pratique sport santé sous prescription médicale, forme ses salariés via GRIMPE 21 et engage une démarche RSO : ressemelage solidaire, collecte de matériel usagé, textile écoresponsable, sensibilisation nutrition et prévention des violences.",
+            image: {
+            filename: "https://pplx-res.cloudinary.com/image/upload/pplx_search_images/5056e13ec66e1747891b73031208ede18ea8a17b.jpg",
+            alt: "Escalade sport santé encadrée"
+            }
+        },
+        {
+            _uid: "12",
+            date: "27 mars 2025",
+            title: "Reconnaissance Club Ambition Performance",
+            description: "La FFME attribue au club la reconnaissance « Club Ambition Performance », en lien avec la qualité du projet sportif et de sa structuration.",
+            image: {
+            filename: "https://pplx-res.cloudinary.com/image/upload/pplx_search_images/0b5b270f0692706821762edaf6ba57cb77b7a54c.jpg",
+            alt: "Visuel label ambition performance"
+            }
+        },
+        {
+            _uid: "13",
+            date: "9 avril 2025",
+            title: "Label Club valid/handi",
+            description: "Le club obtient la labellisation « club valid/handi » du département de la Côte-d'Or, après son engagement dans la démarche club inclusif et son inscription sur HandiGuide.",
+            image: {
+            filename: "https://pplx-res.cloudinary.com/image/upload/pplx_search_images/2b7521719f1ce1f82efc62d108062587bf24a3bf.jpg",
+            alt: "Visuel club inclusif et handi-escalade"
+            }
+        }
 	]
 }
 </script>
