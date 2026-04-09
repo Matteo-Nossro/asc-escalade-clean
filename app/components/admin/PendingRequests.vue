@@ -8,13 +8,15 @@
         <UIcon name="i-lucide-bell-ring" class="w-5 h-5 text-orange-500" />
         Demandes d'inscription
         <UBadge v-if="requests.length > 0" color="warning" variant="solid" size="sm" class="font-bold">
-          {{ filteredRequests.length }}<template v-if="groupFilter !== null">/{{ requests.length }}</template>
+          {{ filteredRequests.length }}<template v-if="groupFilter.length > 0">/{{ requests.length }}</template>
         </UBadge>
       </h2>
       <div class="flex items-center gap-2 w-full sm:w-auto">
-        <USelect
+        <USelectMenu
           v-model="groupFilter"
           :items="groupFilterOptions"
+          multiple
+          placeholder="Tous les groupes"
           class="flex-1 sm:w-52"
           size="sm"
         />
@@ -30,7 +32,7 @@
     </div>
 
     <div v-if="filteredRequests.length === 0" class="p-6 text-center text-sm text-gray-400">
-      {{ requests.length === 0 ? 'Aucune demande en attente' : 'Aucune demande pour ce groupe' }}
+      {{ requests.length === 0 ? 'Aucune demande en attente' : 'Aucune demande pour ces groupes' }}
     </div>
 
     <div v-else class="divide-y divide-gray-100 max-h-[70vh] overflow-y-auto">
@@ -119,11 +121,11 @@ const emit = defineEmits<{
   'refresh': []
 }>()
 
-const groupFilter = ref<string | null>(null)
+const groupFilter = ref<{ label: string; value: string }[]>([])
 
 const groupFilterOptions = computed(() => {
   const seen = new Set<string>()
-  const groups: { label: string; value: string | null }[] = [{ label: 'Tous les groupes', value: null }]
+  const groups: { label: string; value: string }[] = []
   for (const r of props.requests) {
     if (r.type === 'group' && !seen.has(r.target_id)) {
       seen.add(r.target_id)
@@ -134,8 +136,9 @@ const groupFilterOptions = computed(() => {
 })
 
 const filteredRequests = computed(() => {
-  if (!groupFilter.value) return props.requests
-  return props.requests.filter(r => r.type === 'group' && r.target_id === groupFilter.value)
+  if (groupFilter.value.length === 0) return props.requests
+  const ids = new Set(groupFilter.value.map(o => o.value))
+  return props.requests.filter(r => r.type === 'group' && ids.has(r.target_id))
 })
 
 function formatDate(dateStr: string): string {
