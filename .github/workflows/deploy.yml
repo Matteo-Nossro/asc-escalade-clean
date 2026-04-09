@@ -28,6 +28,7 @@ jobs:
           STORYBLOK_WEBHOOK_SECRET: ${{ secrets.STORYBLOK_WEBHOOK_SECRET }}
         run: |
           docker build \
+            --no-cache \
             --build-arg SUPABASE_URL="$SUPABASE_URL" \
             --build-arg SUPABASE_KEY="$SUPABASE_KEY" \
             --build-arg SUPABASE_SECRET_KEY="$SUPABASE_SECRET_KEY" \
@@ -48,6 +49,12 @@ jobs:
           curl -sk -X POST \
             -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
             "${{ secrets.PORTAINER_URL }}/api/stacks/$STACK_ID/images/pull?endpointId=1"
+
+          curl -sk -X PUT \
+            -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"pullImage": true, "prune": false}' \
+            "${{ secrets.PORTAINER_URL }}/api/stacks/$STACK_ID?endpointId=1"
 
       - name: Nettoyage
         if: always()
