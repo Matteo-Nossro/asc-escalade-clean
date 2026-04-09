@@ -40,12 +40,15 @@
       :role-filter-options="roleFilterOptions"
       :group-filter="groupFilter"
       :group-filter-options="groupFilterOptions"
+      :status-filter="statusFilter"
+      :status-filter-options="statusFilterOptions"
       :page="page"
       :page-count="pageCount"
       :readonly="isReadOnly"
       @update:search="search = $event; page = 1"
       @update:role-filter="roleFilter = $event; page = 1"
       @update:group-filter="groupFilter = $event; page = 1"
+      @update:status-filter="statusFilter = $event; page = 1"
       @update:page="page = $event"
       @add-member="openMemberModal(null)"
       @open-modal="openMemberModal"
@@ -228,6 +231,7 @@ const stats = computed(() => ({
 const search = ref('')
 const roleFilter = ref<string | null>(null)
 const groupFilter = ref<string | null>(null)
+const statusFilter = ref<string | null>(null)
 const page = ref(1)
 const pageCount = 10
 
@@ -244,6 +248,13 @@ const groupFilterOptions = computed(() => [
   ...adminGroups.value.map((g: any) => ({ label: g.name, value: g.id as string | null })),
 ])
 
+const statusFilterOptions = [
+  { label: 'Tous les statuts', value: null },
+  { label: 'Actif', value: 'Actif' },
+  { label: 'Inactif', value: 'Inactif' },
+  { label: 'En attente', value: 'En attente' },
+]
+
 const filteredAndSorted = computed(() => {
   let data = allRows.value
   if (search.value) {
@@ -257,6 +268,9 @@ const filteredAndSorted = computed(() => {
   }
   if (groupFilter.value) {
     data = data.filter(r => r.groupIds.includes(groupFilter.value as string))
+  }
+  if (statusFilter.value) {
+    data = data.filter(r => r.status === statusFilter.value)
   }
   return data
 })
@@ -338,7 +352,7 @@ const linkableChildrenOptions = computed(() =>
     .map(r => ({ label: r.name, value: r.id })),
 )
 
-function openMemberModal(member: AdherentWithRoles | null = null) {
+async function openMemberModal(member: AdherentWithRoles | null = null) {
   if (member) {
     editMode.value = true
     const p = member._profile
@@ -347,14 +361,14 @@ function openMemberModal(member: AdherentWithRoles | null = null) {
       first_name: member.first_name,
       last_name: member.last_name,
       name: member.name,
-      licence: member.licence,
+      licence: member.licence !== '-' ? member.licence : '',
       email: member.email,
       formule: member.formule !== '-' ? member.formule : 'Aucune licence',
       creneau: member.creneau,
       status: member.status,
       roles: [...member.roles],
       groupIds: [...(member.groupIds || [])],
-      linkedChildren: [...member.linkedChildren],
+      linkedChildren: [],
       birth_date: p?.birth_date ?? null,
       payment_done: p?.payment_done ?? false,
       medical_certificate: p?.medical_certificate ?? null,
@@ -363,6 +377,19 @@ function openMemberModal(member: AdherentWithRoles | null = null) {
       category: p?.category ?? '',
       tshirt: p?.tshirt ?? '',
       notes: p?.notes ?? '',
+    }
+    const { data: links } = await supabase
+      .from('parent_access')
+      .select('id, child_id, child:profiles!child_id(id, first_name, last_name, full_name)')
+      .eq('parent_id', member.id)
+    if (links) {
+      memberForm.value.linkedChildren = links.map((l: any) => ({
+        id: l.child?.id ?? l.child_id,
+        name: l.child
+          ? `${l.child.first_name ?? ''} ${l.child.last_name ?? ''}`.trim() || l.child.full_name || 'Sans nom'
+          : 'Sans nom',
+        linkId: l.id,
+      }))
     }
   } else {
     editMode.value = false
@@ -447,7 +474,7 @@ async function saveMember() {
       }
       const { id: newUserId } = await res.json()
       if (newUserId && memberForm.value.linkedChildren.length) {
-        await supabase.from('parent_access_links').insert(
+        await supabase.from('parent_access').insert(
           memberForm.value.linkedChildren.map(c => ({
             parent_id: newUserId,
             child_id: c.id,
@@ -488,7 +515,7 @@ async function addChildLink() {
     return
   }
 
-  const { data, error } = await supabase.from('parent_access_links').insert({
+  const { data, error } = await supabase.from('parent_access').insert({
     parent_id: memberForm.value.id,
     child_id: childToLink.value,
     access_type: 'full',
@@ -502,7 +529,7 @@ async function removeChildLink(childId: string) {
   const link = memberForm.value.linkedChildren.find(c => c.id === childId)
   if (!link) return
   if (link.linkId) {
-    await supabase.from('parent_access_links').delete().eq('id', link.linkId)
+    await supabase.from('parent_access').delete().eq('id', link.linkId)
   }
   memberForm.value.linkedChildren = memberForm.value.linkedChildren.filter(c => c.id !== childId)
 }

@@ -29,7 +29,7 @@
           </UFormField>
         </div>
 
-        <UFormField label="Email" required :error="errors.email">
+        <UFormField label="Email" :error="errors.email">
           <UInput v-model="form.email" type="email" placeholder="email@exemple.com" class="w-full" data-testid="input-member-email" />
         </UFormField>
 
@@ -295,10 +295,7 @@ function handleSave() {
     errors.value.last_name = 'Le nom est requis'
     valid = false
   }
-  if (!props.form.email.trim()) {
-    errors.value.email = "L'email est requis"
-    valid = false
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(props.form.email)) {
+  if (props.form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(props.form.email)) {
     errors.value.email = "Format d'email invalide"
     valid = false
   }

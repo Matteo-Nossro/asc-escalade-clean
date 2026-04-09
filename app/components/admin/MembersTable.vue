@@ -27,6 +27,13 @@
           size="md"
           @update:model-value="emit('update:groupFilter', $event)"
         />
+        <USelect
+          :model-value="statusFilter"
+          :items="statusFilterOptions"
+          class="w-40"
+          size="md"
+          @update:model-value="emit('update:statusFilter', $event)"
+        />
         <UButton
           color="neutral"
           variant="ghost"
@@ -56,11 +63,12 @@
     </div>
 
     <!-- Table -->
+    <div class="min-h-[570px] max-h-[70vh] overflow-y-auto">
     <UTable
       :data="rows"
       :columns="columns"
       :loading="pending"
-      class="w-full max-h-[70vh] overflow-y-auto"
+      class="w-full"
       :ui="{
         th: { base: 'uppercase text-xs font-bold text-gray-500 tracking-wider bg-gray-50/50 py-3' },
         td: { base: 'py-4 text-sm text-gray-700' },
@@ -136,6 +144,7 @@
         </div>
       </template>
     </UTable>
+    </div>
 
     <!-- Pagination -->
     <div class="p-4 border-t border-gray-100 flex justify-between items-center">
@@ -143,10 +152,10 @@
         {{ rows.length }} membre(s) sur {{ totalCount }}
       </p>
       <UPagination
-        :model-value="page"
-        :page-count="pageCount"
+        :page="page"
+        :items-per-page="pageCount"
         :total="totalCount"
-        @update:model-value="emit('update:page', $event)"
+        @update:page="emit('update:page', $event)"
       />
     </div>
   </div>
@@ -166,6 +175,8 @@ const props = defineProps<{
   roleFilterOptions: { label: string; value: string | null }[]
   groupFilter: string | null
   groupFilterOptions: { label: string; value: string | null }[]
+  statusFilter: string | null
+  statusFilterOptions: { label: string; value: string | null }[]
   page: number
   pageCount: number
   readonly?: boolean
@@ -175,6 +186,7 @@ const emit = defineEmits<{
   'update:search': [value: string]
   'update:roleFilter': [value: string | null]
   'update:groupFilter': [value: string | null]
+  'update:statusFilter': [value: string | null]
   'update:page': [value: number]
   'open-modal': [adherent: AdherentWithRoles]
   'toggle-status': [adherent: AdherentWithRoles]
