@@ -50,7 +50,7 @@
         <!-- Surtitre -->
         <span
           ref="surtitleRef"
-          class="text-[#7FD857] font-bold tracking-[0.2em] uppercase text-sm md:text-base opacity-0"
+          class="text-[#7FD857] font-bold tracking-[0.2em] uppercase text-xl md:text-2xl opacity-0"
         >
           {{ blok.surtitle }}
         </span>

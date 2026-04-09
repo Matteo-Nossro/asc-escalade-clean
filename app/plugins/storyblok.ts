@@ -35,6 +35,7 @@ import ActualitesPage from '../storyblok/actualites/Page.vue'
 // ==========================================
 import ClubHero from '../storyblok/club/HeroClub.vue'
 import ClubHistoire from '../storyblok/club/Histoire.vue'
+import ClubTimeline from '../storyblok/club/Timeline.vue'
 import ClubEquipe from '../storyblok/club/Equipe.vue'
 import ClubStatistiques from '../storyblok/club/Statistiques.vue'
 import ClubGalerie from '../storyblok/club/Galerie.vue'
@@ -65,11 +66,14 @@ import TarifsHeader from '../storyblok/tarifs/Header.vue'
 import TarifsBonASavoir from '../storyblok/tarifs/BonASavoir.vue'
 import TarifsGrilleTarifs from '../storyblok/tarifs/GrilleTarifs.vue'
 
+import GroupesAccordeon from '../storyblok/tarifs/Accordeon.vue'
+
 // ==========================================
 // UI complémentaires
 // ==========================================
 import UiBouton from '../storyblok/ui/Bouton.vue'
 import UiCarrousel from '../storyblok/ui/Carrousel.vue'
+import BeforeAfter from '../storyblok/ui/BeforeAfter.vue'
 import ActionBouton from '../storyblok/ui/ActionBouton.vue'
 
 
@@ -92,6 +96,7 @@ export default defineNuxtPlugin(({ vueApp }) => {
   // Club
   vueApp.component('club-hero', ClubHero)
   vueApp.component('club-histoire', ClubHistoire)
+  vueApp.component('club-timeline', ClubTimeline)
   vueApp.component('club-equipe', ClubEquipe)
   vueApp.component('club-statistiques', ClubStatistiques)
   vueApp.component('club-galerie', ClubGalerie)
@@ -117,6 +122,9 @@ export default defineNuxtPlugin(({ vueApp }) => {
   vueApp.component('tarifs-grille-tarifs', TarifsGrilleTarifs)
 
   // UI général
+  // Groupes
+  vueApp.component('groupes-accordeon', GroupesAccordeon)
+
   vueApp.component('action-bouton', ActionBouton)
   vueApp.component('bouton', UiBouton)
   vueApp.component('carrousel', UiCarrousel)
@@ -127,4 +135,5 @@ export default defineNuxtPlugin(({ vueApp }) => {
   vueApp.component('text-with-image', TextWithImage)
   vueApp.component('text-with-title', TextWithTitle)
   vueApp.component('galerie', Galerie)
+  vueApp.component('before-after', BeforeAfter)
 })
