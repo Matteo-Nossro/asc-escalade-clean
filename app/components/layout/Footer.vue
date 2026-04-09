@@ -24,19 +24,46 @@
             {{ config?.footer_description || "L'association sportive d'escalade qui fait vibrer vos sensations." }}
           </p>
 
+          <div v-if="labels.length > 0" class="flex flex-col gap-4">
+            <span class="text-sm font-semibold text-[#7FD857] uppercase tracking-wider">Nos labels et certifications</span>
+            <div class="flex flex-wrap gap-5 items-center">
+              <a
+                v-for="label in labels"
+                :key="label.id"
+                :href="label.link ? resolveLink(label.link) : undefined"
+                :target="label.link ? '_blank' : undefined"
+                :class="label.link ? 'cursor-pointer' : 'cursor-default'"
+              >
+                <img
+                  :src="`${label.filename}/m/0x80/filters:quality(90):format(webp)`"
+                  :alt="label.alt || label.title || 'Label'"
+                  class="h-16 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity"
+                />
+              </a>
+            </div>
+          </div>
+
           <div v-if="socialLinks.length > 0" class="flex gap-3">
-            <UButton
+            <a
               v-for="social in socialLinks"
               :key="social._uid"
-              :to="resolveLink(social.link)"
+              :href="resolveLink(social.link)"
               target="_blank"
-              color="neutral"
-              variant="soft"
-              :icon="social.icon || 'i-heroicons-link'"
-              class="bg-white/5 hover:bg-[#7FD857] hover:text-white transition-colors border-none"
-              :ui="{ rounded: 'rounded-lg' }"
               :aria-label="social.label"
-            />
+              class="w-10 h-10 rounded-lg bg-white/5 hover:bg-[#7FD857] flex items-center justify-center transition-colors"
+            >
+              <img
+                v-if="social.image?.filename"
+                :src="`${social.image.filename}/m/24x24/filters:quality(90):format(webp)`"
+                :alt="social.label || ''"
+                class="w-6 h-6 object-contain"
+              />
+              <UIcon
+                v-else
+                :name="social.icon || 'i-heroicons-link'"
+                class="w-5 h-5"
+              />
+            </a>
           </div>
         </div>
 
@@ -115,6 +142,7 @@ const config = computed(() => configData.value)
 const navigationLinks = computed(() => config.value?.footer_nav_links || [])
 const socialLinks = computed(() => config.value?.social_links || [])
 const partners = computed(() => config.value?.partners || [])
+const labels = computed(() => config.value?.labels || [])
 
 const resolveLink = (linkObj) => {
   if (!linkObj) return '#'
