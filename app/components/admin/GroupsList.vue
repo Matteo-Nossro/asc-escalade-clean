@@ -12,6 +12,7 @@
           @click="emit('refresh')"
         />
         <UButton
+          v-if="!readonly"
           icon="i-lucide-plus"
           size="sm"
           class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546] font-bold"
@@ -46,6 +47,9 @@
                 size="sm"
               >
                 {{ group._members_count || 0 }} / {{ group.max_members }}
+              </UBadge>
+              <UBadge v-if="group.price" color="info" variant="soft" size="sm">
+                {{ group.price }}€
               </UBadge>
             </div>
 
@@ -84,6 +88,7 @@
               Membres
             </UButton>
             <UButton
+              v-if="!readonly"
               icon="i-lucide-edit"
               color="neutral"
               variant="ghost"
@@ -92,6 +97,7 @@
               @click="emit('open-modal', group)"
             />
             <UButton
+              v-if="!readonly"
               icon="i-lucide-trash"
               color="error"
               variant="ghost"
@@ -113,6 +119,7 @@ defineProps<{
   groups: Group[]
   loading: boolean
   formatSchedule: (sched: GroupSchedule) => string
+  readonly?: boolean
 }>()
 
 const emit = defineEmits<{

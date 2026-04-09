@@ -33,6 +33,18 @@
           <UInput v-model="form.email" type="email" placeholder="email@exemple.com" class="w-full" data-testid="input-member-email" />
         </UFormField>
 
+        <div class="grid grid-cols-2 gap-4">
+          <UFormField label="Date de naissance">
+            <UInput v-model="form.birth_date" type="date" class="w-full" />
+          </UFormField>
+          <UFormField label="Âge">
+            <div class="flex items-center pt-1">
+              <span v-if="computedAge !== null" class="text-sm font-medium text-gray-700">{{ computedAge }} ans</span>
+              <span v-else class="text-sm text-gray-400">—</span>
+            </div>
+          </UFormField>
+        </div>
+
         <UFormField label="Type de licence">
           <USelect v-model="form.formule" :items="licenceTypeOptions" class="w-full" />
         </UFormField>
@@ -81,6 +93,62 @@
             </label>
           </div>
         </UFormField>
+
+        <!-- ── Champs administratifs ─────────────────────────────────────── -->
+        <div class="border-t border-gray-100 pt-4">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Suivi administratif</p>
+
+          <!-- Ligne 1 : Paiement + Formulaire d'inscription -->
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <UFormField label="Paiement reçu">
+              <div class="flex items-center gap-3 pt-1">
+                <USwitch  v-model="form.payment_done" />
+                <span class="text-sm text-gray-700">{{ form.payment_done ? 'Oui' : 'Non' }}</span>
+              </div>
+            </UFormField>
+            <UFormField label="Formulaire d'inscription">
+              <div class="flex items-center gap-3 pt-1">
+                <USwitch  v-model="form.registration_form" />
+                <span class="text-sm text-gray-700">{{ form.registration_form ? 'Oui' : 'Non' }}</span>
+              </div>
+            </UFormField>
+          </div>
+
+          <!-- Ligne 2 : Certificat médical + Assurance FFME -->
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <UFormField label="Certificat médical">
+              <USelect
+                v-model="form.medical_certificate"
+                :items="medicalCertificateOptions"
+                placeholder="Sélectionner…"
+                class="w-full"
+              />
+            </UFormField>
+            <UFormField label="Assurance FFME">
+              <USelect
+                v-model="form.ffme_insurance"
+                :items="ffmeInsuranceOptions"
+                placeholder="Sélectionner…"
+                class="w-full"
+              />
+            </UFormField>
+          </div>
+
+          <!-- Ligne 3 : Catégorie + T-shirt -->
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <UFormField label="Catégorie">
+              <UInput v-model="form.category" placeholder="Ex: Adulte, U17, U14…" class="w-full" />
+            </UFormField>
+            <UFormField label="T-shirt">
+              <UInput v-model="form.tshirt" placeholder="Ex: M, L, XL…" class="w-full" />
+            </UFormField>
+          </div>
+
+          <!-- Notes -->
+          <UFormField label="Notes / Observations">
+            <UTextarea v-model="form.notes" placeholder="Observations libres…" class="w-full" :rows="3" />
+          </UFormField>
+        </div>
 
         <!-- Lien parent → enfants -->
         <div v-if="form.roles.includes('parent')" class="space-y-3">
@@ -149,7 +217,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const props = defineProps<{
   open: boolean
@@ -167,6 +235,14 @@ const props = defineProps<{
     roles: string[]
     groupIds: string[]
     linkedChildren: { id: string; name: string; linkId: string }[]
+    birth_date: string | null
+    payment_done: boolean
+    medical_certificate: string | null
+    registration_form: boolean
+    ffme_insurance: string | null
+    category: string
+    tshirt: string
+    notes: string
   }
   saving: boolean
   licenceTypeOptions: { label: string; value: string }[]
@@ -185,6 +261,28 @@ const emit = defineEmits<{
 }>()
 
 const errors = ref({ first_name: '', last_name: '', email: '', licence: '' })
+
+const medicalCertificateOptions = [
+  { label: 'Non fourni', value: 'non' },
+  { label: 'Fiche attestation', value: 'fiche_attestation' },
+  { label: 'Certificat médical', value: 'certificat_medical' },
+]
+
+const ffmeInsuranceOptions = [
+  { label: 'Non', value: 'non' },
+  { label: 'Certificat de renouvellement', value: 'certificat_renouvellement' },
+  { label: 'Mail de renouvellement', value: 'mail_renouvellement' },
+]
+
+const computedAge = computed(() => {
+  if (!props.form.birth_date) return null
+  const today = new Date()
+  const birth = new Date(props.form.birth_date)
+  let age = today.getFullYear() - birth.getFullYear()
+  const m = today.getMonth() - birth.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+  return age
+})
 
 function handleSave() {
   errors.value = { first_name: '', last_name: '', email: '', licence: '' }

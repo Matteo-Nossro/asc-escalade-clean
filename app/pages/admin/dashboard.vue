@@ -25,6 +25,7 @@
     <AdminPendingRequests
       :requests="pendingRequests"
       :processing-request-id="processingReviewId"
+      :readonly="isReadOnly"
       @open-review="openReviewModal"
       @refresh="fetchPendingRequests"
     />
@@ -41,6 +42,7 @@
       :group-filter-options="groupFilterOptions"
       :page="page"
       :page-count="pageCount"
+      :readonly="isReadOnly"
       @update:search="search = $event; page = 1"
       @update:role-filter="roleFilter = $event; page = 1"
       @update:group-filter="groupFilter = $event; page = 1"
@@ -58,6 +60,7 @@
       :groups="adminGroups"
       :loading="groupsLoading"
       :format-schedule="formatScheduleAdmin"
+      :readonly="isReadOnly"
       @open-modal="openGroupModal"
       @show-members="showGroupMembersModal"
       @delete="handleDeleteGroup"
@@ -137,6 +140,7 @@ const toast = useToast()
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
 const authReady = ref(false)
+const isReadOnly = ref(false)
 
 onMounted(async () => {
   const uid = user.value?.id ?? (user.value as any)?.sub
@@ -148,12 +152,12 @@ onMounted(async () => {
     .from('user_roles')
     .select('role_code')
     .eq('user_id', uid)
-    .in('role_code', ['admin', 'secretary'])
-    .limit(1)
+    .in('role_code', ['admin', 'secretary', 'initiateur'])
   if (!data || data.length === 0) {
     await navigateTo('/')
     return
   }
+  isReadOnly.value = !data.some((r: { role_code: string }) => r.role_code === 'admin' || r.role_code === 'secretary')
   authReady.value = true
   await Promise.all([loadMembers(), loadAdminGroups(), fetchPendingRequests()])
 })
@@ -187,6 +191,8 @@ function profileToAdherentWithRoles(p: any): AdherentWithRoles {
     groupIds,
     groupNames,
     linkedChildren: [],
+    payment_done: p.payment_done ?? false,
+    registration_form: p.registration_form ?? false,
     _profile: p,
   }
 }
@@ -228,6 +234,7 @@ const roleFilterOptions = [
   { label: 'Tous les rôles', value: null },
   { label: 'Admin', value: 'admin' },
   { label: 'Secrétaire', value: 'secretary' },
+  { label: 'Initiateur', value: 'initiateur' },
   { label: 'Parent', value: 'parent' },
 ]
 
@@ -296,6 +303,14 @@ const memberForm = ref({
   roles: [] as string[],
   groupIds: [] as string[],
   linkedChildren: [] as { id: string; name: string; linkId: string }[],
+  birth_date: null as string | null,
+  payment_done: false,
+  medical_certificate: null as string | null,
+  registration_form: false,
+  ffme_insurance: null as string | null,
+  category: '',
+  tshirt: '',
+  notes: '',
 })
 
 const licenceTypeOptions = [
@@ -312,6 +327,7 @@ const groupSelectOptions = computed(() => [
 const availableRoles = [
   { code: 'admin', label: 'Admin' },
   { code: 'secretary', label: 'Secrétaire' },
+  { code: 'initiateur', label: 'Initiateur' },
   { code: 'parent', label: 'Parent' },
 ]
 
@@ -324,6 +340,7 @@ const linkableChildrenOptions = computed(() =>
 function openMemberModal(member: AdherentWithRoles | null = null) {
   if (member) {
     editMode.value = true
+    const p = member._profile
     memberForm.value = {
       id: member.id,
       first_name: member.first_name,
@@ -337,6 +354,14 @@ function openMemberModal(member: AdherentWithRoles | null = null) {
       roles: [...member.roles],
       groupIds: [...(member.groupIds || [])],
       linkedChildren: [...member.linkedChildren],
+      birth_date: p?.birth_date ?? null,
+      payment_done: p?.payment_done ?? false,
+      medical_certificate: p?.medical_certificate ?? null,
+      registration_form: p?.registration_form ?? false,
+      ffme_insurance: p?.ffme_insurance ?? null,
+      category: p?.category ?? '',
+      tshirt: p?.tshirt ?? '',
+      notes: p?.notes ?? '',
     }
   } else {
     editMode.value = false
@@ -345,6 +370,14 @@ function openMemberModal(member: AdherentWithRoles | null = null) {
       licence: '', email: '',
       formule: 'Aucune licence', creneau: '-',
       status: 'Actif', roles: [], groupIds: [], linkedChildren: [],
+      birth_date: null,
+      payment_done: false,
+      medical_certificate: null,
+      registration_form: false,
+      ffme_insurance: null,
+      category: '',
+      tshirt: '',
+      notes: '',
     }
   }
   childToLink.value = null
@@ -366,6 +399,13 @@ async function saveMember() {
         licence_number: memberForm.value.licence && memberForm.value.licence !== '-'
           ? parseInt(memberForm.value.licence) : null,
         licence_type: memberForm.value.formule !== '-' ? memberForm.value.formule : null,
+        payment_done: memberForm.value.payment_done,
+        medical_certificate: memberForm.value.medical_certificate || null,
+        registration_form: memberForm.value.registration_form,
+        ffme_insurance: memberForm.value.ffme_insurance || null,
+        category: memberForm.value.category || null,
+        tshirt: memberForm.value.tshirt || null,
+        notes: memberForm.value.notes || null,
       }).eq('id', uid)
       if (profileErr) throw profileErr
 
@@ -527,6 +567,7 @@ const groupForm = ref({
   max_members: 20,
   level: null as string | null,
   description: '',
+  price: null as number | null,
   referent_id: null as string | null,
   instructor_ids: [] as string[],
   schedules: [] as { day_of_week: number; start_time: string; end_time: string }[],
@@ -551,6 +592,7 @@ function openGroupModal(group: Group | null = null) {
       max_members: group.max_members,
       level: group.level || null,
       description: group.description || '',
+      price: group.price ?? null,
       referent_id: group.referent_id || null,
       instructor_ids: (group.instructors || []).map((i: any) => i.user_id),
       schedules: (group.schedules || []).map(s => ({
@@ -563,7 +605,7 @@ function openGroupModal(group: Group | null = null) {
     editingGroup.value = null
     groupForm.value = {
       name: '', max_members: 20, level: null, description: '',
-      referent_id: null, instructor_ids: [], schedules: [],
+      price: null, referent_id: null, instructor_ids: [], schedules: [],
     }
   }
   instructorToAdd.value = null
@@ -595,6 +637,7 @@ async function saveGroup() {
         max_members: groupForm.value.max_members,
         level: groupForm.value.level,
         description: groupForm.value.description || null,
+        price: groupForm.value.price,
         referent_id: groupForm.value.referent_id,
       } as any)
       await replaceSchedules(editingGroup.value.id, groupForm.value.schedules)
@@ -606,6 +649,7 @@ async function saveGroup() {
           max_members: groupForm.value.max_members,
           level: groupForm.value.level,
           description: groupForm.value.description || null,
+          price: groupForm.value.price,
           referent_id: groupForm.value.referent_id,
         } as any,
         groupForm.value.schedules,

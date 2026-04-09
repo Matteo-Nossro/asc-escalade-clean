@@ -23,9 +23,15 @@ export interface Profile {
   status: 'Actif' | 'Inactif' | 'En attente' | null
   created_at: string
   updated_at: string
+  payment_done: boolean | null
+  medical_certificate: 'fiche_attestation' | 'certificat_medical' | 'non' | null
+  registration_form: boolean | null
+  ffme_insurance: 'certificat_renouvellement' | 'mail_renouvellement' | 'non' | null
+  category: string | null
+  tshirt: string | null
 }
 
-export type RoleCode = 'parent' | 'admin' | 'secretary'
+export type RoleCode = 'parent' | 'admin' | 'secretary' | 'initiateur'
 
 export interface UserRole {
   id: string
@@ -88,6 +94,8 @@ export interface AdherentWithRoles extends Adherent {
   groupIds: string[]
   groupNames: string[]
   linkedChildren: { id: string; name: string; linkId: string }[]
+  payment_done: boolean
+  registration_form: boolean
 }
 
 
@@ -102,6 +110,7 @@ export interface Group {
   level: string | null
   referent_id: string | null
   description: string | null
+  price: number | null
   created_at: string
   updated_at: string
   // Relations chargées

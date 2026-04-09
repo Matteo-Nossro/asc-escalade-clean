@@ -44,6 +44,7 @@
           @click="emit('export-csv')"
         />
         <UButton
+          v-if="!readonly"
           icon="i-heroicons-user-plus"
           class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546] font-bold"
           data-testid="btn-add-member"
@@ -121,7 +122,7 @@
       </template>
 
       <template #actions-cell="{ row }">
-        <div class="flex items-center gap-2 justify-end">
+        <div v-if="!readonly" class="flex items-center gap-2 justify-end">
           <UDropdownMenu :items="getDropdownActions(row.original)">
             <UButton
               icon="i-lucide-ellipsis-vertical"
@@ -167,6 +168,7 @@ const props = defineProps<{
   groupFilterOptions: { label: string; value: string | null }[]
   page: number
   pageCount: number
+  readonly?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -194,11 +196,11 @@ const columns: TableColumn<AdherentWithRoles>[] = [
 ]
 
 function getRoleLabel(role: string): string {
-  return ({ admin: 'Admin', secretary: 'Secrétaire', parent: 'Parent' } as Record<string, string>)[role] || role
+  return ({ admin: 'Admin', secretary: 'Secrétaire', initiateur: 'Initiateur', parent: 'Parent' } as Record<string, string>)[role] || role
 }
 
 function getRoleBadgeColor(role: string): string {
-  return ({ admin: 'error', secretary: 'info', parent: 'success' } as Record<string, string>)[role] || 'neutral'
+  return ({ admin: 'error', secretary: 'info', initiateur: 'warning', parent: 'success' } as Record<string, string>)[role] || 'neutral'
 }
 
 function getStatusColor(status: string) {
@@ -211,6 +213,7 @@ function getStatusColor(status: string) {
 }
 
 function getDropdownActions(adherent: AdherentWithRoles): DropdownMenuItem[][] {
+  if (props.readonly) return []
   return [
     [
       { label: 'Modifier', icon: 'i-lucide-edit', onSelect: () => emit('open-modal', adherent) },
