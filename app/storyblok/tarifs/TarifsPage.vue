@@ -1,5 +1,5 @@
 <template>
-  <div v-editable="blok" class="min-h-screen bg-gray-50 relative pb-20 overflow-hidden">
+  <div v-editable="blok" class="min-h-screen bg-gray-50 relative overflow-hidden">
 
     <!-- Déco de fond globale de la page tarifs -->
     <svg

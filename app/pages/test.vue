@@ -11,6 +11,12 @@
 		Groupe d'accordéon
 		<GroupsAccordion/>
 
+        Grille des tarifs
+        <GrilleTarifs/>
+
+		<!-- Bon à savoir -->
+		<tarifs-bon-a-savoir :blok="bonASavoirBlok" />
+
 		<div class="space-y-4">
 			<UButton color="primary" size="lg">
 				Bouton Primary
@@ -47,6 +53,33 @@ const beforeAfterBlok = {
 		filename: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?w=1920&q=80',
 		alt: 'Nouvelle salle d\'escalade'
 	}
+}
+
+const bonASavoirBlok = {
+	_editable: '',
+	title: 'Bon à savoir',
+	items: [
+		{
+			_uid: '1',
+			title: 'Licence FFME incluse',
+			content: 'Chaque adhérent est automatiquement licencié à la Fédération Française de la Montagne et de l\'Escalade. La licence couvre l\'assurance responsabilité civile et accident.'
+		},
+		{
+			_uid: '2',
+			title: 'Matériel fourni',
+			content: 'Chaussons et baudriers sont prêtés gratuitement pour les séances. Un équipement adapté est disponible pour tous les niveaux et toutes les morphologies.'
+		},
+		{
+			_uid: '3',
+			title: 'Paiement en plusieurs fois',
+			content: 'Le règlement de la cotisation peut être effectué en 2 ou 3 chèques sans frais supplémentaires. Chèques à remettre lors de l\'inscription.'
+		},
+		{
+			_uid: '4',
+			title: 'Certificat médical',
+			content: 'Un certificat médical de non contre-indication à la pratique de l\'escalade est obligatoire pour toute première inscription ou après une interruption de plus d\'un an.'
+		}
+	]
 }
 
 const timelineBlok = {

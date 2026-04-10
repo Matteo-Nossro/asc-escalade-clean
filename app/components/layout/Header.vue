@@ -332,7 +332,7 @@ const handleLogout = async () => {
   &__logo-text {
     display: flex;
     flex-direction: column;
-    line-height: 1.1;
+    line-height: 1.3;
   }
 
   &__logo-vertical {
