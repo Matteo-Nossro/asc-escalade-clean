@@ -40,6 +40,7 @@ import ClubEquipe from '../storyblok/club/Equipe.vue'
 import ClubStatistiques from '../storyblok/club/Statistiques.vue'
 import ClubGalerie from '../storyblok/club/Galerie.vue'
 import ClubPartenaires from '../storyblok/club/Partenaires.vue'
+import ClubInitiateurs from '../storyblok/club/Initiateurs.vue'
 
 // ==========================================
 // Éléments de la page contact
@@ -66,7 +67,7 @@ import TarifsHeader from '../storyblok/tarifs/Header.vue'
 import TarifsBonASavoir from '../storyblok/tarifs/BonASavoir.vue'
 import TarifsGrilleTarifs from '../storyblok/tarifs/GrilleTarifs.vue'
 
-import GroupesAccordeon from '../storyblok/tarifs/Accordeon.vue'
+import ListeGroupeAccordeon from '../storyblok/tarifs/ListeGroupeAccordeon.vue'
 
 // ==========================================
 // UI complémentaires
@@ -101,6 +102,7 @@ export default defineNuxtPlugin(({ vueApp }) => {
   vueApp.component('club-statistiques', ClubStatistiques)
   vueApp.component('club-galerie', ClubGalerie)
   vueApp.component('club-partenaires', ClubPartenaires)
+  vueApp.component('club-initiateurs', ClubInitiateurs)
 
   // Contact
   vueApp.component('contact-page', ContactPage)
@@ -123,7 +125,7 @@ export default defineNuxtPlugin(({ vueApp }) => {
 
   // UI général
   // Groupes
-  vueApp.component('groupes-accordeon', GroupesAccordeon)
+  vueApp.component('liste-groupe-accordeon', ListeGroupeAccordeon)
 
   vueApp.component('action-bouton', ActionBouton)
   vueApp.component('bouton', UiBouton)
