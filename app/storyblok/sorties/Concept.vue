@@ -6,8 +6,13 @@
 				{{ blok.title || 'Le Concept' }}
 			</h2>
 
-			<p class="text-gray-500 mb-8 max-w-2xl mx-auto leading-relaxed">
-				{{ blok.description || 'L\'association propose régulièrement des sorties encadrées pour découvrir l\'escalade en milieu naturel ou se perfectionner en salle. L\'inscription est obligatoire et se fait directement en ligne.' }}
+			<div
+				v-if="renderedDescription"
+				class="prose prose-gray max-w-2xl mx-auto mb-8"
+				v-html="renderedDescription"
+			/>
+			<p v-else class="text-gray-500 mb-8 max-w-2xl mx-auto leading-relaxed">
+				L'association propose régulièrement des sorties encadrées pour découvrir l'escalade en milieu naturel ou se perfectionner en salle. L'inscription est obligatoire et se fait directement en ligne.
 			</p>
 
 			<!-- Tags dynamiques depuis Storyblok -->
@@ -37,10 +42,21 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import { renderRichText } from '@storyblok/vue'
+
 const props = defineProps({
 	blok: {
 		type: Object,
 		required: true
 	}
 })
+
+const renderedDescription = computed(() =>
+	props.blok.description ? renderRichText(props.blok.description, {
+		resolvers: {
+			hardBreak: () => '<br />'
+		}
+	}) : ''
+)
 </script>

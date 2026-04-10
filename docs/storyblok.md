@@ -59,7 +59,7 @@ vueApp.component('technical-name', ImportedComponent)
 | Technical name | Composant | Champs |
 |---|---|---|
 | `sorties-header` | `sorties/Header.vue` | `title`, `subtitle` |
-| `sorties-concept` | `sorties/Concept.vue` | `title`, `description`, `tags` (Blocks → `sorties-tag`) |
+| `sorties-concept` | `sorties/Concept.vue` | `title`, `description` (Richtext), `tags` (Blocks → `sorties-tag`) |
 | `sorties-liste` | `sorties/ListeSorties.vue` | `sorties` (Blocks → `sorties-item`) |
 
 **Nestables sorties :**
