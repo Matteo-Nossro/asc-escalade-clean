@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   const client = serverSupabaseServiceRole(event)
 
   const body = await readBody(event)
-  const { email, first_name, last_name, licence, formule, roles, groupIds } = body
+  const { email, first_name, last_name, phone, mobile, birth_date, status, licence, formule, roles, groupIds } = body
 
   if (!email) throw createError({ statusCode: 400, statusMessage: 'Email requis' })
 
@@ -33,6 +33,10 @@ export default defineEventHandler(async (event) => {
     first_name: first_name || null,
     last_name: last_name || null,
     full_name: fullName || null,
+    phone: phone || null,
+    mobile: mobile || null,
+    birth_date: birth_date || null,
+    status: status || 'Actif',
     licence_number: licence && licence !== '-' ? parseInt(licence) : null,
     licence_type: formule && formule !== '-' ? formule : null,
   })

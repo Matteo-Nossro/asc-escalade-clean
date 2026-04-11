@@ -34,6 +34,35 @@
         </UFormField>
 
         <div class="grid grid-cols-2 gap-4">
+          <UFormField label="Téléphone">
+            <UInput v-model="form.phone" type="tel" placeholder="Ex: 03 80 00 00 00" class="w-full" />
+          </UFormField>
+          <UFormField label="Mobile">
+            <UInput v-model="form.mobile" type="tel" placeholder="Ex: 06 00 00 00 00" class="w-full" />
+          </UFormField>
+        </div>
+
+        <!-- Parent(s) — lecture seule, modification seulement -->
+        <UFormField v-if="editMode && linkedParents.length > 0" label="Parent(s)">
+          <div class="flex flex-wrap gap-2 pt-1">
+            <div
+              v-for="parent in linkedParents"
+              :key="parent.id"
+              class="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200"
+            >
+              <UIcon name="i-heroicons-user" class="w-4 h-4 text-gray-400 flex-shrink-0" />
+              <div>
+                <div class="text-sm font-medium text-gray-700">{{ parent.name }}<template v-if="parent.birth_date"> — {{ formatBirthDate(parent.birth_date) }}</template></div>
+                <div v-if="parent.phone || parent.mobile" class="text-xs text-gray-500 mt-0.5 flex gap-3">
+                  <span v-if="parent.phone"><UIcon name="i-heroicons-phone" class="w-3 h-3 inline mr-0.5" />{{ parent.phone }}</span>
+                  <span v-if="parent.mobile"><UIcon name="i-heroicons-device-phone-mobile" class="w-3 h-3 inline mr-0.5" />{{ parent.mobile }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </UFormField>
+
+        <div class="grid grid-cols-2 gap-4">
           <UFormField label="Date de naissance">
             <UInput v-model="form.birth_date" type="date" class="w-full" />
           </UFormField>
@@ -159,7 +188,10 @@
                 :key="child.id"
                 class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2"
               >
-                <span class="text-sm font-medium text-gray-700">{{ child.name }}</span>
+                <div>
+                  <span class="text-sm font-medium text-gray-700">{{ child.name }}</span>
+                  <span v-if="child.birth_date" class="text-xs text-gray-400 ml-1">({{ formatBirthDate(child.birth_date) }})</span>
+                </div>
                 <UButton
                   icon="i-lucide-x"
                   color="error"
@@ -175,10 +207,12 @@
           </UFormField>
 
           <div class="flex gap-2">
-            <USelect
+            <USelectMenu
               :model-value="childToLink"
               :items="linkableChildren"
               placeholder="Sélectionner un enfant…"
+              searchable
+              search-placeholder="Rechercher…"
               class="flex-1"
               size="sm"
               @update:model-value="emit('update:childToLink', $event)"
@@ -229,12 +263,14 @@ const props = defineProps<{
     name: string
     licence: string
     email: string
+    phone: string
+    mobile: string
     formule: string
     creneau: string
     status: 'Actif' | 'Inactif' | 'En attente'
     roles: string[]
     groupIds: string[]
-    linkedChildren: { id: string; name: string; linkId: string }[]
+    linkedChildren: { id: string; name: string; linkId: string; birth_date?: string | null }[]
     birth_date: string | null
     payment_done: boolean
     medical_certificate: string | null
@@ -250,6 +286,7 @@ const props = defineProps<{
   availableRoles: { code: string; label: string }[]
   linkableChildren: { label: string; value: string }[]
   childToLink: string | null
+  linkedParents: { id: string; name: string; birth_date?: string | null; phone?: string | null; mobile?: string | null }[]
 }>()
 
 const emit = defineEmits<{
@@ -309,5 +346,11 @@ function handleSave() {
 
 function getRoleBadgeColor(role: string): string {
   return ({ admin: 'error', secretary: 'info', parent: 'success' } as Record<string, string>)[role] || 'neutral'
+}
+
+function formatBirthDate(dateStr: string | null | undefined): string {
+  if (!dateStr) return ''
+  const [y, m, d] = dateStr.split('-')
+  return `${d}/${m}/${y}`
 }
 </script>

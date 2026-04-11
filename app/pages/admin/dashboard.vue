@@ -81,6 +81,7 @@
       :available-roles="availableRoles"
       :linkable-children="linkableChildrenOptions"
       :child-to-link="childToLink"
+      :linked-parents="linkedParents"
       @update:open="isModalOpen = $event"
       @save="saveMember"
       @update:child-to-link="childToLink = $event"
@@ -304,6 +305,13 @@ const isModalOpen = ref(false)
 const editMode = ref(false)
 const saving = ref(false)
 const childToLink = ref<string | null>(null)
+const linkedParents = ref<{ id: string; name: string }[]>([])
+
+function formatBirthDate(dateStr: string | null | undefined): string {
+  if (!dateStr) return ''
+  const [y, m, d] = dateStr.split('-')
+  return `${d}/${m}/${y}`
+}
 
 const memberForm = ref({
   id: '',
@@ -312,12 +320,14 @@ const memberForm = ref({
   name: '',
   licence: '',
   email: '',
+  phone: '',
+  mobile: '',
   formule: 'Aucune licence',
   creneau: '-',
   status: 'Actif' as 'Actif' | 'Inactif' | 'En attente',
   roles: [] as string[],
   groupIds: [] as string[],
-  linkedChildren: [] as { id: string; name: string; linkId: string }[],
+  linkedChildren: [] as { id: string; name: string; linkId: string; birth_date?: string | null }[],
   birth_date: null as string | null,
   payment_done: false,
   medical_certificate: null as string | null,
@@ -349,7 +359,10 @@ const availableRoles = [
 const linkableChildrenOptions = computed(() =>
   allRows.value
     .filter(r => !memberForm.value.linkedChildren.some(c => c.id === r.id) && r.id !== memberForm.value.id)
-    .map(r => ({ label: r.name, value: r.id })),
+    .map(r => {
+      const bd = formatBirthDate(r._profile?.birth_date)
+      return { label: bd ? `${r.name} — ${bd}` : r.name, value: r.id }
+    }),
 )
 
 async function openMemberModal(member: AdherentWithRoles | null = null) {
@@ -363,6 +376,8 @@ async function openMemberModal(member: AdherentWithRoles | null = null) {
       name: member.name,
       licence: member.licence !== '-' ? member.licence : '',
       email: member.email,
+      phone: p?.phone ?? '',
+      mobile: p?.mobile ?? '',
       formule: member.formule !== '-' ? member.formule : 'Aucune licence',
       creneau: member.creneau,
       status: member.status,
@@ -380,7 +395,7 @@ async function openMemberModal(member: AdherentWithRoles | null = null) {
     }
     const { data: links } = await supabase
       .from('parent_access')
-      .select('id, child_id, child:profiles!child_id(id, first_name, last_name, full_name)')
+      .select('id, child_id, child:profiles!child_id(id, first_name, last_name, full_name, birth_date)')
       .eq('parent_id', member.id)
     if (links) {
       memberForm.value.linkedChildren = links.map((l: any) => ({
@@ -389,13 +404,28 @@ async function openMemberModal(member: AdherentWithRoles | null = null) {
           ? `${l.child.first_name ?? ''} ${l.child.last_name ?? ''}`.trim() || l.child.full_name || 'Sans nom'
           : 'Sans nom',
         linkId: l.id,
+        birth_date: l.child?.birth_date ?? null,
       }))
     }
+
+    const { data: parentLinks } = await supabase
+      .from('parent_access')
+      .select('parent_id, parent:profiles!parent_id(id, first_name, last_name, full_name, birth_date, phone, mobile)')
+      .eq('child_id', member.id)
+    linkedParents.value = (parentLinks || []).map((l: any) => ({
+      id: l.parent?.id ?? l.parent_id,
+      name: l.parent
+        ? `${l.parent.first_name ?? ''} ${l.parent.last_name ?? ''}`.trim() || l.parent.full_name || 'Sans nom'
+        : 'Sans nom',
+      birth_date: l.parent?.birth_date ?? null,
+      phone: l.parent?.phone ?? null,
+      mobile: l.parent?.mobile ?? null,
+    }))
   } else {
     editMode.value = false
     memberForm.value = {
       id: '', first_name: '', last_name: '', name: '',
-      licence: '', email: '',
+      licence: '', email: '', phone: '', mobile: '',
       formule: 'Aucune licence', creneau: '-',
       status: 'Actif', roles: [], groupIds: [], linkedChildren: [],
       birth_date: null,
@@ -407,6 +437,7 @@ async function openMemberModal(member: AdherentWithRoles | null = null) {
       tshirt: '',
       notes: '',
     }
+    linkedParents.value = []
   }
   childToLink.value = null
   isModalOpen.value = true
@@ -424,6 +455,10 @@ async function saveMember() {
         last_name: memberForm.value.last_name || null,
         full_name: fullName || null,
         email: memberForm.value.email,
+        phone: memberForm.value.phone || null,
+        mobile: memberForm.value.mobile || null,
+        birth_date: memberForm.value.birth_date || null,
+        status: memberForm.value.status,
         licence_number: memberForm.value.licence && memberForm.value.licence !== '-'
           ? parseInt(memberForm.value.licence) : null,
         licence_type: memberForm.value.formule !== '-' ? memberForm.value.formule : null,
@@ -462,6 +497,10 @@ async function saveMember() {
           email: memberForm.value.email,
           first_name: memberForm.value.first_name,
           last_name: memberForm.value.last_name,
+          phone: memberForm.value.phone || null,
+          mobile: memberForm.value.mobile || null,
+          birth_date: memberForm.value.birth_date || null,
+          status: memberForm.value.status,
           licence: memberForm.value.licence || null,
           formule: memberForm.value.formule || null,
           roles: memberForm.value.roles,
@@ -510,7 +549,7 @@ async function addChildLink() {
 
   if (!memberForm.value.id) {
     // Mode création : stockage local, insertion après sauvegarde
-    memberForm.value.linkedChildren.push({ id: child.id, name: child.name, linkId: '' })
+    memberForm.value.linkedChildren.push({ id: child.id, name: child.name, linkId: '', birth_date: child._profile?.birth_date ?? null })
     childToLink.value = null
     return
   }
@@ -521,7 +560,7 @@ async function addChildLink() {
     access_type: 'full',
   }).select().single()
   if (error) { console.error(error.message); return }
-  memberForm.value.linkedChildren.push({ id: child.id, name: child.name, linkId: data.id })
+  memberForm.value.linkedChildren.push({ id: child.id, name: child.name, linkId: data.id, birth_date: child._profile?.birth_date ?? null })
   childToLink.value = null
 }
 
