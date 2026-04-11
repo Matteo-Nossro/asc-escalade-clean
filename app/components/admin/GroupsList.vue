@@ -51,6 +51,9 @@
               <UBadge v-if="group.price" color="info" variant="soft" size="sm">
                 {{ group.price }}€
               </UBadge>
+              <UBadge v-if="group.min_birth_date || group.max_birth_date" color="warning" variant="soft" size="sm">
+                {{ formatAgeRange(group) }}
+              </UBadge>
             </div>
 
             <div class="flex flex-wrap gap-1 mt-2">
@@ -128,4 +131,13 @@ const emit = defineEmits<{
   'delete': [groupId: string]
   'refresh': []
 }>()
+
+function formatAgeRange(group: Group): string {
+  const min = group.min_birth_date?.slice(0, 4)
+  const max = group.max_birth_date?.slice(0, 4)
+  if (min && max) return `Nés ${min}–${max}`
+  if (min) return `Nés à partir de ${min}`
+  if (max) return `Nés jusqu'en ${max}`
+  return ''
+}
 </script>

@@ -596,6 +596,8 @@ const groupForm = ref({
   level: null as string | null,
   description: '',
   price: null as number | null,
+  min_birth_year: null as number | null,
+  max_birth_year: null as number | null,
   referent_id: null as string | null,
   instructor_ids: [] as string[],
   schedules: [] as { day_of_week: number; start_time: string; end_time: string }[],
@@ -621,6 +623,8 @@ function openGroupModal(group: Group | null = null) {
       level: group.level || null,
       description: group.description || '',
       price: group.price ?? null,
+      min_birth_year: group.min_birth_date ? new Date(group.min_birth_date).getUTCFullYear() : null,
+      max_birth_year: group.max_birth_date ? new Date(group.max_birth_date).getUTCFullYear() : null,
       referent_id: group.referent_id || null,
       instructor_ids: (group.instructors || []).map((i: any) => i.user_id),
       schedules: (group.schedules || []).map(s => ({
@@ -633,7 +637,8 @@ function openGroupModal(group: Group | null = null) {
     editingGroup.value = null
     groupForm.value = {
       name: '', max_members: 20, level: null, description: '',
-      price: null, referent_id: null, instructor_ids: [], schedules: [],
+      price: null, min_birth_year: null, max_birth_year: null,
+      referent_id: null, instructor_ids: [], schedules: [],
     }
   }
   instructorToAdd.value = null
@@ -658,6 +663,9 @@ function removeInstructor(uid: string) {
 
 async function saveGroup() {
   savingGroup.value = true
+  const minBirthDate = groupForm.value.min_birth_year ? `${groupForm.value.min_birth_year}-01-01` : null
+  const maxBirthDate = groupForm.value.max_birth_year ? `${groupForm.value.max_birth_year}-12-31` : null
+
   try {
     if (editingGroup.value) {
       await updateGroup(editingGroup.value.id, {
@@ -666,6 +674,8 @@ async function saveGroup() {
         level: groupForm.value.level,
         description: groupForm.value.description || null,
         price: groupForm.value.price,
+        min_birth_date: minBirthDate,
+        max_birth_date: maxBirthDate,
         referent_id: groupForm.value.referent_id,
       } as any)
       await replaceSchedules(editingGroup.value.id, groupForm.value.schedules)
@@ -678,6 +688,8 @@ async function saveGroup() {
           level: groupForm.value.level,
           description: groupForm.value.description || null,
           price: groupForm.value.price,
+          min_birth_date: minBirthDate,
+          max_birth_date: maxBirthDate,
           referent_id: groupForm.value.referent_id,
         } as any,
         groupForm.value.schedules,

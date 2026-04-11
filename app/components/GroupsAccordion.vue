@@ -95,6 +95,15 @@
                   </div>
                 </div>
 
+                <!-- Années de référence -->
+                <div v-if="item.birthRange" class="flex items-start gap-3">
+                  <UIcon name="i-lucide-cake" class="w-5 h-5 text-[#7FD857] mt-0.5 shrink-0" />
+                  <div>
+                    <dt class="text-xs font-semibold uppercase tracking-wide text-gray-400">Années de référence</dt>
+                    <dd class="text-sm font-medium text-[#0F1729] mt-0.5">{{ item.birthRange }}</dd>
+                  </div>
+                </div>
+
               </dl>
             </div>
           </div>
@@ -164,6 +173,22 @@ function formatSchedule(day: number, start: string, end: string): string {
   return `${dayName} ${fmt(start)} – ${fmt(end)}`
 }
 
+function formatBirthRange(min: string | null, max: string | null): string | null {
+  if (!min && !max) return null
+  const yearOf = (d: string) => d.slice(0, 4)
+  if (min && max) return `${yearOf(min)} / ${yearOf(max)}`
+  if (!min && max) {
+    // Date de coupure spécifique (ex : 2008-08-31) → recalcul "Nés avant le 01/09/2008"
+    if (max.endsWith('12-31')) return `Avant ${parseInt(yearOf(max)) + 1}`
+    const [y, mo, d] = max.split('-').map(Number)
+    const cut = new Date(Date.UTC(y, mo - 1, d + 1))
+    const dd = String(cut.getUTCDate()).padStart(2, '0')
+    const mm = String(cut.getUTCMonth() + 1).padStart(2, '0')
+    return `Nés avant le ${dd}/${mm}/${cut.getUTCFullYear()}`
+  }
+  return `À partir de ${yearOf(min!)}`
+}
+
 function getLevelColor(level: string | null): string {
   switch (level) {
     case 'Débutant':      return 'bg-green-100 text-green-700'
@@ -186,6 +211,7 @@ const accordionItems = computed(() =>
       formatSchedule(s.day_of_week, s.start_time, s.end_time),
     ),
     instructors: (g.instructors ?? []).map(i => i.profile?.full_name).filter(Boolean),
+    birthRange: formatBirthRange(g.min_birth_date, g.max_birth_date),
   })),
 )
 </script>

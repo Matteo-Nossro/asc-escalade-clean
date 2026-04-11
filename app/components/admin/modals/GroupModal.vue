@@ -40,6 +40,34 @@
           <UInput v-model="groupForm.description" placeholder="Description du groupe" class="w-full" />
         </UFormField>
 
+        <!-- Tranche d'âge -->
+        <div>
+          <label class="text-sm font-medium text-gray-700 block mb-1">Tranche d'âge (années de naissance)</label>
+          <div class="grid grid-cols-2 gap-4">
+            <UFormField label="De l'année">
+              <UInput
+                v-model.number="groupForm.min_birth_year"
+                type="number"
+                min="1940"
+                :max="new Date().getFullYear()"
+                placeholder="Ex: 2010"
+                class="w-full"
+              />
+            </UFormField>
+            <UFormField label="À l'année">
+              <UInput
+                v-model.number="groupForm.max_birth_year"
+                type="number"
+                min="1940"
+                :max="new Date().getFullYear()"
+                placeholder="Ex: 2018"
+                class="w-full"
+              />
+            </UFormField>
+          </div>
+          <p class="text-xs text-gray-400 mt-1">Années de naissance acceptées (inclus). Laisser vide = aucune restriction.</p>
+        </div>
+
         <!-- Référent -->
         <UFormField label="Référent">
           <USelectMenu
@@ -157,6 +185,8 @@ const props = defineProps<{
     level: string | null
     description: string
     price: number | null
+    min_birth_year: number | null
+    max_birth_year: number | null
     referent_id: string | null
     instructor_ids: string[]
     schedules: { day_of_week: number; start_time: string; end_time: string }[]

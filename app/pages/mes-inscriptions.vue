@@ -260,7 +260,7 @@
             </div>
 
             <!-- Créneaux -->
-            <div class="flex flex-wrap gap-1 mb-3">
+            <div class="flex flex-wrap gap-1 mb-2">
               <span
                 v-for="sched in group.schedules"
                 :key="sched.id"
@@ -269,6 +269,11 @@
                 {{ formatSchedule(sched) }}
               </span>
             </div>
+
+            <!-- Tranche d'âge -->
+            <p v-if="group.min_birth_date || group.max_birth_date" class="text-xs text-gray-400 mb-3">
+              {{ formatAgeRange(group) }}
+            </p>
 
             <UButton
               size="md"
@@ -281,9 +286,14 @@
             </UButton>
           </div>
 
-          <p v-if="availableGroups.length === 0" class="text-center text-gray-500 py-4">
-            Vous êtes déjà inscrit à tous les groupes disponibles.
-          </p>
+          <div v-if="availableGroups.length === 0" class="text-center py-4 space-y-1">
+            <p v-if="allNonEnrolledGroups.length > availableGroups.length" class="text-gray-500">
+              Aucun groupe disponible pour cette tranche d'âge.
+            </p>
+            <p v-else class="text-gray-500">
+              Vous êtes déjà inscrit à tous les groupes disponibles.
+            </p>
+          </div>
         </div>
       </template>
     </UModal>
@@ -316,6 +326,7 @@ const cancellingEvent = ref<string | null>(null)
 
 // Famille
 const familyProfiles = ref<ParentAccessLink[]>([])
+const ownBirthDate = ref<string | null>(null)
 
 const ownUid = computed(() => getUserId() || '')
 
@@ -334,13 +345,39 @@ const childrenEnrollments = computed(() =>
 // Événements
 const myEventRegistrations = computed(() => registrations.value)
 
-// Groupes disponibles (pas déjà inscrit)
-const availableGroups = computed(() => {
+// Groupes disponibles (pas déjà inscrit + tranche d'âge compatible)
+function getBirthDateForUser(userId: string): string | null {
+  if (userId === ownUid.value) return ownBirthDate.value
+  const child = familyProfiles.value.find(p => p.child_id === userId)
+  return child?.child?.birth_date ?? null
+}
+
+function isAgeEligible(group: any, birthDate: string | null): boolean {
+  if (!birthDate) return true
+  if (group.min_birth_date && birthDate < group.min_birth_date) return false
+  if (group.max_birth_date && birthDate > group.max_birth_date) return false
+  return true
+}
+
+function formatAgeRange(group: any): string {
+  const min = group.min_birth_date?.slice(0, 4)
+  const max = group.max_birth_date?.slice(0, 4)
+  if (min && max) return `Nés ${min}–${max}`
+  if (min) return `Nés à partir de ${min}`
+  if (max) return `Nés jusqu'en ${max}`
+  return ''
+}
+
+const allNonEnrolledGroups = computed(() => {
   const enrolledGroupIds = myEnrollments.value
     .filter(e => e.user_id === enrollForUserId.value)
     .map(e => e.group_id)
-
   return groups.value.filter(g => !enrolledGroupIds.includes(g.id))
+})
+
+const availableGroups = computed(() => {
+  const birthDate = getBirthDateForUser(enrollForUserId.value)
+  return allNonEnrolledGroups.value.filter(g => isAgeEligible(g, birthDate))
 })
 
 // Récupérer les créneaux d'un groupe
@@ -372,12 +409,20 @@ onMounted(async () => {
     fetchMyEventRegistrations(),
   ])
 
+  // Charger la date de naissance du user courant
+  const { data: profileData } = await supabase
+    .from('profiles')
+    .select('birth_date')
+    .eq('id', uid)
+    .single()
+  ownBirthDate.value = profileData?.birth_date ?? null
+
   // Charger les enfants si parent
   const { data: childData } = await supabase
     .from('parent_access')
     .select(`
       id, parent_id, child_id, access_type,
-      child:profiles!child_id(id, full_name)
+      child:profiles!child_id(id, full_name, birth_date)
     `)
     .eq('parent_id', uid)
     .in('access_type', ['register', 'full'])
