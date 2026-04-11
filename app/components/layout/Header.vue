@@ -390,7 +390,7 @@ const handleLogout = async () => {
     background-color: #0F1729;
     color: white;
     &:hover { background-color: #1a2740; }
-    @media (max-width: 768px) { display: none; }
+    @media (max-width: 1024px) { display: none; }
   }
 
   &__burger {
