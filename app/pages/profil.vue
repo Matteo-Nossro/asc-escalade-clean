@@ -20,8 +20,8 @@
       <!-- Contenu -->
       <div v-else class="space-y-6">
 
-        <!-- Card sélecteur enfant (visible uniquement pour les parents) -->
-        <div v-if="children.length > 0" class="bg-white rounded-3xl shadow-2xl p-6 border border-gray-100">
+        <!-- Card famille (sélecteur + ajout enfant) -->
+        <div v-if="children.length > 0 || userRoles.includes('parent')" class="bg-white rounded-3xl shadow-2xl p-6 border border-gray-100">
           <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-4 flex items-center gap-2">
             <UIcon name="i-lucide-users" class="w-4 h-4 text-[#7FD857]" />
             Profils famille
@@ -56,6 +56,66 @@
               </template>
               {{ child.child?.full_name || 'Enfant' }}
             </UButton>
+
+            <UButton
+              size="sm"
+              variant="soft"
+              icon="i-lucide-plus"
+              @click="showAddChildForm = !showAddChildForm"
+            >
+              Ajouter un enfant
+            </UButton>
+          </div>
+
+          <!-- Formulaire d'ajout d'enfant -->
+          <div v-if="showAddChildForm" class="mt-5 pt-5 border-t border-gray-100 space-y-4">
+            <p class="text-sm font-semibold text-gray-700">Nouvel enfant</p>
+
+            <UAlert
+              v-if="addChildError"
+              color="error"
+              variant="soft"
+              :title="addChildError"
+              icon="i-lucide-alert-circle"
+            />
+
+            <div class="grid grid-cols-2 gap-3">
+              <UFormField label="Prénom" required :error="addChildErrors.first_name">
+                <UInput v-model="addChildForm.first_name" placeholder="Marie" size="md" class="w-full" />
+              </UFormField>
+              <UFormField label="Nom" required :error="addChildErrors.last_name">
+                <UInput v-model="addChildForm.last_name" placeholder="Dupont" size="md" class="w-full" />
+              </UFormField>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <UFormField label="Date de naissance">
+                <UInput v-model="addChildForm.birth_date" type="date" size="md" class="w-full" />
+              </UFormField>
+              <UFormField label="Sexe" required :error="addChildErrors.gender">
+                <select
+                  v-model="addChildForm.gender"
+                  class="w-full h-[38px] px-3 rounded-lg border text-sm text-gray-900 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#7FD857] focus:border-transparent transition-all"
+                  :class="addChildErrors.gender ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-white'"
+                >
+                  <option value="">Sélectionner…</option>
+                  <option value="Homme">Garçon</option>
+                  <option value="Femme">Fille</option>
+                </select>
+              </UFormField>
+            </div>
+
+            <div class="flex gap-2 justify-end">
+              <UButton variant="soft" size="sm" @click="cancelAddChild">Annuler</UButton>
+              <UButton
+                size="sm"
+                :loading="addingChild"
+                class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546]"
+                @click="submitAddChild"
+              >
+                Ajouter
+              </UButton>
+            </div>
           </div>
         </div>
 
@@ -413,6 +473,87 @@ function validate(): boolean {
 const children = ref<ParentAccessLink[]>([])
 const editingChildId = ref<string | null>(null)
 const ownProfileData = ref<Profile | null>(null)
+
+// Ajout d'un enfant
+const showAddChildForm = ref(false)
+const addingChild = ref(false)
+const addChildError = ref('')
+const addChildErrors = ref({ first_name: '', last_name: '', gender: '' })
+const addChildForm = ref({ first_name: '', last_name: '', birth_date: '', gender: '' })
+
+function cancelAddChild() {
+  showAddChildForm.value = false
+  addChildError.value = ''
+  addChildErrors.value = { first_name: '', last_name: '', gender: '' }
+  addChildForm.value = { first_name: '', last_name: '', birth_date: '', gender: '' }
+}
+
+async function submitAddChild() {
+  addChildErrors.value = { first_name: '', last_name: '', gender: '' }
+  addChildError.value = ''
+
+  if (!addChildForm.value.first_name.trim()) {
+    addChildErrors.value.first_name = 'Le prénom est requis'
+    return
+  }
+  if (!addChildForm.value.last_name.trim()) {
+    addChildErrors.value.last_name = 'Le nom est requis'
+    return
+  }
+  if (!addChildForm.value.gender) {
+    addChildErrors.value.gender = 'Le sexe est requis'
+    return
+  }
+
+  addingChild.value = true
+  try {
+    const res = await fetch('/api/add-child', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        first_name: addChildForm.value.first_name.trim(),
+        last_name: addChildForm.value.last_name.trim(),
+        birth_date: addChildForm.value.birth_date || null,
+        gender: addChildForm.value.gender || null,
+        address: null,
+        postal_code: null,
+        city: null,
+      }),
+    })
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      addChildError.value = err?.statusMessage || err?.message || `Erreur ${res.status}`
+      return
+    }
+
+    const { childId } = await res.json()
+
+    // Recharger la liste des enfants
+    const fullName = `${addChildForm.value.first_name.trim()} ${addChildForm.value.last_name.trim()}`.trim()
+    children.value.push({
+      id: '',
+      parent_id: user.value?.id ?? '',
+      child_id: childId,
+      access_type: 'full',
+      created_at: new Date().toISOString(),
+      child: {
+        id: childId,
+        first_name: addChildForm.value.first_name.trim(),
+        last_name: addChildForm.value.last_name.trim(),
+        full_name: fullName,
+        avatar_url: null,
+        birth_date: addChildForm.value.birth_date || null,
+      },
+    } as ParentAccessLink)
+
+    cancelAddChild()
+  } catch (err: any) {
+    addChildError.value = err?.message || 'Une erreur est survenue'
+  } finally {
+    addingChild.value = false
+  }
+}
 
 const isEditingChild = computed(() => editingChildId.value !== null)
 
