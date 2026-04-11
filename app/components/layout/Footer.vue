@@ -93,16 +93,16 @@
         <!-- Colonne 3 : Navigation -->
         <div class="flex flex-col gap-6">
           <h3 class="text-[#7FD857] font-bold text-lg">Navigation</h3>
-          <ul class="flex flex-col gap-3">
-            <li v-for="link in navigationLinks" :key="link._uid">
-              <NuxtLink
-                :to="resolveLink(link.link)"
-                class="text-gray-400 text-sm hover:text-[#7FD857] transition-colors"
-              >
-                {{ link.label }}
-              </NuxtLink>
-            </li>
-          </ul>
+          <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+            <NuxtLink
+              v-for="link in navigationLinks"
+              :key="link._uid"
+              :to="resolveLink(link.link)"
+              class="text-gray-400 text-sm hover:text-[#7FD857] transition-colors"
+            >
+              {{ link.label }}
+            </NuxtLink>
+          </div>
         </div>
 
         <!-- Colonne 4 : Partenaires -->
