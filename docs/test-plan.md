@@ -69,8 +69,11 @@
 | PR10 | Autocomplétion adresse (3+ caractères) | Suggestions de l'API BAN affichées | | |
 | PR11 | Sélection d'une suggestion d'adresse | Champs adresse, CP, ville remplis automatiquement | | |
 | PR12 | Mise à jour URL avatar | Photo de profil mise à jour | | |
-| PR13 | *(Parent)* Basculer vers le profil d'un enfant | Infos de l'enfant chargées dans le formulaire | | |
-| PR14 | *(Parent)* Sauvegarder les infos d'un enfant | Données de l'enfant persistées | | |
+| PR13 | *(Parent, 1 enfant)* Basculer vers le profil de l'enfant | Infos de l'enfant chargées dans le formulaire | | |
+| PR14 | *(Parent, 1 enfant)* Sauvegarder les infos de l'enfant | Données de l'enfant persistées sans affecter le parent | | |
+| PR15 | *(Parent, 2 enfants)* Onglets de basculement | 2 onglets enfants disponibles en plus du profil parent | | |
+| PR16 | *(Parent, 2 enfants)* Basculer entre les deux enfants | Formulaire rechargé avec les infos du bon enfant | | |
+| PR17 | *(Parent, 2 enfants)* Modifier les infos du 2e enfant | Données du 2e enfant persistées, 1er enfant inchangé | | |
 
 ---
 
@@ -87,9 +90,16 @@
 | MG05 | Groupe plein — bouton rejoindre désactivé | Bouton grisé | | |
 | MG06 | Groupe déjà rejoint — bouton désactivé | Bouton grisé | | |
 | MG07 | Rejoindre un groupe disponible | Inscription créée, modal fermé, liste rafraîchie | | |
-| MG08 | *(Parent)* Section inscriptions enfants visible | Groupes des enfants listés séparément | | |
-| MG09 | *(Parent)* Inscrire un enfant à un groupe | Via le modal, profil enfant sélectionnable | | |
-| MG10 | *(Parent)* Retirer un enfant d'un groupe | Inscription supprimée | | |
+| MG08 | *(Parent, 1 enfant)* Section inscriptions enfant visible | Groupes de l'enfant listés séparément | | |
+| MG09 | *(Parent, 1 enfant)* Inscrire l'enfant à un groupe | Via le modal, profil enfant sélectionnable | | |
+| MG10 | *(Parent, 1 enfant)* Retirer l'enfant d'un groupe | Inscription supprimée | | |
+| MG14 | *(Parent, 2 enfants)* Sections séparées par enfant | Une section dédiée par enfant dans la page | | |
+| MG15 | *(Parent, 2 enfants)* Inscrire chaque enfant à un groupe différent | Inscriptions créées indépendamment pour chaque enfant | | |
+| MG16 | *(Parent, 2 enfants)* Retirer un enfant d'un groupe sans affecter l'autre | Seule l'inscription ciblée est supprimée | | |
+| MG17 | *(Parent, 2 enfants)* Filtrage par âge par enfant | Groupes disponibles filtrés selon la date de naissance de chaque enfant | | |
+| MG11 | Rejoindre un groupe — âge incompatible | Groupe absent de la liste des disponibles | | |
+| MG12 | Tous groupes filtrés par âge → aucun disponible | Message "Aucun groupe disponible pour cette tranche d'âge" affiché | | |
+| MG13 | Tranche d'âge affichée sous les créneaux | Texte "Nés XXXX–XXXX" visible dans la carte du groupe | | |
 
 ### 5b. Événements
 
@@ -116,6 +126,8 @@
 
 ## 7. Admin — Gestion des membres
 
+### 7a. Tableau & actions
+
 | # | Scénario | Résultat attendu | Statut | Notes |
 |---|----------|-----------------|--------|-------|
 | MB01 | Tableau des membres chargé | Colonnes : Nom, Licence, Email, Formule, Créneau, Statut, Actions | | |
@@ -128,6 +140,52 @@
 | MB08 | Export CSV | Fichier téléchargé avec toutes les colonnes attendues | | |
 | MB09 | 🐛 Ajouter un membre (Bug connu) | Le membre n'est pas créé en base (bug documenté) | 🐛 | BUG #1 |
 | MB10 | 🐛 Basculer le statut via le menu action | Changement non persisté en base (bug documenté) | 🐛 | BUG #2 |
+
+### 7b. Formulaire de création — validation des champs
+
+| # | Scénario | Résultat attendu | Statut | Notes |
+|---|----------|-----------------|--------|-------|
+| MB11 | Ouvrir modal création | Titre "Ajouter un adhérent", tous les champs vides | | |
+| MB12 | Soumettre sans prénom | Erreur "Le prénom est requis" sous le champ | | |
+| MB13 | Soumettre sans nom | Erreur "Le nom est requis" sous le champ | | |
+| MB14 | Email avec format invalide (ex : "abc") | Erreur "Format d'email invalide" | | |
+| MB15 | Licence invalide (lettres ou moins de 6 chiffres) | Erreur "Numéro de licence invalide (6 à 10 chiffres)" | | |
+| MB16 | Renseigner une date de naissance | Âge calculé automatiquement à côté du champ | | |
+| MB17 | Champs administratifs — toggle Paiement reçu | Libellé bascule "Oui" / "Non" | | |
+| MB18 | Champs administratifs — toggle Formulaire d'inscription | Libellé bascule "Oui" / "Non" | | |
+| MB19 | Champs administratifs — Certificat médical / Assurance FFME | Valeurs sélectionnables dans le select | | |
+
+### 7c. Création d'un membre simple
+
+| # | Scénario | Résultat attendu | Statut | Notes |
+|---|----------|-----------------|--------|-------|
+| MB20 | 🐛 Créer un membre (prénom + nom uniquement) | Profil créé en base, apparaît dans le tableau | 🐛 | BUG #1 |
+| MB21 | 🐛 Créer avec email | Compte Supabase Auth créé + profil inséré | 🐛 | BUG #1 |
+| MB22 | 🐛 Créer avec type de licence | Formule persistée en base | 🐛 | BUG #1 |
+| MB23 | 🐛 Créer avec un ou plusieurs groupes cochés | Inscription(s) au(x) groupe(s) créée(s) | 🐛 | BUG #1 |
+| MB24 | 🐛 Créer avec tous les champs administratifs remplis | Toutes les valeurs persistées en base | 🐛 | BUG #1 |
+
+### 7d. Création d'un membre parent + enfants
+
+| # | Scénario | Résultat attendu | Statut | Notes |
+|---|----------|-----------------|--------|-------|
+| MB25 | Cocher le rôle "Parent" | Section "Enfants liés" apparaît | | |
+| MB26 | Décocher le rôle "Parent" | Section "Enfants liés" disparaît | | |
+| MB27 | 🐛 Créer un parent sans enfant lié | Compte créé avec rôle parent, aucun `parent_access` | 🐛 | BUG #1 |
+| MB28 | 🐛 Créer un parent + 1 enfant lié | `parent_access` créé en base pour cet enfant | 🐛 | BUG #1 |
+| MB29 | 🐛 Créer un parent + 2 enfants liés | Deux `parent_access` créés en base | 🐛 | BUG #1 |
+| MB30 | 🐛 Créer un parent + 3 enfants ou plus | Tous les `parent_access` créés | 🐛 | BUG #1 |
+| MB31 | Tenter de lier le même enfant deux fois | Bouton "Lier" désactivé / enfant absent de la liste | | |
+
+### 7e. Modification d'un parent existant
+
+| # | Scénario | Résultat attendu | Statut | Notes |
+|---|----------|-----------------|--------|-------|
+| MB32 | Ouvrir modal édition d'un parent avec enfants | Liste des enfants déjà liés chargée | | |
+| MB33 | Ajouter un enfant à un parent existant | `parent_access` créé, enfant apparaît dans la liste | | |
+| MB34 | Ajouter un 2e puis un 3e enfant | Chaque lien créé indépendamment, liste mise à jour | | |
+| MB35 | Retirer un enfant lié (bouton ×) | `parent_access` supprimé, enfant retiré de la liste | | |
+| MB36 | Retirer tous les enfants d'un parent | Liste affiche "Aucun enfant lié" | | |
 
 ---
 
@@ -144,6 +202,10 @@
 | GR07 | Supprimer un groupe | Confirmation → groupe retiré de la liste | | |
 | GR08 | Voir les membres d'un groupe | Modal avec la liste des membres | | |
 | GR09 | Retirer un membre d'un groupe | Membre retiré de la liste dans le modal | | |
+| GR10 | Créer un groupe avec tranche d'âge | Champs "De l'année" / "À l'année" remplis → sauvegarde → badge âge visible dans la liste | | |
+| GR11 | Modifier un groupe — changer la tranche d'âge | Nouvelle valeur persistée en base après rechargement | | |
+| GR12 | Créer un groupe sans tranche d'âge | Aucun badge âge affiché dans la liste | | |
+| GR13 | Tranche d'âge affichée dans l'accordéon public | Icône gâteau + "Années de référence" visibles dans GroupsAccordion | | |
 
 ---
 
@@ -205,19 +267,19 @@
 | Authentification | 11 | | | | | |
 | Navigation | 10 | | | | | |
 | Pages publiques | 7 | | | | | |
-| Profil | 14 | | | | | |
-| Mes inscriptions | 14 | | | | | |
+| Profil | 17 | | | | | |
+| Mes inscriptions | 20 | | | | | |
 | Admin KPI | 5 | | | | | |
-| Admin Membres | 10 | | | | 2 | |
-| Admin Groupes | 9 | | | | | |
+| Admin Membres | 36 | | | | 8 | |
+| Admin Groupes | 13 | | | | | |
 | Admin Demandes | 7 | | | | | |
 | API | 4 | | | | | |
 | Responsive | 6 | | | | | |
 | Persistance | 6 | | | | | |
-| **Total** | **103** | | | | **2** | |
+| **Total** | **142** | | | | **10** | |
 
 ---
 
 > **Bugs documentés**
-> - 🐛 **BUG #1** (`MB09`) — `saveMember()` ne crée pas de membre en mode "ajout" (condition `editMode` bloque l'INSERT)
+> - 🐛 **BUG #1** (`MB09`, `MB20`–`MB30`) — `saveMember()` ne crée pas de membre en mode "ajout" (condition `editMode` bloque l'INSERT). Impacte aussi la création parent + enfants.
 > - 🐛 **BUG #2** (`MB10`) — `toggleStatus()` ne persiste pas en base (mise à jour locale uniquement)
