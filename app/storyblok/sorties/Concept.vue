@@ -30,12 +30,12 @@
 			</div>
 
 			<!-- Fallback tags statiques -->
-			<div v-else class="flex flex-wrap justify-center gap-3">
+			<!-- <div v-else class="flex flex-wrap justify-center gap-3">
 				<UBadge color="neutral" variant="soft" size="md" class="px-4 py-1.5 font-bold uppercase tracking-wide text-xs">Stage</UBadge>
 				<UBadge color="neutral" variant="soft" size="md" class="px-4 py-1.5 font-bold uppercase tracking-wide text-xs">Falaise</UBadge>
 				<UBadge color="neutral" variant="soft" size="md" class="px-4 py-1.5 font-bold uppercase tracking-wide text-xs">Climb Up</UBadge>
 				<UBadge color="neutral" variant="soft" size="md" class="px-4 py-1.5 font-bold uppercase tracking-wide text-xs">Cime Altitude</UBadge>
-			</div>
+			</div> -->
 
 		</div>
 	</div>
