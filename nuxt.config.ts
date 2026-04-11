@@ -97,7 +97,9 @@ export default defineNuxtConfig({
     // En-têtes de sécurité sur toutes les routes publiques
     '/**': {
       headers: {
-        'X-Frame-Options': 'SAMEORIGIN',
+        // X-Frame-Options retiré : incompatible avec le live preview Storyblok (iframe depuis app.storyblok.com)
+        // On utilise CSP frame-ancestors à la place, qui supporte les allowlists de domaines
+        'Content-Security-Policy': "frame-ancestors 'self' https://app.storyblok.com",
         'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
         'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
         'X-Content-Type-Options': 'nosniff',

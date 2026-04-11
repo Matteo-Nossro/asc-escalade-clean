@@ -4,16 +4,16 @@
       <!-- En-tête de section avec bouton -->
       <div class="flex items-end justify-between mb-12">
         <div>
-          <h2 ref="titleRef" class="text-3xl font-bold text-[#0F1729] opacity-0">
+          <h2 ref="titleRef" class="text-3xl font-bold text-[#0F1729]">
             {{ blok.title }}
           </h2>
-          <p ref="subtitleRef" class="text-gray-600 mt-2 opacity-0">
+          <p ref="subtitleRef" class="text-gray-600 mt-2">
             {{ blok.subtitle }}
           </p>
         </div>
 
         <!-- Bouton Desktop -->
-        <div ref="buttonRef" class="hidden md:block opacity-0">
+        <div ref="buttonRef" class="hidden md:block">
           <UButton
             :to="blok.ctaLink"
             variant="ghost"
@@ -32,11 +32,18 @@
         <div
           v-if="featuredPost"
           ref="featuredRef"
-          class="md:col-span-8 relative group overflow-hidden rounded-2xl h-[400px] opacity-0"
+          class="md:col-span-8 relative group overflow-hidden rounded-2xl h-[400px]"
         >
           <img
-            :src="featuredPost.image"
+            v-if="featuredPost.image"
+            :src="`${featuredPost.image}/m/800x400/filters:quality(65):format(webp)`"
+            :srcset="`
+              ${featuredPost.image}/m/640x380/filters:quality(65):format(webp) 640w,
+              ${featuredPost.image}/m/800x400/filters:quality(65):format(webp) 800w
+            `"
+            sizes="(max-width: 768px) 100vw, 66vw"
             :alt="featuredPost.title"
+            loading="lazy"
             class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
           <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
@@ -81,7 +88,7 @@
           <div
             v-if="secondaryPosts[0]"
             ref="secondary1Ref"
-            class="bg-[#F5F7FA] rounded-2xl p-6 flex flex-col justify-between h-full relative hover:bg-gray-100 transition-all duration-300 hover:shadow-lg opacity-0"
+            class="bg-[#F5F7FA] rounded-2xl p-6 flex flex-col justify-between h-full relative hover:bg-gray-100 transition-all duration-300 hover:shadow-lg"
           >
             <div class="flex justify-between items-start mb-4">
               <span class="text-xs font-semibold text-gray-500 bg-white px-2 py-1 rounded">
@@ -112,7 +119,7 @@
           <div
             v-if="secondaryPosts[1]"
             ref="secondary2Ref"
-            class="bg-[#0F1729] rounded-2xl p-6 flex flex-col justify-between h-full relative group overflow-hidden hover:shadow-xl transition-all duration-300 opacity-0"
+            class="bg-[#0F1729] rounded-2xl p-6 flex flex-col justify-between h-full relative group overflow-hidden hover:shadow-xl transition-all duration-300"
           >
             <div ref="glowRef" class="absolute top-0 right-0 w-24 h-24 bg-[#7FD857] opacity-10 rounded-full blur-2xl -mr-8 -mt-8"></div>
             <div class="flex justify-between items-start mb-4 relative z-10">
@@ -146,7 +153,7 @@
       </div>
 
       <!-- Bouton Mobile -->
-      <div ref="mobileButtonRef" class="md:hidden mt-8 text-center opacity-0">
+      <div ref="mobileButtonRef" class="md:hidden mt-8 text-center">
         <UButton
           :to="blok.ctaLink"
           block
@@ -163,12 +170,9 @@
 </template>
 
 <script setup lang="ts">
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { ref, computed, onMounted } from 'vue'
 import type { Post } from '~/types/post'
 import Tag from '~/components/ui/Tag.vue'
-
-gsap.registerPlugin(ScrollTrigger)
 
 // ✅ Prop Storyblok
 defineProps({ blok: Object })
@@ -221,9 +225,13 @@ const getCategoryColor = (category: string) => {
   return colors[category] || '#7FD857'
 }
 
-// Animations GSAP
-onMounted(() => {
-	// Animation de l'en-tête au scroll
+// Animations GSAP (import dynamique — hors bundle initial)
+onMounted(async () => {
+	const { gsap } = await import('gsap')
+	const { ScrollTrigger } = await import('gsap/ScrollTrigger')
+	gsap.registerPlugin(ScrollTrigger)
+
+	// gsap.from() : éléments visibles par défaut, animation depuis état invisible
 	const tl = gsap.timeline({
 		scrollTrigger: {
 			trigger: titleRef.value,
@@ -233,129 +241,47 @@ onMounted(() => {
 		}
 	})
 
-	tl.to(titleRef.value, {
-		opacity: 1,
-		y: 0,
-		duration: 0.6,
-		ease: 'power2.out'
-	})
-			.to(subtitleRef.value, {
-				opacity: 1,
-				y: 0,
-				duration: 0.5
-			}, '-=0.3')
-			.to(buttonRef.value, {
-				opacity: 1,
-				x: 0,
-				duration: 0.5
-			}, '-=0.3')
+	tl.from(titleRef.value, { opacity: 0, y: 20, duration: 0.6, ease: 'power2.out' })
+		.from(subtitleRef.value, { opacity: 0, y: 20, duration: 0.5 }, '-=0.3')
+		.from(buttonRef.value, { opacity: 0, x: 20, duration: 0.5 }, '-=0.3')
 
-	// Animation des cards au scroll
 	if (featuredRef.value) {
-		gsap.to(featuredRef.value, {
-			opacity: 1,
-			y: 0,
-			duration: 0.8,
-			ease: 'power2.out',
-			scrollTrigger: {
-				trigger: featuredRef.value,
-				start: 'top 85%',
-				toggleActions: 'play none none none'
-			}
+		gsap.from(featuredRef.value, {
+			opacity: 0, y: 30, duration: 0.8, ease: 'power2.out',
+			scrollTrigger: { trigger: featuredRef.value, start: 'top 85%', toggleActions: 'play none none none' }
 		})
 	}
 
 	if (secondary1Ref.value) {
-		gsap.to(secondary1Ref.value, {
-			opacity: 1,
-			x: 0,
-			duration: 0.7,
-			ease: 'power2.out',
-			scrollTrigger: {
-				trigger: secondary1Ref.value,
-				start: 'top 85%',
-				toggleActions: 'play none none none'
-			}
+		gsap.from(secondary1Ref.value, {
+			opacity: 0, x: 20, duration: 0.7, ease: 'power2.out',
+			scrollTrigger: { trigger: secondary1Ref.value, start: 'top 85%', toggleActions: 'play none none none' }
 		})
 	}
 
 	if (secondary2Ref.value) {
-		gsap.to(secondary2Ref.value, {
-			opacity: 1,
-			x: 0,
-			duration: 0.7,
-			delay: 0.2,
-			ease: 'power2.out',
-			scrollTrigger: {
-				trigger: secondary2Ref.value,
-				start: 'top 85%',
-				toggleActions: 'play none none none'
-			}
+		gsap.from(secondary2Ref.value, {
+			opacity: 0, x: 20, duration: 0.7, delay: 0.2, ease: 'power2.out',
+			scrollTrigger: { trigger: secondary2Ref.value, start: 'top 85%', toggleActions: 'play none none none' }
 		})
 	}
 
 	if (mobileButtonRef.value) {
-		gsap.to(mobileButtonRef.value, {
-			opacity: 1,
-			y: 0,
-			duration: 0.5,
-			scrollTrigger: {
-				trigger: mobileButtonRef.value,
-				start: 'top 90%',
-				toggleActions: 'play none none none'
-			}
+		gsap.from(mobileButtonRef.value, {
+			opacity: 0, y: 20, duration: 0.5,
+			scrollTrigger: { trigger: mobileButtonRef.value, start: 'top 90%', toggleActions: 'play none none none' }
 		})
 	}
 
-	// Animation du glow sur la carte sombre
 	if (glowRef.value) {
-		gsap.to(glowRef.value, {
-			scale: 1.3,
-			opacity: 0.15,
-			duration: 3,
-			repeat: -1,
-			yoyo: true,
-			ease: 'sine.inOut'
-		})
+		gsap.to(glowRef.value, { scale: 1.3, opacity: 0.15, duration: 3, repeat: -1, yoyo: true, ease: 'sine.inOut' })
 	}
 
-	// Animation des particules sur la carte featured
 	featuredParticles.value.forEach((particle, index) => {
 		if (particle) {
-			gsap.to(particle, {
-				opacity: 0.6,
-				y: -20,
-				duration: 2 + index * 0.5,
-				delay: index * 0.3,
-				repeat: -1,
-				yoyo: true,
-				ease: 'sine.inOut'
-			})
+			gsap.to(particle, { opacity: 0.6, y: -20, duration: 2 + index * 0.5, delay: index * 0.3, repeat: -1, yoyo: true, ease: 'sine.inOut' })
 		}
 	})
 })
 </script>
 
-<style scoped>
-/* Initialisation des positions pour les animations */
-h2, p {
-	transform: translateY(20px);
-}
-
-[ref="buttonRef"] {
-	transform: translateX(20px);
-}
-
-[ref="featuredRef"] {
-	transform: translateY(30px);
-}
-
-[ref="secondary1Ref"],
-[ref="secondary2Ref"] {
-	transform: translateX(20px);
-}
-
-[ref="mobileButtonRef"] {
-	transform: translateY(20px);
-}
-</style>
