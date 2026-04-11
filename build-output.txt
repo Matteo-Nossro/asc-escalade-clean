@@ -1,0 +1,621 @@
+
+> build
+> nuxt build
+
+┌  [36mBuilding Nuxt for production...[39m
+│
+●  [32mNuxt [1m4.2.2[22m[39m[90m (with [39m[90mNitro [1m2.13.2[22m[39m[90m, Vite [1m7.3.1[22m[39m[90m and Vue [1m3.5.31[22m[39m[90m)[39m
+[36mℹ[39m Nuxt Icon server bundle mode is set to [36mlocal[39m
+│
+●  Nitro preset: [36mnode-server[39m
+
+[90m[[90mnuxt[90m][39m [43m[30m WARN [39m[49m Two component files resolving to the same name [36mPage[39m:
+
+ - D:/projet-perso/asc-escalade-clean/app/storyblok/actualites/Page.vue
+ - D:/projet-perso/asc-escalade-clean/app/storyblok/Page.vue
+
+
+[90m[[90mnuxt[90m][39m [43m[30m WARN [39m[49m Two component files resolving to the same name [36mHeader[39m:
+
+ - D:/projet-perso/asc-escalade-clean/app/storyblok/contact/Header.vue
+ - D:/projet-perso/asc-escalade-clean/app/storyblok/actualites/Header.vue
+
+
+[90m[[90mnuxt[90m][39m [43m[30m WARN [39m[49m Two component files resolving to the same name [36mHeader[39m:
+
+ - D:/projet-perso/asc-escalade-clean/app/storyblok/sorties/Header.vue
+ - D:/projet-perso/asc-escalade-clean/app/storyblok/actualites/Header.vue
+
+
+[90m[[90mnuxt[90m][39m [43m[30m WARN [39m[49m Two component files resolving to the same name [36mPage[39m:
+
+ - D:/projet-perso/asc-escalade-clean/app/storyblok/sorties/Page.vue
+ - D:/projet-perso/asc-escalade-clean/app/storyblok/Page.vue
+
+
+[90m[[90mnuxt[90m][39m [43m[30m WARN [39m[49m Two component files resolving to the same name [36mHeader[39m:
+
+ - D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/Header.vue
+ - D:/projet-perso/asc-escalade-clean/app/storyblok/actualites/Header.vue
+
+
+[90m[[90mnuxt[90m][39m [43m[30m WARN [39m[49m Two component files resolving to the same name [36mGalerie[39m:
+
+ - D:/projet-perso/asc-escalade-clean/app/storyblok/ui/Galerie.vue
+ - D:/projet-perso/asc-escalade-clean/app/storyblok/club/Galerie.vue
+
+
+[90m[[90m@nuxt/supabase[90m][39m [43m[30m WARN [39m[49m Database types configured at "~/types/database.types.ts" but file not found at "D:/projet-perso/asc-escalade-clean/app/types/database.types.ts". Using "Database = unknown".
+
+[36mℹ[39m Building client...
+[36mℹ[39m [36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+[36mℹ[39m transforming...
+[36mℹ[39m [32m✓[39m 1112 modules transformed.
+[36mℹ[39m rendering chunks...
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/Page.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/Page.vue?nuxt_component=async&nuxt_component_name=Page&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/Post.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/Post.vue?nuxt_component=async&nuxt_component_name=Post&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/SiteConfig.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/SiteConfig.vue?nuxt_component=async&nuxt_component_name=SiteConfig&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/Home/Hero.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/Home/Hero.vue?nuxt_component=async&nuxt_component_name=Hero&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/node_modules/gsap/index.js is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/Home/Hero.vue?vue&type=script&setup=true&lang.ts but also statically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/Home/Actualites.vue?vue&type=script&setup=true&lang.ts, D:/projet-perso/asc-escalade-clean/app/storyblok/actualites/Header.vue?vue&type=script&setup=true&lang.ts, D:/projet-perso/asc-escalade-clean/app/storyblok/club/HeroClub.vue?vue&type=script&setup=true&lang.ts, D:/projet-perso/asc-escalade-clean/app/storyblok/club/Statistiques.vue?vue&type=script&setup=true&lang.ts, D:/projet-perso/asc-escalade-clean/app/storyblok/club/Timeline.vue?vue&type=script&setup=true&lang.ts, D:/projet-perso/asc-escalade-clean/app/storyblok/contact/Header.vue?vue&type=script&setup=true&lang.ts, D:/projet-perso/asc-escalade-clean/app/storyblok/sorties/Header.vue?vue&type=script&setup=true&lang.ts, D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/Header.vue, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/Home/Actualites.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/Home/Actualites.vue?nuxt_component=async&nuxt_component_name=Actualites&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/Home/ProchainsEvenements.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/Home/ProchainsEvenements.vue?nuxt_component=async&nuxt_component_name=ProchainsEvenements&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/Home/CtaRejoindre.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/Home/CtaRejoindre.vue?nuxt_component=async&nuxt_component_name=CtaRejoindre&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/ui/Accordions.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/ui/Accordions.vue?nuxt_component=async&nuxt_component_name=Accordions&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/ui/CallToAction.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/ui/CallToAction.vue?nuxt_component=async&nuxt_component_name=CallToAction&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/ui/CenteredImage.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/ui/CenteredImage.vue?nuxt_component=async&nuxt_component_name=CenteredImage&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/ui/TabsSection.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/ui/TabsSection.vue?nuxt_component=async&nuxt_component_name=TabsSection&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/ui/TextWithImage.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/ui/TextWithImage.vue?nuxt_component=async&nuxt_component_name=TextWithImage&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/ui/TextWithTitle.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/ui/TextWithTitle.vue?nuxt_component=async&nuxt_component_name=TextWithTitle&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/actualites/Header.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/actualites/Header.vue?nuxt_component=async&nuxt_component_name=Header&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/club/HeroClub.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/club/HeroClub.vue?nuxt_component=async&nuxt_component_name=HeroClub&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/club/Histoire.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/club/Histoire.vue?nuxt_component=async&nuxt_component_name=Histoire&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/club/Timeline.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/club/Timeline.vue?nuxt_component=async&nuxt_component_name=Timeline&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/club/Equipe.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/club/Equipe.vue?nuxt_component=async&nuxt_component_name=Equipe&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/club/Statistiques.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/club/Statistiques.vue?nuxt_component=async&nuxt_component_name=Statistiques&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/club/Galerie.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/club/Galerie.vue?nuxt_component=async&nuxt_component_name=Galerie&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/club/Partenaires.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/club/Partenaires.vue?nuxt_component=async&nuxt_component_name=Partenaires&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/club/Initiateurs.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/club/Initiateurs.vue?nuxt_component=async&nuxt_component_name=Initiateurs&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/contact/ContactPage.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/contact/ContactPage.vue?nuxt_component=async&nuxt_component_name=ContactPage&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/contact/Infos.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/contact/Infos.vue?nuxt_component=async&nuxt_component_name=Infos&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/contact/Form.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/contact/Form.vue?nuxt_component=async&nuxt_component_name=Form&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/sorties/Concept.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/sorties/Concept.vue?nuxt_component=async&nuxt_component_name=Concept&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/sorties/ListeSorties.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/sorties/ListeSorties.vue?nuxt_component=async&nuxt_component_name=ListeSorties&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/TarifsPage.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/TarifsPage.vue?nuxt_component=async&nuxt_component_name=TarifsPage&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/Planning.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/Planning.vue?nuxt_component=async&nuxt_component_name=Planning&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/BonASavoir.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/BonASavoir.vue?nuxt_component=async&nuxt_component_name=BonASavoir&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/GrilleTarifs.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/GrilleTarifs.vue?nuxt_component=async&nuxt_component_name=GrilleTarifs&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/pages/test.vue?vue&type=script&setup=true&lang.ts, D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/ListeGroupeAccordeon.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/ListeGroupeAccordeon.vue?nuxt_component=async&nuxt_component_name=ListeGroupeAccordeon&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/ui/Bouton.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/ui/Bouton.vue?nuxt_component=async&nuxt_component_name=Bouton&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/ui/Carrousel.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/ui/Carrousel.vue?nuxt_component=async&nuxt_component_name=Carrousel&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/ui/BeforeAfter.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/ui/BeforeAfter.vue?nuxt_component=async&nuxt_component_name=BeforeAfter&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/pages/test.vue?vue&type=script&setup=true&lang.ts, D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/ui/ActionBouton.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/ui/ActionBouton.vue?nuxt_component=async&nuxt_component_name=ActionBouton&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+[36mℹ[39m computing gzip size...
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[32mmanifest.json                 [39m[1m[2m    7.64 kB[22m[1m[22m[2m │ gzip:   1.12 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[35m_nuxt/_slug_.Co8jZJU_.css     [39m[1m[2m    0.72 kB[22m[1m[22m[2m │ gzip:   0.26 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[35m_nuxt/error-500.DLkAwcfL.css  [39m[1m[2m    1.91 kB[22m[1m[22m[2m │ gzip:   0.73 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[35m_nuxt/error-404.BLrjNXsr.css  [39m[1m[2m    2.43 kB[22m[1m[22m[2m │ gzip:   0.86 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[35m_nuxt/entry.DX5j_xL9.css      [39m[1m[2m  222.64 kB[22m[1m[22m[2m │ gzip:  31.02 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/Bjf0CnC5.js             [39m[1m[2m    0.06 kB[22m[1m[22m[2m │ gzip:   0.08 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/ikDDiDKC.js             [39m[1m[2m    0.12 kB[22m[1m[22m[2m │ gzip:   0.13 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/C_sD1wC6.js             [39m[1m[2m    0.51 kB[22m[1m[22m[2m │ gzip:   0.36 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/Ddyvc1_j.js             [39m[1m[2m    0.64 kB[22m[1m[22m[2m │ gzip:   0.40 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/CuBAhbkj.js             [39m[1m[2m    0.77 kB[22m[1m[22m[2m │ gzip:   0.51 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/B2zErNCW.js             [39m[1m[2m    1.31 kB[22m[1m[22m[2m │ gzip:   0.73 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/mhJ-osCf.js             [39m[1m[2m    1.60 kB[22m[1m[22m[2m │ gzip:   0.77 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/XyjBdZGq.js             [39m[1m[2m    2.24 kB[22m[1m[22m[2m │ gzip:   0.91 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/Dtrtw0zj.js             [39m[1m[2m    2.28 kB[22m[1m[22m[2m │ gzip:   1.01 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/LVG_eY9u.js             [39m[1m[2m    2.38 kB[22m[1m[22m[2m │ gzip:   1.12 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/wrqBHFeW.js             [39m[1m[2m    2.86 kB[22m[1m[22m[2m │ gzip:   1.31 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/BS8hrEpn.js             [39m[1m[2m    3.47 kB[22m[1m[22m[2m │ gzip:   1.55 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/CSNXX32R.js             [39m[1m[2m    3.76 kB[22m[1m[22m[2m │ gzip:   1.69 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/B7cvaBG_.js             [39m[1m[2m    4.08 kB[22m[1m[22m[2m │ gzip:   1.56 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/B6wRuWPX.js             [39m[1m[2m    4.65 kB[22m[1m[22m[2m │ gzip:   2.06 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/BZ63qkxC.js             [39m[1m[2m    6.10 kB[22m[1m[22m[2m │ gzip:   1.72 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/Bxc3PCbM.js             [39m[1m[2m    7.70 kB[22m[1m[22m[2m │ gzip:   3.12 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/Dmeo4DyK.js             [39m[1m[2m    8.41 kB[22m[1m[22m[2m │ gzip:   3.34 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/Bl6IKiyR.js             [39m[1m[2m    8.84 kB[22m[1m[22m[2m │ gzip:   2.89 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/DeIHXaaW.js             [39m[1m[2m   10.63 kB[22m[1m[22m[2m │ gzip:   3.71 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/DGW-rVqy.js             [39m[1m[2m   12.65 kB[22m[1m[22m[2m │ gzip:   3.95 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/Djs-zbpp.js             [39m[1m[2m   13.13 kB[22m[1m[22m[2m │ gzip:   3.69 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/B-Aiu7do.js             [39m[1m[2m   20.94 kB[22m[1m[22m[2m │ gzip:   6.36 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/D0GGU_jp.js             [39m[1m[2m   24.49 kB[22m[1m[22m[2m │ gzip:   6.67 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/DzrAev_1.js             [39m[1m[2m  154.76 kB[22m[1m[22m[2m │ gzip:  37.74 kB[22m
+[36mℹ[39m [2m../node_modules/.cache/nuxt/.nuxt/dist/client/[22m[36m_nuxt/DjmL44QQ.js             [39m[1m[33m2,030.81 kB[39m[22m[2m │ gzip: 540.58 kB[22m
+
+[43m[30m WARN [39m[49m [33m
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+
+[36mℹ[39m [32m✓ built in 15.10s[39m
+[32m✔[39m Client built in 15129ms
+[36mℹ[39m Building server...
+[36mℹ[39m [36mvite v7.3.1 [32mbuilding ssr environment for production...[36m[39m
+[36mℹ[39m transforming...
+[36mℹ[39m [32m✓[39m 395 modules transformed.
+[36mℹ[39m rendering chunks...
+
+[43m[30m WARN [39m[49m [33m[plugin @tailwindcss/vite:generate:build] Sourcemap is likely to be incorrect: a plugin (@tailwindcss/vite:generate:build) was used to transform files, but didn't generate a sourcemap for the transformation. Consult the plugin documentation for help[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin @tailwindcss/vite:generate:build] Sourcemap is likely to be incorrect: a plugin (@tailwindcss/vite:generate:build) was used to transform files, but didn't generate a sourcemap for the transformation. Consult the plugin documentation for help[39m[2m (x2)[22m
+
+
+[43m[30m WARN [39m[49m [33m[plugin @tailwindcss/vite:generate:build] Sourcemap is likely to be incorrect: a plugin (@tailwindcss/vite:generate:build) was used to transform files, but didn't generate a sourcemap for the transformation. Consult the plugin documentation for help[39m[2m (x3)[22m
+
+
+[43m[30m WARN [39m[49m [33m[plugin @tailwindcss/vite:generate:build] Sourcemap is likely to be incorrect: a plugin (@tailwindcss/vite:generate:build) was used to transform files, but didn't generate a sourcemap for the transformation. Consult the plugin documentation for help[39m[2m (x4)[22m
+
+
+[43m[30m WARN [39m[49m [33m[plugin @tailwindcss/vite:generate:build] Sourcemap is likely to be incorrect: a plugin (@tailwindcss/vite:generate:build) was used to transform files, but didn't generate a sourcemap for the transformation. Consult the plugin documentation for help[39m[2m (x5)[22m
+
+
+[43m[30m WARN [39m[49m [33m[plugin @tailwindcss/vite:generate:build] Sourcemap is likely to be incorrect: a plugin (@tailwindcss/vite:generate:build) was used to transform files, but didn't generate a sourcemap for the transformation. Consult the plugin documentation for help[39m[2m (x6)[22m
+
+
+[43m[30m WARN [39m[49m [33m[plugin @tailwindcss/vite:generate:build] Sourcemap is likely to be incorrect: a plugin (@tailwindcss/vite:generate:build) was used to transform files, but didn't generate a sourcemap for the transformation. Consult the plugin documentation for help[39m[2m (x7)[22m
+
+
+[43m[30m WARN [39m[49m [33m[plugin @tailwindcss/vite:generate:build] Sourcemap is likely to be incorrect: a plugin (@tailwindcss/vite:generate:build) was used to transform files, but didn't generate a sourcemap for the transformation. Consult the plugin documentation for help[39m[2m (x8)[22m
+
+
+[43m[30m WARN [39m[49m [33m[plugin @tailwindcss/vite:generate:build] Sourcemap is likely to be incorrect: a plugin (@tailwindcss/vite:generate:build) was used to transform files, but didn't generate a sourcemap for the transformation. Consult the plugin documentation for help[39m[2m (x9)[22m
+
+
+[43m[30m WARN [39m[49m [33m[plugin @tailwindcss/vite:generate:build] Sourcemap is likely to be incorrect: a plugin (@tailwindcss/vite:generate:build) was used to transform files, but didn't generate a sourcemap for the transformation. Consult the plugin documentation for help[39m[2m (x10)[22m
+
+
+[43m[30m WARN [39m[49m [33m[plugin @tailwindcss/vite:generate:build] Sourcemap is likely to be incorrect: a plugin (@tailwindcss/vite:generate:build) was used to transform files, but didn't generate a sourcemap for the transformation. Consult the plugin documentation for help[39m[2m (x11)[22m
+
+
+[43m[30m WARN [39m[49m [33m[plugin @tailwindcss/vite:generate:build] Sourcemap is likely to be incorrect: a plugin (@tailwindcss/vite:generate:build) was used to transform files, but didn't generate a sourcemap for the transformation. Consult the plugin documentation for help[39m[2m (x12)[22m
+
+
+[43m[30m WARN [39m[49m [33m[plugin @tailwindcss/vite:generate:build] Sourcemap is likely to be incorrect: a plugin (@tailwindcss/vite:generate:build) was used to transform files, but didn't generate a sourcemap for the transformation. Consult the plugin documentation for help[39m[2m (x13)[22m
+
+
+[43m[30m WARN [39m[49m [33m[plugin @tailwindcss/vite:generate:build] Sourcemap is likely to be incorrect: a plugin (@tailwindcss/vite:generate:build) was used to transform files, but didn't generate a sourcemap for the transformation. Consult the plugin documentation for help[39m[2m (x14)[22m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/Page.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/Page.vue?nuxt_component=async&nuxt_component_name=Page&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/Post.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/Post.vue?nuxt_component=async&nuxt_component_name=Post&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/SiteConfig.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/SiteConfig.vue?nuxt_component=async&nuxt_component_name=SiteConfig&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/Home/Hero.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/Home/Hero.vue?nuxt_component=async&nuxt_component_name=Hero&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/Home/Actualites.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/Home/Actualites.vue?nuxt_component=async&nuxt_component_name=Actualites&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/Home/ProchainsEvenements.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/Home/ProchainsEvenements.vue?nuxt_component=async&nuxt_component_name=ProchainsEvenements&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/Home/CtaRejoindre.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/Home/CtaRejoindre.vue?nuxt_component=async&nuxt_component_name=CtaRejoindre&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/ui/Accordions.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/ui/Accordions.vue?nuxt_component=async&nuxt_component_name=Accordions&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/ui/CallToAction.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/ui/CallToAction.vue?nuxt_component=async&nuxt_component_name=CallToAction&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/ui/CenteredImage.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/ui/CenteredImage.vue?nuxt_component=async&nuxt_component_name=CenteredImage&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/ui/TabsSection.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/ui/TabsSection.vue?nuxt_component=async&nuxt_component_name=TabsSection&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/ui/TextWithImage.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/ui/TextWithImage.vue?nuxt_component=async&nuxt_component_name=TextWithImage&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/ui/TextWithTitle.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/ui/TextWithTitle.vue?nuxt_component=async&nuxt_component_name=TextWithTitle&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/actualites/Header.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/actualites/Header.vue?nuxt_component=async&nuxt_component_name=Header&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/club/HeroClub.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/club/HeroClub.vue?nuxt_component=async&nuxt_component_name=HeroClub&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/club/Histoire.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/club/Histoire.vue?nuxt_component=async&nuxt_component_name=Histoire&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/club/Timeline.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/club/Timeline.vue?nuxt_component=async&nuxt_component_name=Timeline&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/club/Equipe.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/club/Equipe.vue?nuxt_component=async&nuxt_component_name=Equipe&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/club/Statistiques.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/club/Statistiques.vue?nuxt_component=async&nuxt_component_name=Statistiques&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/club/Galerie.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/club/Galerie.vue?nuxt_component=async&nuxt_component_name=Galerie&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/club/Partenaires.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/club/Partenaires.vue?nuxt_component=async&nuxt_component_name=Partenaires&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/club/Initiateurs.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/club/Initiateurs.vue?nuxt_component=async&nuxt_component_name=Initiateurs&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/contact/ContactPage.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/contact/ContactPage.vue?nuxt_component=async&nuxt_component_name=ContactPage&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/contact/Infos.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/contact/Infos.vue?nuxt_component=async&nuxt_component_name=Infos&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/contact/Form.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/contact/Form.vue?nuxt_component=async&nuxt_component_name=Form&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/sorties/Concept.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/sorties/Concept.vue?nuxt_component=async&nuxt_component_name=Concept&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/sorties/ListeSorties.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/sorties/ListeSorties.vue?nuxt_component=async&nuxt_component_name=ListeSorties&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/TarifsPage.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/TarifsPage.vue?nuxt_component=async&nuxt_component_name=TarifsPage&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/Planning.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/Planning.vue?nuxt_component=async&nuxt_component_name=Planning&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/BonASavoir.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/BonASavoir.vue?nuxt_component=async&nuxt_component_name=BonASavoir&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/GrilleTarifs.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/GrilleTarifs.vue?nuxt_component=async&nuxt_component_name=GrilleTarifs&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/pages/test.vue?vue&type=script&setup=true&lang.ts, D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/ListeGroupeAccordeon.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/tarifs/ListeGroupeAccordeon.vue?nuxt_component=async&nuxt_component_name=ListeGroupeAccordeon&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/ui/Bouton.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/ui/Bouton.vue?nuxt_component=async&nuxt_component_name=Bouton&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/ui/Carrousel.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/ui/Carrousel.vue?nuxt_component=async&nuxt_component_name=Carrousel&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/ui/BeforeAfter.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/ui/BeforeAfter.vue?nuxt_component=async&nuxt_component_name=BeforeAfter&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/pages/test.vue?vue&type=script&setup=true&lang.ts, D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+
+[43m[30m WARN [39m[49m [33m[plugin vite:reporter] 
+(!) D:/projet-perso/asc-escalade-clean/app/storyblok/ui/ActionBouton.vue is dynamically imported by D:/projet-perso/asc-escalade-clean/app/storyblok/ui/ActionBouton.vue?nuxt_component=async&nuxt_component_name=ActionBouton&nuxt_component_export=default but also statically imported by D:/projet-perso/asc-escalade-clean/app/plugins/storyblok.ts, dynamic import will not move module into another chunk.
+[39m
+
+[36mℹ[39m [32m✓ built in 9.89s[39m
+[32m✔[39m Server built in 9908ms
+[90m[[90mnitro[90m][39m [32m✔[39m Generated public [36m.output/public[39m
+[90m[[90mnitro[90m][39m [36mℹ[39m Building Nuxt Nitro server (preset: [36mnode-server[39m, compatibility date: [36m2025-07-15[39m)
+(node:9244) [DEP0155] DeprecationWarning: Use of deprecated trailing slash pattern mapping "./" in the "exports" field module resolution of the package at D:\projet-perso\asc-escalade-clean\node_modules\@iconify\utils\package.json imported from D:\projet-perso\asc-escalade-clean\node_modules\@nuxt\icon\dist\runtime\server\api.js. Mapping specifiers ending in "/" is no longer supported.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:9244) [DEP0155] DeprecationWarning: Use of deprecated trailing slash pattern mapping "./" in the "exports" field module resolution of the package at D:\projet-perso\asc-escalade-clean\node_modules\@vue\shared\package.json imported from D:\projet-perso\asc-escalade-clean\node_modules\@nuxt\nitro-server\dist\runtime\templates\error-500.js. Mapping specifiers ending in "/" is no longer supported.
+(node:9244) [DEP0155] DeprecationWarning: Use of deprecated trailing slash pattern mapping "./" in the "exports" field module resolution of the package at D:\projet-perso\asc-escalade-clean\node_modules\@vueuse\core\package.json imported from D:\projet-perso\asc-escalade-clean\node_modules\.cache\nuxt\.nuxt\dist\server\server.mjs. Mapping specifiers ending in "/" is no longer supported.
+(node:9244) [DEP0155] DeprecationWarning: Use of deprecated trailing slash pattern mapping "./" in the "exports" field module resolution of the package at D:\projet-perso\asc-escalade-clean\node_modules\@vueuse\shared\package.json imported from D:\projet-perso\asc-escalade-clean\node_modules\@vueuse\core\dist\index.js. Mapping specifiers ending in "/" is no longer supported.
+[90m[[90mnitro[90m][39m [32m✔[39m Nuxt Nitro server built
+[90m  ├─ .output/server/chunks/_/embla-carousel-wheel-gestures.esm.mjs (22.1 kB)[39m[90m (5.94 kB gzip)[39m
+[90m  ├─ .output/server/chunks/_/embla-carousel-wheel-gestures.esm.mjs.map (293 B)[39m[90m (165 B gzip)[39m
+[90m  ├─ .output/server/chunks/_/error-500.mjs (5.06 kB)[39m[90m (2.06 kB gzip)[39m
+[90m  ├─ .output/server/chunks/_/error-500.mjs.map (181 B)[39m[90m (155 B gzip)[39m
+[90m  ├─ .output/server/chunks/_/nitro.mjs (192 kB)[39m[90m (48.7 kB gzip)[39m
+[90m  ├─ .output/server/chunks/_/nitro.mjs.map (3.41 kB)[39m[90m (846 B gzip)[39m
+[90m  ├─ .output/server/chunks/_/serverSupabaseServiceRole.mjs (1.63 kB)[39m[90m (719 B gzip)[39m
+[90m  ├─ .output/server/chunks/_/serverSupabaseServiceRole.mjs.map (297 B)[39m[90m (188 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/_...slug_-C_cZY87i.mjs (3.49 kB)[39m[90m (1.39 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/_...slug_-C_cZY87i.mjs.map (281 B)[39m[90m (216 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/_slug_-DHUo9PQj.mjs (44.6 kB)[39m[90m (6.24 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/_slug_-DHUo9PQj.mjs.map (25.8 kB)[39m[90m (4.8 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/_slug_-styles.CekSD6Qh.mjs (979 B)[39m[90m (382 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/_slug_-styles.CekSD6Qh.mjs.map (211 B)[39m[90m (165 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Actualites-styles.DM4NBPI2.mjs (631 B)[39m[90m (273 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Actualites-styles.DM4NBPI2.mjs.map (219 B)[39m[90m (170 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Alert-C6INK7mH.mjs (17 kB)[39m[90m (2.83 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/Alert-C6INK7mH.mjs.map (497 B)[39m[90m (325 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/callback-D9yBsdnT.mjs (2.12 kB)[39m[90m (948 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/callback-D9yBsdnT.mjs.map (426 B)[39m[90m (241 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Checkbox-BoGdjMY-.mjs (17.8 kB)[39m[90m (3.21 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/Checkbox-BoGdjMY-.mjs.map (535 B)[39m[90m (340 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/client.precomputed.mjs (16 kB)[39m[90m (1.75 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/client.precomputed.mjs.map (188 B)[39m[90m (150 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/dashboard-Bq1JaNI3.mjs (429 kB)[39m[90m (49.4 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/dashboard-Bq1JaNI3.mjs.map (1.84 kB)[39m[90m (614 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/error-404-BMA8nnzu.mjs (6 kB)[39m[90m (2.38 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/error-404-BMA8nnzu.mjs.map (223 B)[39m[90m (183 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/error-404-styles.SO9LtFGn.mjs (2.72 kB)[39m[90m (986 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/error-404-styles.SO9LtFGn.mjs.map (217 B)[39m[90m (169 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/error-500-CH-JEZmv.mjs (5.22 kB)[39m[90m (2.12 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/error-500-CH-JEZmv.mjs.map (205 B)[39m[90m (175 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/error-500-styles.Dw-4YpQp.mjs (2.19 kB)[39m[90m (862 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/error-500-styles.Dw-4YpQp.mjs.map (217 B)[39m[90m (167 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/FallbackComponent-1UpuMdw--D7RBPyha.mjs (936 B)[39m[90m (510 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/FallbackComponent-1UpuMdw--D7RBPyha.mjs.map (225 B)[39m[90m (186 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/FormField-DX_T9WJY.mjs (12.1 kB)[39m[90m (2.55 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/FormField-DX_T9WJY.mjs.map (461 B)[39m[90m (306 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Galerie-styles.454jHL9C.mjs (566 B)[39m[90m (294 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Galerie-styles.454jHL9C.mjs.map (213 B)[39m[90m (167 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Galerie-styles.DU4Ks5yw.mjs (566 B)[39m[90m (292 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Galerie-styles.DU4Ks5yw.mjs.map (213 B)[39m[90m (166 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/guest-CfCthLQj.mjs (1.14 kB)[39m[90m (480 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/guest-CfCthLQj.mjs.map (298 B)[39m[90m (203 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Header-styles.BotjL_9l.mjs (301 B)[39m[90m (201 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Header-styles.BotjL_9l.mjs.map (211 B)[39m[90m (164 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Header-styles.BzccMjP5.mjs (301 B)[39m[90m (200 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Header-styles.BzccMjP5.mjs.map (211 B)[39m[90m (166 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Header-styles.C0neEE9x.mjs (301 B)[39m[90m (200 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Header-styles.C0neEE9x.mjs.map (211 B)[39m[90m (164 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Header-styles.DHHD5Q-H.mjs (3.17 kB)[39m[90m (944 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Header-styles.DHHD5Q-H.mjs.map (211 B)[39m[90m (165 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Header-styles.O0oEbndX.mjs (301 B)[39m[90m (201 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Header-styles.O0oEbndX.mjs.map (211 B)[39m[90m (165 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Hero-styles.av3i6nc-.mjs (409 B)[39m[90m (258 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Hero-styles.av3i6nc-.mjs.map (207 B)[39m[90m (163 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/HeroClub-styles.BzEH9Env.mjs (311 B)[39m[90m (201 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/HeroClub-styles.BzEH9Env.mjs.map (215 B)[39m[90m (168 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Initiateurs-styles.CGZERHLU.mjs (703 B)[39m[90m (319 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Initiateurs-styles.CGZERHLU.mjs.map (221 B)[39m[90m (170 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/login-ChEsr9k5.mjs (11.7 kB)[39m[90m (2.63 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/login-ChEsr9k5.mjs.map (5.49 kB)[39m[90m (1.22 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/mes-inscriptions-BpnxV4IE.mjs (33.9 kB)[39m[90m (5.75 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/mes-inscriptions-BpnxV4IE.mjs.map (20.6 kB)[39m[90m (4.33 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/Modal-kqSRnBDV.mjs (43.8 kB)[39m[90m (4.64 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/Modal-kqSRnBDV.mjs.map (584 B)[39m[90m (352 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Partenaires-styles.jM2VQukb.mjs (514 B)[39m[90m (292 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/Partenaires-styles.jM2VQukb.mjs.map (221 B)[39m[90m (169 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/profil-CRFJwPqt.mjs (52.2 kB)[39m[90m (8.32 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/profil-CRFJwPqt.mjs.map (33 kB)[39m[90m (5.96 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/register-CShS9yoR.mjs (63.4 kB)[39m[90m (8.57 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/register-CShS9yoR.mjs.map (37.3 kB)[39m[90m (5.87 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/server.mjs (2.44 MB)[39m[90m (448 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/server.mjs.map (16.9 kB)[39m[90m (3.24 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/styles.mjs (4.01 kB)[39m[90m (774 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/styles.mjs.map (164 B)[39m[90m (142 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/test-Bze76olk.mjs (13.9 kB)[39m[90m (4.19 kB gzip)[39m
+[90m  ├─ .output/server/chunks/build/test-Bze76olk.mjs.map (5.32 kB)[39m[90m (860 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/useStoryblokCacheTag-DJDWco5b.mjs (592 B)[39m[90m (351 B gzip)[39m
+[90m  ├─ .output/server/chunks/build/useStoryblokCacheTag-DJDWco5b.mjs.map (735 B)[39m[90m (349 B gzip)[39m
+[90m  ├─ .output/server/chunks/routes/api/add-child.post.mjs (3.68 kB)[39m[90m (1.28 kB gzip)[39m
+[90m  ├─ .output/server/chunks/routes/api/add-child.post.mjs.map (429 B)[39m[90m (205 B gzip)[39m
+[90m  ├─ .output/server/chunks/routes/api/admin/create-member.post.mjs (2.56 kB)[39m[90m (934 B gzip)[39m
+[90m  ├─ .output/server/chunks/routes/api/admin/create-member.post.mjs.map (2.34 kB)[39m[90m (531 B gzip)[39m
+[90m  ├─ .output/server/chunks/routes/api/admin/members.get.mjs (1.04 kB)[39m[90m (499 B gzip)[39m
+[90m  ├─ .output/server/chunks/routes/api/admin/members.get.mjs.map (574 B)[39m[90m (241 B gzip)[39m
+[90m  ├─ .output/server/chunks/routes/api/admin/send-email.post.mjs (5.7 kB)[39m[90m (1.87 kB gzip)[39m
+[90m  ├─ .output/server/chunks/routes/api/admin/send-email.post.mjs.map (2.42 kB)[39m[90m (559 B gzip)[39m
+[90m  ├─ .output/server/chunks/routes/api/contact.post.mjs (2.74 kB)[39m[90m (1.17 kB gzip)[39m
+[90m  ├─ .output/server/chunks/routes/api/contact.post.mjs.map (2.44 kB)[39m[90m (536 B gzip)[39m
+[90m  ├─ .output/server/chunks/routes/api/register.post.mjs (3.73 kB)[39m[90m (1.16 kB gzip)[39m
+[90m  ├─ .output/server/chunks/routes/api/register.post.mjs.map (3.58 kB)[39m[90m (669 B gzip)[39m
+[90m  ├─ .output/server/chunks/routes/api/revalidate.post.mjs (1.4 kB)[39m[90m (662 B gzip)[39m
+[90m  ├─ .output/server/chunks/routes/api/revalidate.post.mjs.map (1.08 kB)[39m[90m (337 B gzip)[39m
+[90m  ├─ .output/server/chunks/routes/renderer.mjs (15.1 kB)[39m[90m (4.87 kB gzip)[39m
+[90m  ├─ .output/server/chunks/routes/renderer.mjs.map (763 B)[39m[90m (267 B gzip)[39m
+[90m  ├─ .output/server/chunks/virtual/_virtual_spa-template.mjs (94 B)[39m[90m (100 B gzip)[39m
+[90m  ├─ .output/server/chunks/virtual/_virtual_spa-template.mjs.map (90 B)[39m[90m (98 B gzip)[39m
+[90m  ├─ .output/server/index.mjs (1.71 kB)[39m[90m (753 B gzip)[39m
+[90m  └─ .output/server/package.json (2.44 kB)[39m[90m (805 B gzip)[39m
+[36mΣ Total size:[39m 11.9 MB (2.93 MB gzip)
+[90m[[90mnitro[90m][39m [32m✔[39m You can preview this build using [36mnode .output/server/index.mjs[39m
+│
+└  ✨ Build complete!

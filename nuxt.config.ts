@@ -26,6 +26,14 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        // Preconnect vers les origines critiques (réduit le TTFB Storyblok de ~300ms)
+        { rel: 'preconnect', href: 'https://api.storyblok.com' },
+        { rel: 'preconnect', href: 'https://a.storyblok.com' },
+        // Préchargement de la police principale Public Sans (chemin stable car basé sur le contenu du fichier)
+        { rel: 'preload', as: 'font', type: 'font/woff2', href: '/_fonts/GsKUclqeNLJ96g5AU593ug6yanivOiwjW_7zESNPChw-jHA4tBeM1bjF7LATGUpfBuSTyomIFrWBTzjF7txVYfg.woff2', crossorigin: 'anonymous' },
+        // DNS prefetch pour Umami (analytics non critique)
+        { rel: 'dns-prefetch', href: 'https://api-gateway.umami.dev' },
+        { rel: 'dns-prefetch', href: 'https://cloud.umami.is' },
       ],
         script: [
            {
@@ -86,6 +94,15 @@ export default defineNuxtConfig({
     '/actualites': { isr: true },
     '/posts/**': { isr: true },
     // Pages dynamiques (admin, login, profil…) — pas d'ISR
+    // En-têtes de sécurité sur toutes les routes publiques
+    '/**': {
+      headers: {
+        'X-Frame-Options': 'SAMEORIGIN',
+        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+        'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+        'X-Content-Type-Options': 'nosniff',
+      }
+    }
   },
 
     devServer: {

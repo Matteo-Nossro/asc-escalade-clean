@@ -50,13 +50,13 @@
         <!-- Surtitre -->
         <span
           ref="surtitleRef"
-          class="text-[#7FD857] font-bold tracking-[0.2em] uppercase text-xl md:text-2xl opacity-0"
+          class="text-[#7FD857] font-bold tracking-[0.2em] uppercase text-xl md:text-2xl"
         >
           {{ blok.surtitle }}
         </span>
 
         <!-- Titre Principal -->
-        <h1 ref="titleRef" class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight drop-shadow-lg opacity-0">
+        <h1 ref="titleRef" class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight drop-shadow-lg">
           {{ blok.title }}<br>
           <!-- <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">
             {{ blok.titleHighlight }}
@@ -64,12 +64,12 @@
         </h1>
 
         <!-- Sous-titre -->
-        <p ref="subtitleRef" class="text-gray-200 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-4 opacity-0">
+        <p ref="subtitleRef" class="text-gray-200 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-4">
           {{ blok.subtitle }}
         </p>
 
         <!-- Boutons -->
-        <div ref="buttonsRef" class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto opacity-0">
+        <div ref="buttonsRef" class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
           <UButton
             :to="blok.primaryButton[0].link.cached_url"
             size="xl"
@@ -119,7 +119,7 @@
     </svg>
 
     <!-- Indicateur de scroll -->
-    <div ref="scrollIndicatorRef" class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10 opacity-0">
+    <div ref="scrollIndicatorRef" class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
       <div class="flex flex-col items-center gap-2 text-white/70 animate-bounce">
         <span class="text-xs uppercase tracking-wider">Scroll</span>
         <UIcon name="i-heroicons-chevron-down" class="w-5 h-5" />
@@ -131,9 +131,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { gsap } from 'gsap'
 
-defineProps<{ blok: any }>()
+defineProps({ blok: Object })
 
 const surtitleRef = ref<HTMLElement | null>(null)
 const titleRef = ref<HTMLElement | null>(null)
@@ -156,14 +155,17 @@ const summit3Ref = ref<SVGCircleElement | null>(null)
 const zigzagRef = ref<SVGPathElement | null>(null)
 const particles = ref<(HTMLElement | null)[]>([])
 
-onMounted(() => {
+onMounted(async () => {
+  const { gsap } = await import('gsap')
+
+  // gsap.from() : les éléments partent de leur état naturel (visible) → LCP capturé avant l'animation
   const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
 
-  tl.to(surtitleRef.value, { opacity: 1, y: 0, duration: 0.8, delay: 0.3 })
-    .to(titleRef.value, { opacity: 1, y: 0, duration: 1, delay: 0.2 }, '-=0.5')
-    .to(subtitleRef.value, { opacity: 1, y: 0, duration: 0.8 }, '-=0.6')
-    .to(buttonsRef.value, { opacity: 1, y: 0, duration: 0.8 }, '-=0.4')
-    .to(scrollIndicatorRef.value, { opacity: 1, duration: 0.5 }, '-=0.2')
+  tl.from(surtitleRef.value, { opacity: 0, y: 30, duration: 0.8, delay: 0.3 })
+    .from(titleRef.value, { opacity: 0, y: 30, duration: 1 }, '-=0.5')
+    .from(subtitleRef.value, { opacity: 0, y: 30, duration: 0.8 }, '-=0.6')
+    .from(buttonsRef.value, { opacity: 0, y: 30, duration: 0.8 }, '-=0.4')
+    .from(scrollIndicatorRef.value, { opacity: 0, duration: 0.5 }, '-=0.2')
 
   if (mountain1Ref.value) gsap.to(mountain1Ref.value, { strokeDashoffset: 0, duration: 3.5, ease: 'power1.inOut', delay: 0.5 })
   if (mountain2Ref.value) gsap.to(mountain2Ref.value, { strokeDashoffset: 0, duration: 4, ease: 'power1.inOut', delay: 0.8 })
@@ -220,10 +222,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-[ref*="Ref"] {
-  transform: translateY(30px);
-}
-
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }

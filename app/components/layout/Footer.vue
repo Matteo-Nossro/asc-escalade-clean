@@ -7,7 +7,7 @@
         <div class="flex flex-col gap-6 lg:col-span-2">
           <NuxtLink to="/" class="flex items-center gap-3 w-fit">
             <template v-if="config?.logo_image?.filename">
-              <img :src="config.logo_image.filename" :alt="config.logo_text_top || 'Logo'" class="h-11 w-auto object-contain" />
+              <img :src="config.logo_image.filename" :alt="config.logo_text_top || 'Logo'" width="154" height="44" class="h-11 w-auto object-contain" />
             </template>
             <template v-else>
               <div class="w-10 h-10 bg-[#7FD857] rounded-lg flex items-center justify-center">
@@ -124,7 +124,7 @@
       </div>
 
       <!-- Copyright -->
-      <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500">
+      <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-300">
         <p>© {{ new Date().getFullYear() }} ASC Escalade. Tous droits réservés.</p>
         <p>Designé et réalisé par Matteo Nossereau.</p>
       </div>
