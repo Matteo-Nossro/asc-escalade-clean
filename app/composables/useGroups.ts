@@ -235,6 +235,28 @@ export const useGroups = () => {
     return (data || []) as GroupMember[]
   }
 
+  // ─── Inscriptions confirmées de l'année N-1 ───────────────────────────
+
+  async function fetchPreviousYearEnrollments(profileId: string) {
+    const prevYear = new Date().getFullYear() - 1
+    const { data, error } = await supabase
+      .from('group_members')
+      .select(`
+        *,
+        group:groups!group_id(id, name, level, schedules:group_schedules(day_of_week, start_time, end_time))
+      `)
+      .eq('user_id', profileId)
+      .eq('status', 'confirmed')
+      .gte('enrolled_at', `${prevYear}-01-01`)
+      .lt('enrolled_at', `${prevYear + 1}-01-01`)
+      .order('enrolled_at', { ascending: false })
+
+    if (error) throw error
+    return (data || []) as (GroupMember & {
+      group?: Pick<Group, 'id' | 'name' | 'level'> & { schedules?: GroupSchedule[] }
+    })[]
+  }
+
   return {
     groups, myEnrollments, loading,
     DAY_NAMES, formatDay, formatTime, formatSchedule,
@@ -242,5 +264,6 @@ export const useGroups = () => {
     enroll, unenroll, isEnrolled,
     createGroup, updateGroup, deleteGroup,
     replaceSchedules, setInstructors, fetchGroupMembers,
+    fetchPreviousYearEnrollments,
   }
 }

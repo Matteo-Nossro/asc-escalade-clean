@@ -251,7 +251,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useGroups } from '../../../composables/useGroups'
 
 const props = defineProps<{
   open: boolean
@@ -296,6 +297,25 @@ const emit = defineEmits<{
   'add-child': []
   'remove-child': [childId: string]
 }>()
+
+const { fetchPreviousYearEnrollments, formatSchedule } = useGroups()
+
+const prevYear = new Date().getFullYear() - 1
+const prevYearEnrollments = ref<any[]>([])
+const prevYearLoading = ref(false)
+
+onMounted(async () => {
+  if (props.editMode && props.form.id) {
+    prevYearLoading.value = true
+    try {
+      prevYearEnrollments.value = await fetchPreviousYearEnrollments(props.form.id)
+    } catch {
+      // silently fail
+    } finally {
+      prevYearLoading.value = false
+    }
+  }
+})
 
 const errors = ref({ first_name: '', last_name: '', email: '', licence: '' })
 
