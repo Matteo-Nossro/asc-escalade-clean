@@ -608,19 +608,98 @@ async function deleteMember(id: string) {
   })
 }
 
-function exportCSV() {
-  const headers = ['Nom', 'Licence', 'Email', 'Formule', 'Groupe(s)', 'Rôles', 'Statut']
-  const csvRows = [
-    headers.join(';'),
-    ...allRows.value.map(r =>
-      [r.name, r.licence, r.email, r.formule, r.groupNames.join('/'), r.roles.join('/'), r.status].join(';'),
-    ),
-  ]
-  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' })
-  const link = document.createElement('a')
-  link.href = URL.createObjectURL(blob)
-  link.download = `membres-asc-${new Date().toISOString().split('T')[0]}.csv`
-  link.click()
+async function exportCSV() {
+  try {
+    const res = await fetch('/api/admin/members?exportAll=true')
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      throw new Error(body.statusMessage || body.message || `Erreur ${res.status}`)
+    }
+    const data: any[] = await res.json()
+
+    // Formatteurs
+    const fmtBool = (v: any): string => v === true ? 'Oui' : v === false ? 'Non' : ''
+    const fmtDate = (v: string | null | undefined): string => {
+      if (!v) return ''
+      // Prend la partie YYYY-MM-DD (fonctionne pour date et timestamp)
+      const parts = v.split('T')[0].split('-')
+      if (parts.length !== 3) return ''
+      return `${parts[2]}/${parts[1]}/${parts[0]}`
+    }
+    const fmtVal = (v: any): string => (v === null || v === undefined) ? '' : String(v)
+    const escapeCell = (v: string): string => {
+      if (v.includes(';') || v.includes('"') || v.includes('\n') || v.includes('\r')) {
+        return `"${v.replace(/"/g, '""')}"`
+      }
+      return v
+    }
+
+    const headers = [
+      'ID', 'Email', 'Prénom', 'Nom', 'Nom complet', 'Date naissance', 'Genre',
+      'Téléphone', 'Mobile', 'Adresse', 'CP', 'Ville', 'N° licence', 'Type licence',
+      'Passeport', 'Groupe club', 'Statut', 'Cotisation payée', 'Certificat médical',
+      'Fiche inscription', 'Assurance FFME', 'Catégorie', 'T-shirt', 'Contact urgence',
+      'Notes', 'Avatar URL', 'Rôles', 'Groupes confirmés', 'Créé le', 'Mis à jour le',
+    ]
+
+    const rows = data.map((p: any) => {
+      const roles = (p.roles || []).map((r: any) => r.role_code).join(', ')
+      const confirmedGroups = (p.memberships || [])
+        .filter((m: any) => m.status === 'confirmed' && m.group)
+        .map((m: any) => m.group.name)
+        .join(' | ')
+
+      return [
+        fmtVal(p.id),
+        fmtVal(p.email),
+        fmtVal(p.first_name),
+        fmtVal(p.last_name),
+        fmtVal(p.full_name),
+        fmtDate(p.birth_date),
+        fmtVal(p.gender),
+        fmtVal(p.phone),
+        fmtVal(p.mobile),
+        fmtVal(p.address),
+        fmtVal(p.postal_code),
+        fmtVal(p.city),
+        fmtVal(p.licence_number),
+        fmtVal(p.licence_type),
+        fmtVal(p.passport),
+        fmtVal(p.club_group),
+        fmtVal(p.status),
+        fmtBool(p.payment_done),
+        fmtVal(p.medical_certificate),
+        fmtBool(p.registration_form),
+        fmtVal(p.ffme_insurance),
+        fmtVal(p.category),
+        fmtVal(p.tshirt),
+        fmtVal(p.emergency_contact),
+        fmtVal(p.notes),
+        fmtVal(p.avatar_url),
+        roles,
+        confirmedGroups,
+        fmtDate(p.created_at),
+        fmtDate(p.updated_at),
+      ].map(escapeCell).join(';')
+    })
+
+    // BOM UTF-8 pour Excel FR
+    const csvContent = '\uFEFF' + [headers.map(escapeCell).join(';'), ...rows].join('\n')
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    const today = new Date().toISOString().split('T')[0]
+    link.download = `membres_export_${today}.csv`
+    link.click()
+  }
+  catch (e: any) {
+    toast.add({
+      title: 'Erreur export CSV',
+      description: e.message,
+      color: 'error',
+      icon: 'i-lucide-alert-circle',
+    })
+  }
 }
 
 // ── Group Modal ───────────────────────────────────────────────────────────────

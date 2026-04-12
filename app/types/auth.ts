@@ -93,6 +93,7 @@ export interface AdherentWithRoles extends Adherent {
   groupId: string
   groupIds: string[]
   groupNames: string[]
+  groupMemberships?: { status: string; group: { name: string } }[]
   linkedChildren: { id: string; name: string; linkId: string }[]
   payment_done: boolean
   registration_form: boolean
