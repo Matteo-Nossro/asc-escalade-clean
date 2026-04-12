@@ -15,13 +15,18 @@ import { onMounted } from 'vue'
 definePageMeta({ layout: false })
 
 const { fetchProfile } = useAuth()
+const route = useRoute()
 
 onMounted(async () => {
   await new Promise((resolve) => setTimeout(resolve, 500))
   const user = useSupabaseUser()
   if (user.value) {
     await fetchProfile()
-    await navigateTo('/admin/dashboard')
+    if (route.query.type === 'recovery') {
+      await navigateTo('/profil?resetPassword=true')
+    } else {
+      await navigateTo('/admin/dashboard')
+    }
   } else {
     await navigateTo('/login')
   }

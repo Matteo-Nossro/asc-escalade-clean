@@ -20,6 +20,76 @@
       <!-- Contenu -->
       <div v-else class="space-y-6">
 
+        <!-- Réinitialisation mot de passe -->
+        <div v-if="showResetPassword" class="bg-white rounded-3xl shadow-2xl p-8 border-2 border-[#7FD857]">
+          <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <UIcon name="i-lucide-key" class="w-5 h-5 text-[#7FD857]" />
+            Définir un nouveau mot de passe
+          </h3>
+
+          <UAlert
+            v-if="resetSuccess"
+            color="success"
+            variant="soft"
+            title="Mot de passe mis à jour avec succès !"
+            icon="i-lucide-check-circle"
+            class="mb-4"
+          />
+
+          <UAlert
+            v-if="resetError"
+            color="error"
+            variant="soft"
+            :title="resetError"
+            icon="i-lucide-alert-circle"
+            class="mb-4"
+            :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'ghost' }"
+            @close="resetError = ''"
+          />
+
+          <form v-if="!resetSuccess" @submit.prevent="handleResetPassword" class="space-y-4">
+            <UFormField label="Nouveau mot de passe" required :error="resetErrors.password">
+              <UInput
+                v-model="resetForm.password"
+                type="password"
+                placeholder="••••••••"
+                icon="i-lucide-lock"
+                size="lg"
+                :disabled="resetLoading"
+                class="w-full"
+              />
+            </UFormField>
+
+            <UFormField label="Confirmer le mot de passe" required :error="resetErrors.confirm">
+              <UInput
+                v-model="resetForm.confirm"
+                type="password"
+                placeholder="••••••••"
+                icon="i-lucide-lock-keyhole"
+                size="lg"
+                :disabled="resetLoading"
+                class="w-full"
+              />
+            </UFormField>
+
+            <p class="text-xs text-gray-400">Minimum 8 caractères.</p>
+
+            <UButton
+              type="submit"
+              size="lg"
+              block
+              :loading="resetLoading"
+              :disabled="resetLoading"
+              class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold"
+            >
+              <template #leading>
+                <UIcon name="i-lucide-shield-check" class="w-5 h-5" />
+              </template>
+              {{ resetLoading ? 'Mise à jour...' : 'Mettre à jour le mot de passe' }}
+            </UButton>
+          </form>
+        </div>
+
         <!-- Card famille (sélecteur + ajout enfant) -->
         <div v-if="children.length > 0 || userRoles.includes('parent')" class="bg-white rounded-3xl shadow-2xl p-6 border border-gray-100">
           <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-4 flex items-center gap-2">
@@ -435,6 +505,8 @@ definePageMeta({
 
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
+const route = useRoute()
+const router = useRouter()
 
 const ready = ref(false)
 const saving = ref(false)
@@ -466,6 +538,52 @@ function validate(): boolean {
   }
   formErrors.value = e
   return !Object.values(e).some(v => v)
+}
+
+// ─── Réinitialisation mot de passe ───────────────────────────────────────────
+
+const showResetPassword = computed(() => route.query.resetPassword === 'true' && !isEditingChild.value)
+const resetForm = ref({ password: '', confirm: '' })
+const resetLoading = ref(false)
+const resetSuccess = ref(false)
+const resetError = ref('')
+const resetErrors = ref({ password: '', confirm: '' })
+
+async function handleResetPassword() {
+  resetErrors.value = { password: '', confirm: '' }
+  resetError.value = ''
+  let valid = true
+
+  if (!resetForm.value.password) {
+    resetErrors.value.password = 'Le mot de passe est requis'
+    valid = false
+  } else if (resetForm.value.password.length < 8) {
+    resetErrors.value.password = 'Le mot de passe doit contenir au moins 8 caractères'
+    valid = false
+  }
+  if (!resetForm.value.confirm) {
+    resetErrors.value.confirm = 'La confirmation est requise'
+    valid = false
+  } else if (resetForm.value.password !== resetForm.value.confirm) {
+    resetErrors.value.confirm = 'Les mots de passe ne correspondent pas'
+    valid = false
+  }
+  if (!valid) return
+
+  resetLoading.value = true
+  try {
+    const { error } = await supabase.auth.updateUser({ password: resetForm.value.password })
+    if (error) throw error
+    resetSuccess.value = true
+    resetForm.value = { password: '', confirm: '' }
+    setTimeout(() => {
+      router.replace({ query: {} })
+    }, 3000)
+  } catch (e: any) {
+    resetError.value = e.message || 'Erreur lors de la mise à jour du mot de passe'
+  } finally {
+    resetLoading.value = false
+  }
 }
 
 // ─── Gestion parent / enfant ──────────────────────────────────────────────────

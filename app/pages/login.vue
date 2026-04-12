@@ -16,114 +16,195 @@
 			<!-- Formulaire -->
 			<div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
 
-				<!-- Message d'erreur -->
-				<UAlert
-						v-if="error"
-						color="error"
-						variant="soft"
-						:title="error"
-						class="mb-6"
-						icon="i-lucide-alert-circle"
-						:close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'ghost' }"
-						@close="error = ''"
-				/>
+				<!-- Mode connexion -->
+				<template v-if="!forgotMode">
 
-				<form @submit.prevent="handleLogin" class="space-y-6">
+					<!-- Message d'erreur -->
+					<UAlert
+							v-if="error"
+							color="error"
+							variant="soft"
+							:title="error"
+							class="mb-6"
+							icon="i-lucide-alert-circle"
+							:close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'ghost' }"
+							@close="error = ''"
+					/>
 
-					<!-- Email -->
-					<UFormField label="Adresse email" required :error="fieldErrors.email">
-						<UInput
-								v-model="credentials.email"
-								type="email"
-								placeholder="votre.email@exemple.com"
-								icon="i-lucide-mail"
-								size="lg"
+					<form @submit.prevent="handleLogin" class="space-y-6">
+
+						<!-- Email -->
+						<UFormField label="Adresse email" required :error="fieldErrors.email">
+							<UInput
+									v-model="credentials.email"
+									type="email"
+									placeholder="votre.email@exemple.com"
+									icon="i-lucide-mail"
+									size="lg"
+									:disabled="loading"
+									class="w-full"
+									data-testid="input-login-email"
+									:ui="{
+                  wrapper: 'w-full',
+                  base: 'w-full'
+                }"
+							/>
+						</UFormField>
+
+						<!-- Mot de passe -->
+						<UFormField label="Mot de passe" required :error="fieldErrors.password">
+							<UInput
+									v-model="credentials.password"
+									:type="showPassword ? 'text' : 'password'"
+									placeholder="••••••••"
+									icon="i-lucide-lock"
+									size="lg"
+									:disabled="loading"
+									class="w-full"
+									data-testid="input-login-password"
+									:ui="{
+                  wrapper: 'w-full',
+                  base: 'w-full',
+                  trailing: { padding: { md: 'pr-3' } }
+                }"
+							>
+								<template #trailing>
+									<UButton
+											:icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+											color="neutral"
+											variant="ghost"
+											size="sm"
+											@click="showPassword = !showPassword"
+											type="button"
+											aria-label="Afficher le mot de passe"
+									/>
+								</template>
+							</UInput>
+						</UFormField>
+
+						<!-- Se souvenir de moi & Mot de passe oublié -->
+						<div class="flex items-center justify-between">
+							<UCheckbox
+									v-model="rememberMe"
+									label="Se souvenir de moi"
+									:disabled="loading"
+							/>
+							<button
+									type="button"
+									class="text-sm text-[#7FD857] hover:text-[#6bc546] font-medium transition-colors"
+									@click="forgotMode = true"
+							>
+								Mot de passe oublié ?
+							</button>
+						</div>
+
+						<!-- Bouton de connexion -->
+						<UButton
+								type="submit"
+								size="xl"
+								block
+								:loading="loading"
 								:disabled="loading"
-								class="w-full"
-								data-testid="input-login-email"
-								:ui="{
-                wrapper: 'w-full',
-                base: 'w-full'
-              }"
-						/>
-					</UFormField>
-
-					<!-- Mot de passe -->
-					<UFormField label="Mot de passe" required :error="fieldErrors.password">
-						<UInput
-								v-model="credentials.password"
-								:type="showPassword ? 'text' : 'password'"
-								placeholder="••••••••"
-								icon="i-lucide-lock"
-								size="lg"
-								:disabled="loading"
-								class="w-full"
-								data-testid="input-login-password"
-								:ui="{
-                wrapper: 'w-full',
-                base: 'w-full',
-                trailing: { padding: { md: 'pr-3' } }
-              }"
+								class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold shadow-lg hover:shadow-xl transition-all"
+								data-testid="btn-login-submit"
 						>
-							<template #trailing>
-								<UButton
-										:icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-										color="neutral"
-										variant="ghost"
-										size="sm"
-										@click="showPassword = !showPassword"
-										type="button"
-										aria-label="Afficher le mot de passe"
-								/>
+							<template #leading>
+								<UIcon name="i-lucide-log-in" class="w-5 h-5" />
 							</template>
-						</UInput>
-					</UFormField>
+							{{ loading ? 'Connexion en cours...' : 'Se connecter' }}
+						</UButton>
 
-					<!-- Se souvenir de moi & Mot de passe oublié -->
-					<div class="flex items-center justify-between">
-						<UCheckbox
-								v-model="rememberMe"
-								label="Se souvenir de moi"
-								:disabled="loading"
-						/>
-						<NuxtLink
-								to="/forgot-password"
-								class="text-sm text-[#7FD857] hover:text-[#6bc546] font-medium transition-colors"
-						>
-							Mot de passe oublié ?
-						</NuxtLink>
+					</form>
+
+					<!-- Lien inscription -->
+					<div class="mt-6 text-center">
+						<p class="text-sm text-gray-600">
+							Pas encore de compte ?
+							<NuxtLink
+									to="/register"
+									class="text-[#7FD857] hover:text-[#6bc546] font-bold transition-colors ml-1"
+							>
+								Créer un compte
+							</NuxtLink>
+						</p>
 					</div>
 
-					<!-- Bouton de connexion -->
-					<UButton
-							type="submit"
-							size="xl"
-							block
-							:loading="loading"
-							:disabled="loading"
-							class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold shadow-lg hover:shadow-xl transition-all"
-							data-testid="btn-login-submit"
-					>
-						<template #leading>
-							<UIcon name="i-lucide-log-in" class="w-5 h-5" />
-						</template>
-						{{ loading ? 'Connexion en cours...' : 'Se connecter' }}
-					</UButton>
+				</template>
 
-				</form>
+				<!-- Mode mot de passe oublié -->
+				<template v-else>
 
-				<!-- Lien inscription -->
-				<div class="mt-6 text-center">
-					<p class="text-sm text-gray-600">
-						Pas encore de compte ?
-						<NuxtLink
-								to="/register"
-								class="text-[#7FD857] hover:text-[#6bc546] font-bold transition-colors ml-1"
+					<div class="mb-6">
+						<h2 class="text-xl font-bold text-gray-900 mb-1">Mot de passe oublié</h2>
+						<p class="text-sm text-gray-600">Entrez votre adresse email pour recevoir un lien de réinitialisation.</p>
+					</div>
+
+					<UAlert
+							v-if="forgotSuccess"
+							color="success"
+							variant="soft"
+							title="Email envoyé ! Vérifiez votre boîte de réception."
+							icon="i-lucide-check-circle"
+							class="mb-6"
+					/>
+
+					<UAlert
+							v-if="forgotError"
+							color="error"
+							variant="soft"
+							:title="forgotError"
+							icon="i-lucide-alert-circle"
+							class="mb-6"
+							:close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'ghost' }"
+							@close="forgotError = ''"
+					/>
+
+					<form v-if="!forgotSuccess" @submit.prevent="handleForgotPassword" class="space-y-6">
+
+						<UFormField label="Adresse email" required>
+							<UInput
+									v-model="forgotEmail"
+									type="email"
+									placeholder="votre.email@exemple.com"
+									icon="i-lucide-mail"
+									size="lg"
+									:disabled="forgotLoading"
+									class="w-full"
+									:ui="{
+                  wrapper: 'w-full',
+                  base: 'w-full'
+                }"
+							/>
+						</UFormField>
+
+						<UButton
+								type="submit"
+								size="xl"
+								block
+								:loading="forgotLoading"
+								:disabled="forgotLoading"
+								class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold shadow-lg hover:shadow-xl transition-all"
 						>
-							Créer un compte
-						</NuxtLink>
-					</p>
-				</div>
+							<template #leading>
+								<UIcon name="i-lucide-send" class="w-5 h-5" />
+							</template>
+							{{ forgotLoading ? 'Envoi en cours...' : 'Envoyer le lien' }}
+						</UButton>
+
+					</form>
+
+					<div class="mt-6 text-center">
+						<button
+								type="button"
+								class="text-sm text-[#7FD857] hover:text-[#6bc546] font-medium transition-colors inline-flex items-center gap-1"
+								@click="forgotMode = false; forgotSuccess = false; forgotError = ''"
+						>
+							<UIcon name="i-lucide-arrow-left" class="w-4 h-4" />
+							Retour à la connexion
+						</button>
+					</div>
+
+				</template>
 
 			</div>
 
@@ -146,6 +227,7 @@ definePageMeta({
 })
 
 const { loginWithEmail, loginWithOAuth, user } = useAuth()
+const supabase = useSupabaseClient()
 const route = useRoute()
 
 const credentials = ref({
@@ -157,6 +239,13 @@ const rememberMe = ref(false)
 const loading = ref(false)
 const error = ref('')
 const fieldErrors = ref({ email: '', password: '' })
+
+// Mot de passe oublié
+const forgotMode = ref(false)
+const forgotEmail = ref('')
+const forgotLoading = ref(false)
+const forgotError = ref('')
+const forgotSuccess = ref(false)
 
 const handleLogin = async () => {
   fieldErrors.value = { email: '', password: '' }
@@ -205,6 +294,35 @@ const handleLogin = async () => {
     }
   } finally {
     loading.value = false
+  }
+}
+
+const handleForgotPassword = async () => {
+  forgotError.value = ''
+  if (!forgotEmail.value.trim()) {
+    forgotError.value = "L'adresse email est requise"
+    return
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(forgotEmail.value)) {
+    forgotError.value = "Format d'email invalide"
+    return
+  }
+  try {
+    forgotLoading.value = true
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(forgotEmail.value, {
+      redirectTo: window.location.origin + '/callback?type=recovery',
+    })
+    if (resetError) throw resetError
+    forgotSuccess.value = true
+  } catch (err: any) {
+    const msg = err.message || ''
+    if (msg.includes('rate limit') || msg.includes('too many')) {
+      forgotError.value = 'Trop de tentatives, veuillez patienter avant de réessayer'
+    } else {
+      forgotError.value = 'Une erreur est survenue. Vérifiez votre adresse email.'
+    }
+  } finally {
+    forgotLoading.value = false
   }
 }
 
