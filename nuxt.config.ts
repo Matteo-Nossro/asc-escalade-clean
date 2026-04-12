@@ -21,6 +21,7 @@ export default defineNuxtConfig({
           name: 'description',
           content: "Club d'escalade de Chevigny-Saint-Sauveur. Séances en salle et en falaise pour tous les niveaux.",
         },
+        { name: 'color-scheme', content: 'light' },
         { property: 'og:site_name', content: 'ASC Escalade' },
         { name: 'twitter:card', content: 'summary_large_image' },
       ],

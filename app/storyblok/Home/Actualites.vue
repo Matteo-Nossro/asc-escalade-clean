@@ -1,5 +1,5 @@
 <template>
-  <section v-editable="blok" class="py-20 bg-white">
+  <section v-editable="blok" class="pt-20 pb-10 bg-white">
     <UContainer>
       <!-- En-tête de section avec bouton -->
       <div class="flex items-end justify-between mb-12">

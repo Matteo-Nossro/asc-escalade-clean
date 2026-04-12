@@ -101,7 +101,7 @@
     </UContainer>
 
     <!-- SVG décoratifs -->
-    <svg class="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20 z-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080">
+    <svg class="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20 z-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="none">
       <path ref="mountain1Ref" d="M0 800 L200 600 L400 700 L600 500 L800 650 L1000 550 L1200 700 L1400 600 L1600 750 L1800 650 L1920 800" stroke="white" stroke-width="2" fill="none" stroke-dasharray="3500" stroke-dashoffset="3500"/>
       <path ref="mountain2Ref" d="M0 900 L150 750 L300 820 L500 680 L700 800 L900 700 L1100 820 L1300 740 L1500 850 L1700 780 L1920 900" stroke="#7FD857" stroke-width="2.5" fill="none" stroke-dasharray="3500" stroke-dashoffset="3500"/>
       <line ref="altLine1Ref" x1="0" y1="300" x2="1920" y2="300" stroke="white" stroke-width="1" opacity="0.3" stroke-dasharray="3000" stroke-dashoffset="3000"/>
