@@ -149,7 +149,7 @@ const colors: Record<string, string> = {
 |---|---|
 | `useAuth()` | `profile`, `roles`, `isAdmin`, `isStaff`, `isParent`, `fetchProfile()`, `updateProfile()`, `loginWithEmail()`, `loginWithOAuth()`, `signUp()`, `logout()`, `hasRole()` |
 | `useFamily()` | `children`, `fetchChildren()`, `linkChild()`, `updateAccess()`, `unlinkChild()` — liens parent → enfants |
-| `useGroups()` | `groups`, `myEnrollments`, `fetchGroups()`, `fetchMyEnrollments()`, `enroll()`, `unenroll()`, `isEnrolled()`, `formatSchedule()` + CRUD admin |
+| `useGroups()` | `groups`, `myEnrollments`, `fetchGroups()`, `fetchMyEnrollments()`, `enroll()`, `unenroll()`, `isEnrolled()`, `formatSchedule()` + CRUD admin + `fetchPreviousYearEnrollments(profileId)` (inscriptions N-1) |
 | `useEventRegistrations()` | `registrations`, `fetchByEvent()`, `fetchMine()`, `register()`, `cancel()`, `confirm()`, `isRegistered()`, `countByEvent()` |
 | `useEnrollmentRequests()` | `pendingRequests`, `fetchPendingRequests()`, `approveRequest()`, `rejectRequest()` — workflow admin |
 

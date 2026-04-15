@@ -44,11 +44,13 @@ vueApp.component('technical-name', ImportedComponent)
 | `club-statistiques` | `club/Statistiques.vue` | `stats` (Blocks → `club-stat`) |
 | `club-galerie` | `club/Galerie.vue` | `photos` (**Multi-Asset**) — 8 photos affichées, bouton "Voir plus" (+8) |
 | `club-partenaires` | `club/Partenaires.vue` | `title`, `subtitle`, `partners` (Blocks → `club-partenaire`) |
+| `club-initiateurs` | `club/Initiateurs.vue` | `title`, `subtitle`, `initiateurs` (Blocks → `club-initiateur`) — défilement marquee 2 lignes |
 
 **Nestables club :**
 - `club-membre` : `name` (Text), `role` (Text), `image` (Asset)
 - `club-stat` : `icon` (Text, ex: `i-heroicons-user-group`), `value` (Number), `suffix` (Text), `label` (Text)
 - `club-partenaire` : `name` (Text), `logo` (Asset)
+- `club-initiateur` : `Nom` (Text), `image` (Asset)
 
 ### Actualités
 | Technical name | Composant | Champs |
@@ -73,7 +75,7 @@ vueApp.component('technical-name', ImportedComponent)
 | `tarifs-planning` | `tarifs/Planning.vue` | `title`, `categories` (Blocks) |
 | `tarifs-bon-a-savoir` | `tarifs/BonASavoir.vue` | — |
 | `tarifs-grille-tarifs` | `tarifs/GrilleTarifs.vue` | — |
-| `groupes-accordeon` | `tarifs/Accordeon.vue` | `title` (Text) — accordéon des groupes d'escalade, données chargées depuis Supabase |
+| `liste-groupe-accordeon` | `tarifs/ListeGroupeAccordeon.vue` | `title` (Text) — accordéon des groupes d'escalade, données chargées depuis Supabase via `GroupsAccordion` |
 
 ### Contact
 | Technical name | Composant | Champs |

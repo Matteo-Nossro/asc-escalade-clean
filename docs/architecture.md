@@ -21,6 +21,15 @@ Le catch-all `[...slug].vue` résout le slug Storyblok et délègue le rendu à 
 - Redirige vers `/login` si la route commence par `/admin`, `/profil` ou `/mes-inscriptions` et que l'utilisateur n'est pas connecté.
 - Redirige vers `/` si la route commence par `/admin` et que l'utilisateur n'a pas le rôle `admin` ou `secretary`.
 
+### Flux mot de passe oublié / réinitialisation
+
+1. Sur `/login`, le lien "Mot de passe oublié" bascule en `forgotMode`
+2. `supabase.auth.resetPasswordForEmail()` envoie un lien par email
+3. Le lien redirige vers `/callback?type=recovery`
+4. `callback.vue` détecte `type=recovery` → navigue vers `/profil?resetPassword=true`
+5. Sur `/profil`, le formulaire de réinitialisation s'affiche (champs nouveau mot de passe + confirmation)
+6. `supabase.auth.updateUser({ password })` applique le nouveau mot de passe
+
 ---
 
 ## Flux de données Storyblok
@@ -67,12 +76,13 @@ useEvents()
 | Route | Méthode | Description |
 |---|---|---|
 | `/api/register` | POST | Inscription publique : crée profil parent + rôle + profils enfants. Idempotente (upsert si profil existant). Utilise le service role pour bypasser les RLS. Le compte Auth est créé côté client via `supabase.auth.signUp()` avant l'appel. |
+| `/api/add-child` | POST | Ajoute un profil enfant (sans compte Auth) et le lie au parent connecté via `parent_access`. Assigne automatiquement le rôle `parent` si absent. Utilise le service role. |
 
 ### Admin (service role Supabase)
 
 | Route | Méthode | Description |
 |---|---|---|
-| `/api/admin/members` | GET | Tous les profils + rôles + inscriptions groupes |
+| `/api/admin/members` | GET | Tous les profils + rôles + inscriptions groupes. Param `?exportAll=true` lève la limite PostgREST pour l'export CSV complet. |
 | `/api/admin/create-member` | POST | Crée compte Auth + profil + rôles + inscriptions groupes |
 | `/api/admin/send-email` | POST | Email notification approbation/refus inscription via Resend |
 
@@ -135,7 +145,7 @@ app/
 │   ├── useStoryblokCacheTag.ts  # Pose les headers Netlify-Cache-Tag (SSR only)
 │   ├── useAuth.ts               # Auth Supabase, profil, rôles
 │   ├── useFamily.ts             # Liens parent → enfants (parent_access)
-│   ├── useGroups.ts             # Groupes, inscriptions, CRUD admin
+│   ├── useGroups.ts             # Groupes, inscriptions, CRUD admin + fetchPreviousYearEnrollments()
 │   ├── useEventRegistrations.ts # Inscriptions aux événements
 │   └── useEnrollmentRequests.ts # Workflow approbation admin (groupes + events)
 ├── components/
@@ -157,10 +167,10 @@ app/
 ├── pages/
 │   ├── [...slug].vue            # Catch-all CMS
 │   ├── posts/[slug].vue         # Détail post
-│   ├── login.vue                # Connexion (email + OAuth)
-│   ├── callback.vue             # Callback OAuth
+│   ├── login.vue                # Connexion (email + OAuth) + flux "mot de passe oublié"
+│   ├── callback.vue             # Callback OAuth ; redirige vers /profil?resetPassword=true si type=recovery
 │   ├── register.vue             # Inscription publique (stepper 3 étapes)
-│   ├── profil.vue               # Profil utilisateur + gestion enfants
+│   ├── profil.vue               # Profil utilisateur + gestion enfants + réinitialisation mot de passe
 │   ├── mes-inscriptions.vue     # Inscriptions groupes & événements
 │   └── admin/dashboard.vue      # Dashboard admin
 ├── types/
@@ -171,6 +181,7 @@ server/
 ├── api/
 │   ├── contact.post.ts          # Formulaire contact → Resend (public)
 │   ├── register.post.ts         # Inscription publique → crée profil parent + enfants (service role)
+│   ├── add-child.post.ts        # Ajoute un enfant à un parent connecté (service role)
 │   ├── revalidate.post.ts       # Webhook Storyblok → purge cache Netlify
 │   └── admin/
 │       ├── members.get.ts       # Liste profils + rôles + groupes (service role)

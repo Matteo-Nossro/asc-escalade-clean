@@ -19,6 +19,14 @@
 | A09 | Accès `/login` déjà connecté | Redirige vers `/` | | |
 | A10 | Accès `/profil` sans être connecté | Redirige vers `/login` | | |
 | A11 | Accès `/mes-inscriptions` sans être connecté | Redirige vers `/login` | | |
+| A12 | Clic "Mot de passe oublié" sur `/login` | Formulaire email de récupération affiché | | |
+| A13 | Soumettre email valide pour reset | Message de confirmation affiché, email envoyé | | |
+| A14 | Soumettre email invalide pour reset | Erreur de validation affichée | | |
+| A15 | Clic "Retour à la connexion" depuis forgotMode | Formulaire de connexion réaffiché | | |
+| A16 | Accès `/callback?type=recovery` (lien email) | Redirige vers `/profil?resetPassword=true` | | |
+| A17 | Formulaire reset sur `/profil` | Champs nouveau mot de passe et confirmation affichés | | |
+| A18 | Soumettre reset avec mots de passe différents | Erreur "Les mots de passe ne correspondent pas" | | |
+| A19 | Soumettre reset valide | Mot de passe mis à jour, confirmation affichée | | |
 
 ---
 
@@ -137,9 +145,9 @@
 | MB05 | Modifier le nom d'un membre | Valeur persistée en base après sauvegarde | | |
 | MB06 | Changer le statut (actif/inactif/en attente) | Statut mis à jour | | |
 | MB07 | Supprimer un membre | Confirmation demandée, membre retiré de la liste | | |
-| MB08 | Export CSV | Fichier téléchargé avec toutes les colonnes attendues | | |
-| MB09 | 🐛 Ajouter un membre (Bug connu) | Le membre n'est pas créé en base (bug documenté) | 🐛 | BUG #1 |
-| MB10 | 🐛 Basculer le statut via le menu action | Changement non persisté en base (bug documenté) | 🐛 | BUG #2 |
+| MB08 | Export CSV | Fichier `.csv` téléchargé avec BOM UTF-8, séparateur `;`, 30 colonnes (ID, Email, Prénom, Nom, Naissance, Rôles, Groupes confirmés…) | | |
+| MB09 | Ajouter un membre sans email | Profil créé en base (UUID autonome, sans compte Auth) | | |
+| MB10 | Basculer le statut via le menu action | Changement persisté en base, toast affiché | | |
 
 ### 7b. Formulaire de création — validation des champs
 
@@ -159,11 +167,11 @@
 
 | # | Scénario | Résultat attendu | Statut | Notes |
 |---|----------|-----------------|--------|-------|
-| MB20 | 🐛 Créer un membre (prénom + nom uniquement) | Profil créé en base, apparaît dans le tableau | 🐛 | BUG #1 |
-| MB21 | 🐛 Créer avec email | Compte Supabase Auth créé + profil inséré | 🐛 | BUG #1 |
-| MB22 | 🐛 Créer avec type de licence | Formule persistée en base | 🐛 | BUG #1 |
-| MB23 | 🐛 Créer avec un ou plusieurs groupes cochés | Inscription(s) au(x) groupe(s) créée(s) | 🐛 | BUG #1 |
-| MB24 | 🐛 Créer avec tous les champs administratifs remplis | Toutes les valeurs persistées en base | 🐛 | BUG #1 |
+| MB20 | Créer un membre (prénom + nom uniquement) | Profil autonome créé en base (sans compte Auth), apparaît dans le tableau | | |
+| MB21 | Créer avec email | Compte Supabase Auth créé + profil inséré | | |
+| MB22 | Créer avec type de licence | Formule persistée en base | | |
+| MB23 | Créer avec un ou plusieurs groupes cochés | Inscription(s) au(x) groupe(s) créée(s) | | |
+| MB24 | Créer avec tous les champs administratifs remplis | Toutes les valeurs persistées en base | | |
 
 ### 7d. Création d'un membre parent + enfants
 
@@ -171,10 +179,10 @@
 |---|----------|-----------------|--------|-------|
 | MB25 | Cocher le rôle "Parent" | Section "Enfants liés" apparaît | | |
 | MB26 | Décocher le rôle "Parent" | Section "Enfants liés" disparaît | | |
-| MB27 | 🐛 Créer un parent sans enfant lié | Compte créé avec rôle parent, aucun `parent_access` | 🐛 | BUG #1 |
-| MB28 | 🐛 Créer un parent + 1 enfant lié | `parent_access` créé en base pour cet enfant | 🐛 | BUG #1 |
-| MB29 | 🐛 Créer un parent + 2 enfants liés | Deux `parent_access` créés en base | 🐛 | BUG #1 |
-| MB30 | 🐛 Créer un parent + 3 enfants ou plus | Tous les `parent_access` créés | 🐛 | BUG #1 |
+| MB27 | Créer un parent sans enfant lié | Compte créé avec rôle parent, aucun `parent_access` | | |
+| MB28 | Créer un parent + 1 enfant lié | `parent_access` créé en base pour cet enfant | | |
+| MB29 | Créer un parent + 2 enfants liés | Deux `parent_access` créés en base | | |
+| MB30 | Créer un parent + 3 enfants ou plus | Tous les `parent_access` créés | | |
 | MB31 | Tenter de lier le même enfant deux fois | Bouton "Lier" désactivé / enfant absent de la liste | | |
 
 ### 7e. Modification d'un parent existant
@@ -223,7 +231,20 @@
 
 ---
 
-## 10. API & intégrations
+## 10. Inscriptions de l'année N-1 (`/mes-inscriptions`)
+
+> Fonctionnalité WIP — affichage en lecture seule des créneaux confirmés de l'année précédente
+
+| # | Scénario | Résultat attendu | Statut | Notes |
+|---|----------|-----------------|--------|-------|
+| NM01 | Membre avec inscriptions confirmées en N-1 | Section "Saison précédente" visible avec liste des groupes | ⏭️ | WIP |
+| NM02 | Membre sans inscription N-1 | Section absente ou message "Aucune inscription" | ⏭️ | WIP |
+| NM03 | Créneaux N-1 affichés | Nom du groupe, niveau, créneaux (jour + horaires) | ⏭️ | WIP |
+| NM04 | Parent — créneaux N-1 enfant | Section N-1 visible par enfant | ⏭️ | WIP |
+
+---
+
+## 11. API & intégrations
 
 | # | Endpoint | Scénario | Résultat attendu | Statut | Notes |
 |---|----------|----------|-----------------|--------|-------|
@@ -234,7 +255,7 @@
 
 ---
 
-## 11. Responsive design
+## 12. Responsive design
 
 | # | Breakpoint | Page | Résultat attendu | Statut | Notes |
 |---|-----------|------|-----------------|--------|-------|
@@ -247,7 +268,7 @@
 
 ---
 
-## 12. Persistance des données
+## 13. Persistance des données
 
 | # | Action | Vérification | Statut | Notes |
 |---|--------|-------------|--------|-------|
@@ -264,22 +285,23 @@
 
 | Catégorie | Total | ✅ OK | ❌ KO | ⚠️ Partiel | 🐛 Bug connu | ⏭️ Non testé |
 |-----------|-------|-------|-------|-----------|-------------|-------------|
-| Authentification | 11 | | | | | |
+| Authentification | 19 | | | | | |
 | Navigation | 10 | | | | | |
 | Pages publiques | 7 | | | | | |
 | Profil | 17 | | | | | |
 | Mes inscriptions | 20 | | | | | |
 | Admin KPI | 5 | | | | | |
-| Admin Membres | 36 | | | | 8 | |
+| Admin Membres | 36 | | | | | |
 | Admin Groupes | 13 | | | | | |
 | Admin Demandes | 7 | | | | | |
+| Inscriptions N-1 | 4 | | | | | 4 |
 | API | 4 | | | | | |
 | Responsive | 6 | | | | | |
 | Persistance | 6 | | | | | |
-| **Total** | **142** | | | | **10** | |
+| **Total** | **154** | | | | | **4** |
 
 ---
 
-> **Bugs documentés**
-> - 🐛 **BUG #1** (`MB09`, `MB20`–`MB30`) — `saveMember()` ne crée pas de membre en mode "ajout" (condition `editMode` bloque l'INSERT). Impacte aussi la création parent + enfants.
-> - 🐛 **BUG #2** (`MB10`) — `toggleStatus()` ne persiste pas en base (mise à jour locale uniquement)
+> **Bugs résolus**
+> - ✅ **BUG #1** (résolu) — `create-member.post.ts` accepte désormais la création sans email : profil autonome (UUID indépendant, sans compte Auth) si email absent, Auth + profil si email fourni.
+> - ✅ **BUG #2** (résolu) — `toggleStatus()` persistait déjà en base (code corrigé avant la rédaction de ce plan).
