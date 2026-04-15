@@ -46,6 +46,7 @@ export const useGroups = () => {
           ),
           referent:profiles!referent_id(id, full_name)
         `)
+        .order('max_birth_date', { ascending: false, nullsFirst: false })
         .order('name')
 
       if (error) throw error
