@@ -12,24 +12,31 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const { email, first_name, last_name, phone, mobile, birth_date, status, licence, formule, roles, groupIds } = body
 
-  if (!email) throw createError({ statusCode: 400, statusMessage: 'Email requis' })
+  if (!first_name?.trim() && !last_name?.trim()) {
+    throw createError({ statusCode: 400, statusMessage: 'Le prénom ou le nom est requis' })
+  }
 
   const fullName = `${first_name ?? ''} ${last_name ?? ''}`.trim()
+  let userId: string
 
-  // 1. Créer le compte Auth (confirmation email automatique, pas de mot de passe envoyé)
-  const { data: authData, error: authError } = await client.auth.admin.createUser({
-    email,
-    email_confirm: true,
-    user_metadata: { full_name: fullName },
-  })
-  if (authError) throw createError({ statusCode: 400, statusMessage: authError.message })
-
-  const userId = authData.user.id
+  if (email?.trim()) {
+    // Avec email → créer le compte Auth (invitation sans mot de passe)
+    const { data: authData, error: authError } = await client.auth.admin.createUser({
+      email: email.trim(),
+      email_confirm: true,
+      user_metadata: { full_name: fullName },
+    })
+    if (authError) throw createError({ statusCode: 400, statusMessage: authError.message })
+    userId = authData.user.id
+  } else {
+    // Sans email → profil autonome (UUID indépendant, pas de compte Auth)
+    userId = crypto.randomUUID()
+  }
 
   // 2. Upsert le profil
   const { error: profileError } = await client.from('profiles').upsert({
     id: userId,
-    email,
+    email: email?.trim() || null,
     first_name: first_name || null,
     last_name: last_name || null,
     full_name: fullName || null,
