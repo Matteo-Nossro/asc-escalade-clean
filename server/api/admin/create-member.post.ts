@@ -2,15 +2,31 @@
  * POST /api/admin/create-member
  * Crée un compte Supabase Auth + profil + rôles + inscription groupe.
  * Utilise serverSupabaseServiceRole pour bypasser les RLS.
- * Accessible uniquement depuis le dashboard admin (auth vérifiée par le middleware Nuxt).
+ * Garde d'accès : requireAdmin() — refuse les appels non admin/secretary/initiateur.
+ * L'octroi du rôle "admin" exige en plus que l'appelant soit lui-même admin.
  */
 import { serverSupabaseServiceRole } from '#supabase/server'
+import { requireAdmin } from '~/server/utils/requireAdmin'
+
+const ASSIGNABLE_ROLES = ['parent', 'initiateur', 'secretary', 'admin'] as const
 
 export default defineEventHandler(async (event) => {
+  const { roles: callerRoles } = await requireAdmin(event)
+
   const client = serverSupabaseServiceRole(event)
 
   const body = await readBody(event)
   const { email, first_name, last_name, phone, mobile, birth_date, status, licence, formule, roles, groupIds } = body
+
+  if (Array.isArray(roles) && roles.length) {
+    const invalid = roles.find((r: string) => !ASSIGNABLE_ROLES.includes(r as typeof ASSIGNABLE_ROLES[number]))
+    if (invalid) {
+      throw createError({ statusCode: 400, statusMessage: `Rôle invalide : ${invalid}` })
+    }
+    if (roles.includes('admin') && !callerRoles.includes('admin')) {
+      throw createError({ statusCode: 403, statusMessage: 'Seul un admin peut octroyer le rôle admin' })
+    }
+  }
 
   if (!first_name?.trim() && !last_name?.trim()) {
     throw createError({ statusCode: 400, statusMessage: 'Le prénom ou le nom est requis' })

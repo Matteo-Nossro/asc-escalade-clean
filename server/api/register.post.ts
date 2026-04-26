@@ -4,10 +4,15 @@
  * Le compte auth est créé côté client via supabase.auth.signUp().
  * Cette route utilise le service role pour bypasser les RLS.
  *
- * Idempotente : si le profil parent existe déjà (même UUID, protection
- * anti-énumération Supabase), il est mis à jour plutôt que rejeté.
+ * Sécurité :
+ *  - Si une session est présente, le userId du body DOIT correspondre à la
+ *    session. Sinon, un attaquant connaissant un UUID auth pourrait écraser
+ *    le profil de cet utilisateur.
+ *  - Le profil est créé via INSERT (et non UPSERT) : impossible d'écraser
+ *    un profil existant. La détection de l'email déjà utilisé est faite
+ *    côté client via signUpData.user.identities (anti-énumération Supabase).
  */
-import { serverSupabaseServiceRole } from '#supabase/server'
+import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 
 interface ChildPayload {
   first_name: string
@@ -45,34 +50,47 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Données manquantes' })
   }
 
+  // Si une session existe, exiger qu'elle corresponde au userId fourni.
+  // Empêche un attaquant connaissant un UUID auth d'écraser le profil cible.
+  const sessionUser = await serverSupabaseUser(event)
+  if (sessionUser && sessionUser.id !== userId) {
+    throw createError({ statusCode: 403, statusMessage: 'Identifiant utilisateur incohérent avec la session' })
+  }
+
   // Vérifier que le userId correspond à un compte auth existant
   const { data: authUser, error: authCheckError } = await client.auth.admin.getUserById(userId)
   if (authCheckError || !authUser?.user) {
     throw createError({ statusCode: 400, statusMessage: 'Compte utilisateur introuvable' })
   }
 
+  // Refuser l'écrasement d'un profil déjà initialisé.
+  // (Le client gère le cas anti-énumération Supabase via signUpData.user.identities.)
+  const { data: existingProfile } = await client
+    .from('profiles')
+    .select('id')
+    .eq('id', userId)
+    .maybeSingle()
+  if (existingProfile) {
+    throw createError({ statusCode: 409, statusMessage: 'Profil déjà initialisé' })
+  }
+
   const fullName = `${parent.first_name ?? ''} ${parent.last_name ?? ''}`.trim()
 
-  // ── 1. Upsert le profil parent (idempotent) ───────────────────────────────
-  // upsert évite le 23505 quand Supabase renvoie le même UUID via la
-  // protection anti-énumération d'email (signUp avec email déjà existant).
-  const { error: profileError } = await client.from('profiles').upsert(
-    {
-      id: userId,
-      email: parent.email,
-      first_name: parent.first_name || null,
-      last_name: parent.last_name || null,
-      full_name: fullName || '',
-      birth_date: parent.birth_date || null,
-      gender: parent.gender || null,
-      phone: parent.phone || null,
-      address: parent.address || null,
-      postal_code: parent.postal_code || null,
-      city: parent.city || null,
-      status: 'En attente',
-    },
-    { onConflict: 'id' },
-  )
+  // ── 1. Créer le profil parent ─────────────────────────────────────────────
+  const { error: profileError } = await client.from('profiles').insert({
+    id: userId,
+    email: parent.email,
+    first_name: parent.first_name || null,
+    last_name: parent.last_name || null,
+    full_name: fullName || '',
+    birth_date: parent.birth_date || null,
+    gender: parent.gender || null,
+    phone: parent.phone || null,
+    address: parent.address || null,
+    postal_code: parent.postal_code || null,
+    city: parent.city || null,
+    status: 'En attente',
+  })
 
   if (profileError) {
     throw createError({ statusCode: 500, statusMessage: profileError.message })

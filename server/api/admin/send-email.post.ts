@@ -3,6 +3,8 @@
  * Envoie un email de notification (acceptation/refus) via Resend.
  */
 import { Resend } from 'resend'
+import { requireAdmin } from '~/server/utils/requireAdmin'
+import { escapeHtml } from '~/server/utils/escapeHtml'
 
 interface EmailPayload {
   to: string
@@ -15,6 +17,8 @@ interface EmailPayload {
 }
 
 export default defineEventHandler(async (event) => {
+  await requireAdmin(event)
+
   const config = useRuntimeConfig(event)
   const resend = new Resend(config.resendApiKey)
 
@@ -66,14 +70,18 @@ function buildEmailHtml(opts: {
   const statusLabel = isApproval ? 'Inscription confirmée' : 'Inscription refusée'
   const statusIcon = isApproval ? '✓' : '✗'
 
+  const safeUserName = escapeHtml(userName)
+  const safeTargetName = escapeHtml(targetName)
+  const safeAdminNote = escapeHtml(adminNote)
+
   const messageBody = isApproval
-    ? `Votre demande d'inscription ${typeLabel} <strong>${targetName}</strong> a été <strong>acceptée</strong>.`
-    : `Votre demande d'inscription ${typeLabel} <strong>${targetName}</strong> n'a pas pu être acceptée.`
+    ? `Votre demande d'inscription ${typeLabel} <strong>${safeTargetName}</strong> a été <strong>acceptée</strong>.`
+    : `Votre demande d'inscription ${typeLabel} <strong>${safeTargetName}</strong> n'a pas pu être acceptée.`
 
   const noteBlock = adminNote ? `
     <tr>
       <td style="padding: 0 40px 16px; background:#ffffff">
-        <p style="margin:0;font-size:14px;color:#334155;line-height:1.6;">${adminNote}</p>
+        <p style="margin:0;font-size:14px;color:#334155;line-height:1.6;">${safeAdminNote}</p>
       </td>
     </tr>` : ''
 
@@ -111,7 +119,7 @@ function buildEmailHtml(opts: {
           <!-- Body -->
           <tr>
             <td style="background:#ffffff;padding:32px 40px 8px;">
-              <p style="margin:0 0 8px;font-size:16px;color:#0f172a;">Bonjour <strong>${userName}</strong>,</p>
+              <p style="margin:0 0 8px;font-size:16px;color:#0f172a;">Bonjour <strong>${safeUserName}</strong>,</p>
               <p style="margin:0 0 24px;font-size:15px;color:#334155;line-height:1.6;">${messageBody}</p>
             </td>
           </tr>

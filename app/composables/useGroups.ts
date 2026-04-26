@@ -35,26 +35,50 @@ export const useGroups = () => {
   async function fetchGroups() {
     loading.value = true
     try {
+      // 1. Charger les groupes + créneaux + IDs des instructeurs/référent.
+      //    Les noms ne sont PAS récupérés via FK ici car la RLS sur profiles
+      //    interdit la lecture cross-user — on passe par member_directory.
       const { data, error } = await supabase
         .from('groups')
         .select(`
           *,
           schedules:group_schedules(*),
-          instructors:group_instructors(
-            id, group_id, user_id,
-            profile:profiles!user_id(id, full_name)
-          ),
-          referent:profiles!referent_id(id, full_name)
+          instructors:group_instructors(id, group_id, user_id)
         `)
         .order('max_birth_date', { ascending: false, nullsFirst: false })
         .order('name')
 
       if (error) throw error
 
-      // Compter les membres pour chaque groupe
       const groupList = (data || []) as Group[]
 
+      // 2. Collecter tous les UUIDs de profils à afficher
+      const profileIds = new Set<string>()
       for (const g of groupList) {
+        if (g.referent_id) profileIds.add(g.referent_id)
+        for (const ins of (g.instructors || [])) {
+          if (ins.user_id) profileIds.add(ins.user_id)
+        }
+      }
+
+      // 3. Batch-fetch des noms via la vue publique limitée
+      const nameMap = new Map<string, { id: string; full_name: string }>()
+      if (profileIds.size > 0) {
+        const { data: members } = await supabase
+          .from('member_directory')
+          .select('id, full_name')
+          .in('id', Array.from(profileIds))
+        for (const m of (members || [])) {
+          nameMap.set(m.id, m as { id: string; full_name: string })
+        }
+      }
+
+      // 4. Attacher noms + comptage des membres confirmés
+      for (const g of groupList) {
+        g.referent = g.referent_id ? nameMap.get(g.referent_id) ?? null : null
+        for (const ins of (g.instructors || [])) {
+          ins.profile = ins.user_id ? nameMap.get(ins.user_id) ?? null : null
+        }
         const { count } = await supabase
           .from('group_members')
           .select('*', { count: 'exact', head: true })
