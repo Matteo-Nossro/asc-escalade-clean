@@ -4,7 +4,7 @@
  * Protections : validation, honeypot, délai minimum, rate-limit IP.
  */
 import { Resend } from 'resend'
-import { escapeHtml } from '~/server/utils/escapeHtml'
+import { escapeHtml } from '../utils/escapeHtml'
 
 // Rate limit en mémoire : max 3 envois / heure / IP
 const ipLog = new Map<string, number[]>()
