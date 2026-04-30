@@ -3,8 +3,8 @@
  * Envoie un email de notification (acceptation/refus) via Resend.
  */
 import { Resend } from 'resend'
-import { requireAdmin } from '~/server/utils/requireAdmin'
-import { escapeHtml } from '~/server/utils/escapeHtml'
+import {requireAdmin} from '../../utils/requireAdmin'
+import { escapeHtml } from '../../utils/escapeHtml'
 
 interface EmailPayload {
   to: string

@@ -7,7 +7,7 @@
  *   exportAll=true  → lève la limite PostgREST par défaut (10 000 lignes max)
  */
 import { serverSupabaseServiceRole } from '#supabase/server'
-import { requireAdmin } from '~/server/utils/requireAdmin'
+import {requireAdmin} from '../../utils/requireAdmin'
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)

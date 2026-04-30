@@ -6,7 +6,7 @@
  * L'octroi du rôle "admin" exige en plus que l'appelant soit lui-même admin.
  */
 import { serverSupabaseServiceRole } from '#supabase/server'
-import { requireAdmin } from '~/server/utils/requireAdmin'
+import {requireAdmin} from '../../utils/requireAdmin'
 
 const ASSIGNABLE_ROLES = ['parent', 'initiateur', 'secretary', 'admin'] as const
 
