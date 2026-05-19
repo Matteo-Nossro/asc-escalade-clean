@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
   const client = serverSupabaseServiceRole(event)
 
   const body = await readBody(event)
-  const { email, first_name, last_name, phone, mobile, birth_date, status, licence, formule, roles, groupIds } = body
+  const { email, first_name, last_name, phone, mobile, birth_date, gender, status, licence, formule, roles, groupIds } = body
 
   if (Array.isArray(roles) && roles.length) {
     const invalid = roles.find((r: string) => !ASSIGNABLE_ROLES.includes(r as typeof ASSIGNABLE_ROLES[number]))
@@ -59,6 +59,7 @@ export default defineEventHandler(async (event) => {
     phone: phone || null,
     mobile: mobile || null,
     birth_date: birth_date || null,
+    gender: gender || null,
     status: status || 'Actif',
     licence_number: licence && licence !== '-' ? parseInt(licence) : null,
     licence_type: formule && formule !== '-' ? formule : null,

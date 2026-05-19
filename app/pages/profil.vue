@@ -265,6 +265,17 @@
               </UFormField>
             </div>
 
+            <UFormField label="Sexe">
+              <USelect
+                v-model="form.gender"
+                :items="[{ label: 'Homme', value: 'M' }, { label: 'Femme', value: 'F' }]"
+                placeholder="Non renseigné"
+                size="lg"
+                :disabled="saving"
+                class="w-full"
+              />
+            </UFormField>
+
             <UFormField label="Adresse email" required :error="formErrors.email">
               <UInput
                 v-model="form.email"
@@ -727,6 +738,7 @@ const originalData = ref<string>('')
 const form = ref({
   first_name: '',
   last_name: '',
+  gender: '',
   email: '',
   phone: '',
   mobile: '',
@@ -746,6 +758,7 @@ function populateForm(p: Profile) {
   form.value = {
     first_name: p.first_name || '',
     last_name: p.last_name || '',
+    gender: p.gender || '',
     email: p.email || '',
     phone: p.phone || '',
     mobile: p.mobile || '',
@@ -766,6 +779,7 @@ function editableFieldsJSON(): string {
   return JSON.stringify({
     first_name: form.value.first_name,
     last_name: form.value.last_name,
+    gender: form.value.gender,
     email: form.value.email,
     phone: form.value.phone,
     mobile: form.value.mobile,
@@ -941,6 +955,7 @@ async function saveProfile() {
         first_name: form.value.first_name || null,
         last_name: form.value.last_name || null,
         full_name: fullName || null,
+        gender: form.value.gender || null,
         email: form.value.email,
         phone: form.value.phone || null,
         mobile: form.value.mobile || null,

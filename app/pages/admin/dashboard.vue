@@ -319,6 +319,7 @@ const memberForm = ref({
   last_name: '',
   name: '',
   licence: '',
+  gender: '',
   email: '',
   phone: '',
   mobile: '',
@@ -373,6 +374,7 @@ async function openMemberModal(member: AdherentWithRoles | null = null) {
       id: member.id,
       first_name: member.first_name,
       last_name: member.last_name,
+      gender: p?.gender ?? '',
       name: member.name,
       licence: member.licence !== '-' ? member.licence : '',
       email: member.email,
@@ -424,7 +426,7 @@ async function openMemberModal(member: AdherentWithRoles | null = null) {
   } else {
     editMode.value = false
     memberForm.value = {
-      id: '', first_name: '', last_name: '', name: '',
+      id: '', first_name: '', last_name: '', gender: '', name: '',
       licence: '', email: '', phone: '', mobile: '',
       formule: 'Aucune licence', creneau: '-',
       status: 'Actif', roles: [], groupIds: [], linkedChildren: [],
@@ -458,6 +460,7 @@ async function saveMember() {
         phone: memberForm.value.phone || null,
         mobile: memberForm.value.mobile || null,
         birth_date: memberForm.value.birth_date || null,
+        gender: memberForm.value.gender || null,
         status: memberForm.value.status,
         licence_number: memberForm.value.licence && memberForm.value.licence !== '-'
           ? parseInt(memberForm.value.licence) : null,
@@ -500,6 +503,7 @@ async function saveMember() {
           phone: memberForm.value.phone || null,
           mobile: memberForm.value.mobile || null,
           birth_date: memberForm.value.birth_date || null,
+          gender: memberForm.value.gender || null,
           status: memberForm.value.status,
           licence: memberForm.value.licence || null,
           formule: memberForm.value.formule || null,

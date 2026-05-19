@@ -74,6 +74,15 @@
           </UFormField>
         </div>
 
+        <UFormField label="Sexe">
+          <USelect
+            v-model="form.gender"
+            :items="[{ label: 'Homme', value: 'M' }, { label: 'Femme', value: 'F' }]"
+            placeholder="Non renseigné"
+            class="w-full"
+          />
+        </UFormField>
+
         <UFormField label="Type de licence">
           <USelect v-model="form.formule" :items="licenceTypeOptions" class="w-full" />
         </UFormField>
@@ -261,6 +270,7 @@ const props = defineProps<{
     id: string
     first_name: string
     last_name: string
+    gender: string
     name: string
     licence: string
     email: string
