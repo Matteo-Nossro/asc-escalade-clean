@@ -1,18 +1,19 @@
 // composables/usePosts.ts
 import type { Post } from '~/types/post'
 
-export const usePosts = () => {
+export const usePosts = (versionOverride?: 'draft' | 'published') => {
   const storyblokApi = useStoryblokApi()
+  const version: 'draft' | 'published' = versionOverride
+    ?? ((useRuntimeConfig().public.storyblokVersion as 'draft' | 'published') || 'published')
 
   const getPosts = async (type?: 'sortie' | 'actualite'): Promise<Post[]> => {
     const params: Record<string, any> = {
-      version: (useRuntimeConfig().public.storyblokVersion as 'draft' | 'published') || 'published',
+      version,
       starts_with: 'posts/',
       sort_by: 'content.date:desc',
       per_page: 100
     }
 
-    // Filtre par type directement dans la requête Storyblok
     if (type) {
       params.filter_query = {
         type: { in: type }
@@ -27,7 +28,7 @@ export const usePosts = () => {
       type: story.content.type,
       title: story.content.title,
       excerpt: story.content.excerpt,
-      content: renderRichText(story.content.content), // rich text → HTML
+      content: renderRichText(story.content.content),
       image: story.content.image?.filename ?? '',
       category: story.content.category,
       date: story.content.date,
@@ -49,7 +50,7 @@ export const usePosts = () => {
   const getPostBySlug = async (slug: string): Promise<Post | null> => {
     try {
       const { data } = await storyblokApi.get(`cdn/stories/posts/${slug}`, {
-        version: (useRuntimeConfig().public.storyblokVersion as 'draft' | 'published') || 'published',
+        version,
       })
       const story = data.story
       return {
@@ -75,7 +76,8 @@ export const usePosts = () => {
         featured: story.content.featured ?? false,
         eventDate: story.content.eventDate
       }
-    } catch {
+    } catch (e) {
+      console.error('[usePosts] getPostBySlug error:', e)
       return null
     }
   }
