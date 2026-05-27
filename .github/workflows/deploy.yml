@@ -16,6 +16,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Libérer espace disque
+        run: docker system prune -af --volumes
+
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
@@ -58,4 +61,4 @@ jobs:
 
       - name: Nettoyage
         if: always()
-        run: docker image prune -f
+        run: docker system prune -f
