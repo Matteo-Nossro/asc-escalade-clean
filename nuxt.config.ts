@@ -5,7 +5,17 @@ import mkcert from "vite-plugin-mkcert";
 const isDev = process.env.NODE_ENV === 'development'
 
 export default defineNuxtConfig({
-  modules: ['@nuxt/ui', '@storyblok/nuxt', '@nuxt/image', '@nuxtjs/supabase'],
+  modules: ['@nuxt/ui', '@storyblok/nuxt', '@nuxt/image', '@nuxtjs/supabase', '@nuxtjs/sitemap'],
+
+  site: {
+    url: process.env.NUXT_PUBLIC_SITE_URL || 'https://asc-escalade.fr',
+    name: 'ASC Escalade',
+  },
+
+  sitemap: {
+    sources: ['/api/__sitemap__/urls'],
+    exclude: ['/login', '/callback', '/admin/**'],
+  },
 
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
@@ -87,14 +97,41 @@ export default defineNuxtConfig({
 
   routeRules: {
     // Pages de contenu Storyblok — ISR avec revalidation on-demand via Netlify
-    '/': { isr: true },
-    '/club': { isr: true },
-    '/tarifs': { isr: true },
-    '/contact': { isr: true },
-    '/sorties': { isr: true },
-    '/actualites': { isr: true },
-    '/posts/**': { isr: true },
-    // Pages dynamiques (admin, login, profil…) — pas d'ISR
+    '/': { isr: true, sitemap: { priority: 1.0, changefreq: 'weekly' } },
+    '/club': { isr: true, sitemap: { priority: 0.8, changefreq: 'monthly' } },
+    '/tarifs': { isr: true, sitemap: { priority: 0.8, changefreq: 'monthly' } },
+    '/contact': { isr: true, sitemap: { priority: 0.8, changefreq: 'monthly' } },
+    '/sorties': { isr: true, sitemap: { priority: 0.8, changefreq: 'monthly' } },
+    '/actualites': { isr: true, sitemap: { priority: 0.8, changefreq: 'monthly' } },
+    '/posts/**': { isr: true, sitemap: { priority: 0.6, changefreq: 'never' } },
+    // Redirections 301 — restructuration URLs de l'ancien site (nouveaux chemins)
+    '/actualites/**': { redirect: { to: '/posts/**', statusCode: 301 } },
+    '/sorties/**': { redirect: { to: '/posts/**', statusCode: 301 } },
+    // Redirections 301 — ancien site www.escalade-chevigny.fr → pages club
+    '/le-club-p21.html': { redirect: { to: '/club', statusCode: 301 } },
+    '/presentation-p35.html': { redirect: { to: '/club', statusCode: 301 } },
+    '/le-staff-p33.html': { redirect: { to: '/club', statusCode: 301 } },
+    '/lebureau-p31.html': { redirect: { to: '/club', statusCode: 301 } },
+    '/le-mur-p24.html': { redirect: { to: '/club', statusCode: 301 } },
+    '/evolutiondumur-p36.html': { redirect: { to: '/club', statusCode: 301 } },
+    '/anneespassees-p37.html': { redirect: { to: '/club', statusCode: 301 } },
+    '/l-asc-escalade-est-labellise-ffme-sport-sante-p27.html': { redirect: { to: '/club', statusCode: 301 } },
+    '/reglement-p38.html': { redirect: { to: '/club', statusCode: 301 } },
+    '/violences-p40.html': { redirect: { to: '/club', statusCode: 301 } },
+    // Redirections 301 — ancien site → tarifs
+    '/tarifs-inscription-p29.html': { redirect: { to: '/tarifs', statusCode: 301 } },
+    '/horaires-des-entrainements-p32.html': { redirect: { to: '/tarifs', statusCode: 301 } },
+    // Redirections 301 — ancien site → contact
+    '/nous-contacter-p1.html': { redirect: { to: '/contact', statusCode: 301 } },
+    '/plan-d-acces-p2.html': { redirect: { to: '/contact', statusCode: 301 } },
+    // Redirections 301 — ancien site → sorties
+    '/sorties-falaise-pour-les-adultes-asc-escalade-p26.html': { redirect: { to: '/sorties', statusCode: 301 } },
+    // Redirections 301 — ancien site → actualités (liste + pagination)
+    '/actualites-p6.html': { redirect: { to: '/actualites', statusCode: 301 } },
+    // Pages non indexées
+    '/login': { sitemap: false },
+    '/callback': { sitemap: false },
+    '/admin/**': { sitemap: false },
     // En-têtes de sécurité sur toutes les routes publiques
     '/**': {
       headers: {
@@ -115,7 +152,8 @@ export default defineNuxtConfig({
     storyblokWebhookSecret: process.env.STORYBLOK_WEBHOOK_SECRET || '',
     resendApiKey: process.env.RESEND_API_KEY || '',
     public: {
-      storyblokVersion: process.env.STORYBLOK_VERSION || 'published'
+      storyblokVersion: process.env.STORYBLOK_VERSION || 'published',
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://asc-escalade.fr',
     }
   },
 

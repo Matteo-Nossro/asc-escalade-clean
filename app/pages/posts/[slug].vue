@@ -410,11 +410,18 @@ const getDifficultyColor = (difficulty?: string) => {
   return colors[difficulty] || '#6B7280'
 }
 
+const postType = (story.value.content.type ?? 'actualite') as 'actualite' | 'sortie'
+
 useSeo({
   title: p.value?.title,
   description: p.value?.excerpt,
   image: p.value?.image,
   type: 'article',
+  postType,
+  eventDate: p.value?.eventDate ?? null,
+  location: p.value?.location ?? null,
+  author: p.value?.author?.name ?? null,
+  publishedAt: p.value?.date ?? null,
 })
 </script>
 
