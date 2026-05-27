@@ -49,7 +49,7 @@
                   class="font-bold px-3 py-1"
                   :color="getCategoryColor(event.category)"
                 />
-                <span class="text-sm text-gray-400 flex items-center gap-1.5 font-medium">
+                <span v-if="event.time" class="text-sm text-gray-400 flex items-center gap-1.5 font-medium">
                   <UIcon name="i-heroicons-clock" class="w-4 h-4" />
                   {{ event.time }}
                 </span>
@@ -148,11 +148,20 @@ const getMonthShort = (dateString) => {
 }
 
 const getCategoryColor = (category) => {
-  switch (category) {
-    case 'Vie du club': return 'primary'
-    case 'Sortie': return 'warning'
-    case 'Compétition': return 'error'
-    default: return 'neutral'
+  const map = {
+    'Compétition': 'error',
+    'Sortie Falaise': 'warning',
+    'Falaise': 'warning',
+    'Bloc': 'warning',
+    'Stage': 'secondary',
+    'Climb Up': 'warning',
+    'Cime Altitude': 'info',
+    'Événement': 'primary',
+    'Club': 'primary',
+    'Infrastructure': 'success',
+    'Formation': 'secondary',
+    'Vie du club': 'primary',
   }
+  return map[category] ?? 'neutral'
 }
 </script>
