@@ -1,6 +1,10 @@
 // composables/usePosts.ts
 import type { Post } from '~/types/post'
 
+// NB : le rendu rich-text (renderRichText) tire tout l'éditeur Storyblok (~250 Ko).
+// Les vues liste (accueil, actualités, sorties) n'affichent que titre/excerpt/image :
+// on ne rend donc PAS `content` ici. Le corps d'article est rendu dans posts/[slug].vue.
+
 export const usePosts = (versionOverride?: 'draft' | 'published') => {
   const storyblokApi = useStoryblokApi()
   const version: 'draft' | 'published' = versionOverride
@@ -28,7 +32,7 @@ export const usePosts = (versionOverride?: 'draft' | 'published') => {
       type: story.content.type,
       title: story.content.title,
       excerpt: story.content.excerpt,
-      content: renderRichText(story.content.content),
+      content: '',
       image: story.content.image?.filename ?? '',
       category: story.content.category,
       date: story.content.date,
@@ -59,7 +63,7 @@ export const usePosts = (versionOverride?: 'draft' | 'published') => {
         type: story.content.type,
         title: story.content.title,
         excerpt: story.content.excerpt,
-        content: renderRichText(story.content.content),
+        content: '',
         image: story.content.image?.filename ?? '',
         category: story.content.category,
         date: story.content.date,

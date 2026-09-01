@@ -16,6 +16,8 @@
           ${blok.backgroundImage.filename}/m/1920x1080/filters:quality(70):format(webp) 1920w
         `"
         sizes="100vw"
+        width="1920"
+        height="1080"
         :alt="blok.backgroundImage.alt || 'Hero background'"
         fetchpriority="high"
         loading="eager"
@@ -32,6 +34,8 @@
           https://images.unsplash.com/photo-1516592673884-4a382d1124c2?q=70&w=1920&auto=format&fit=crop&fm=webp 1920w
         "
         sizes="100vw"
+        width="1920"
+        height="1080"
         alt="Mur d'escalade intérieur"
         fetchpriority="high"
         loading="eager"
@@ -156,14 +160,18 @@ const zigzagRef = ref<SVGPathElement | null>(null)
 const particles = ref<(HTMLElement | null)[]>([])
 
 onMounted(async () => {
+  // Respecte la préférence système « animations réduites » : aucune animation d'entrée.
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
   const { gsap } = await import('gsap')
 
-  // gsap.from() : les éléments partent de leur état naturel (visible) → LCP capturé avant l'animation
   const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
 
+  // Titre + sous-titre = candidats LCP : jamais masqués (pas de fondu), juste un léger
+  // glissement. Ils comptent donc comme peints dès le premier rendu.
   tl.from(surtitleRef.value, { opacity: 0, y: 30, duration: 0.8, delay: 0.3 })
-    .from(titleRef.value, { opacity: 0, y: 30, duration: 1 }, '-=0.5')
-    .from(subtitleRef.value, { opacity: 0, y: 30, duration: 0.8 }, '-=0.6')
+    .from(titleRef.value, { y: 24, duration: 0.9 }, '-=0.5')
+    .from(subtitleRef.value, { y: 20, duration: 0.8 }, '-=0.6')
     .from(buttonsRef.value, { opacity: 0, y: 30, duration: 0.8 }, '-=0.4')
     .from(scrollIndicatorRef.value, { opacity: 0, duration: 0.5 }, '-=0.2')
 
