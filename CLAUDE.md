@@ -32,7 +32,12 @@ Site Nuxt 4 + Storyblok pour le club d'escalade ASC Escalade (Chevigny-Saint-Sau
 | Bleu nuit (fond, textes) | `#0F1729` |
 | Vert (accent, icônes, CTA) | `#7FD857` |
 
-## Docs détaillées
-- [Architecture & routing](docs/architecture.md)
-- [Catalogue des bloks Storyblok](docs/storyblok.md)
-- [Conventions de code & pièges](docs/conventions.md)
+## Docs détaillées — lire à la demande selon le contexte
+
+| Fichier | Lire quand… |
+|---|---|
+| [docs/architecture.md](docs/architecture.md) | routing, middleware auth, composables, structure dossiers, API server, flux Storyblok |
+| [docs/conventions.md](docs/conventions.md) | créer/modifier un composant, GSAP, images, composables disponibles, composants admin |
+| [docs/storyblok.md](docs/storyblok.md) | ajouter/modifier un blok Storyblok, champs disponibles, technical names |
+| [docs/database.md](docs/database.md) | schéma SQL Supabase, colonnes, contraintes, relations entre tables |
+| [docs/test-plan.md](docs/test-plan.md) | tests, bugs connus (BUG #1 saveMember, BUG #2 toggleStatus), scénarios QA |

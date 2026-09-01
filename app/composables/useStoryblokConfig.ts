@@ -1,14 +1,14 @@
-export const useSiteConfig = async () => {
+export const useStoryblokConfig = () => {
   const storyblokApi = useStoryblokApi()
-  
-  const { data } = await useAsyncData('site-config', async () => {
+
+  const { data } = useAsyncData('storyblok-site-config', async () => {
     try {
       const response = await storyblokApi.get('cdn/stories/global/site-config', {
         version: (useRuntimeConfig().public.storyblokVersion as 'draft' | 'published') || 'published',
       })
       return response.data.story?.content || null
     } catch (e) {
-      // Silencieux → le header/footer affichera les valeurs par défaut
+      console.warn('[useStoryblokConfig] fetch failed:', e)
       return null
     }
   })

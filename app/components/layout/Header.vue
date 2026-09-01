@@ -5,7 +5,11 @@
       <!-- Logo -->
       <NuxtLink to="/" class="header__logo">
         <template v-if="config?.logo_image?.filename">
-          <img :src="config.logo_image.filename" :alt="config.logo_text_top || 'Logo'" class="h-11 w-auto object-contain" />
+          <img :src="config.logo_image.filename" :alt="config.logo_text_top || 'Logo'" width="154" height="44" class="h-11 w-auto object-contain" />
+          <div class="header__logo-text">
+            <span class="header__logo-vertical">{{ config?.logo_text_top || 'ASC' }}</span>
+            <span class="header__logo-pulse">{{ config?.logo_text_bottom || 'ESCALADE' }}</span>
+          </div>
         </template>
         <template v-else>
           <div class="header__logo-icon">
@@ -33,19 +37,37 @@
 
       <!-- Actions -->
       <div class="header__actions">
-        <UButton
-          to="/login"
-          color="neutral"
-          variant="solid"
-          size="md"
-          label="Connexion"
-          icon="i-heroicons-user"
-          class="header__btn-login"
-        />
+        <!-- NON CONNECTÉ -->
+        <template v-if="!isLoggedIn">
+          <UButton
+            to="/login"
+            color="neutral"
+            variant="solid"
+            size="md"
+            label="Connexion"
+            icon="i-heroicons-user"
+            class="header__btn-login"
+          />
+        </template>
+
+        <!-- CONNECTÉ : dropdown (desktop uniquement) -->
+        <template v-else-if="isDesktop">
+          <UDropdownMenu :items="userMenuItems" class="header__user-menu">
+            <UButton color="neutral" variant="ghost" size="md" class="header__btn-user">
+              <div class="header__avatar">{{ initials }}</div>
+              <span class="header__user-name">{{ displayName }}</span>
+              <UIcon name="i-heroicons-chevron-down" class="w-4 h-4 opacity-60" />
+            </UButton>
+          </UDropdownMenu>
+        </template>
+
+        <!-- Burger (inchangé) -->
         <UButton
           color="neutral"
           variant="ghost"
           icon="i-heroicons-bars-3"
+          aria-label="Ouvrir le menu"
+          :aria-expanded="isMobileMenuOpen"
           class="header__burger"
           @click="openMobileMenu"
         />
@@ -87,6 +109,10 @@
               <div class="flex items-center gap-3">
                 <template v-if="config?.logo_image?.filename">
                   <img :src="config.logo_image.filename" class="h-8 w-auto object-contain" />
+                  <div class="header__logo-text">
+                    <span class="header__logo-vertical">{{ config?.logo_text_top || 'ASC' }}</span>
+                    <span class="header__logo-pulse">{{ config?.logo_text_bottom || 'ESCALADE' }}</span>
+                  </div>
                 </template>
                 <template v-else>
                   <div class="header__logo-text">
@@ -99,6 +125,7 @@
                 color="neutral"
                 variant="ghost"
                 icon="i-heroicons-x-mark-20-solid"
+                aria-label="Fermer le menu"
                 @click="closeMobileMenu"
               />
             </div>
@@ -118,22 +145,52 @@
                   <span class="font-medium flex-1">{{ link.label }}</span>
                   <UIcon name="i-heroicons-chevron-right" class="w-5 h-5 flex-shrink-0 opacity-50" />
                 </NuxtLink>
+                <!-- Liens membre si connecté -->
+                <template v-if="isLoggedIn">
+                  <div class="border-t border-gray-200 my-2"></div>
+                  <NuxtLink to="/profil" class="mobile-nav-link" @click="handleMenuClick">
+                    <UIcon name="i-heroicons-user" class="w-5 h-5 flex-shrink-0" />
+                    <span class="font-medium flex-1">Mon profil</span>
+                    <UIcon name="i-heroicons-chevron-right" class="w-5 h-5 flex-shrink-0 opacity-50" />
+                  </NuxtLink>
+                  <NuxtLink to="/mes-inscriptions" class="mobile-nav-link" @click="handleMenuClick">
+                    <UIcon name="i-heroicons-calendar" class="w-5 h-5 flex-shrink-0" />
+                    <span class="font-medium flex-1">Mes inscriptions</span>
+                    <UIcon name="i-heroicons-chevron-right" class="w-5 h-5 flex-shrink-0 opacity-50" />
+                  </NuxtLink>
+                  <NuxtLink v-if="isStaff" to="/admin/dashboard" class="mobile-nav-link" @click="handleMenuClick">
+                    <UIcon name="i-heroicons-cog-6-tooth" class="w-5 h-5 flex-shrink-0" />
+                    <span class="font-medium flex-1">Administration</span>
+                    <UIcon name="i-heroicons-chevron-right" class="w-5 h-5 flex-shrink-0 opacity-50" />
+                  </NuxtLink>
+                </template>
               </div>
             </nav>
 
             <!-- Footer du menu mobile -->
             <div class="p-4 border-t border-gray-200">
-              <UButton
-                to="/login"
-                color="neutral"
-                variant="solid"
-                size="xl"
-                label="Connexion"
-                icon="i-heroicons-user"
-                block
-                class="bg-[#0F1729] text-white hover:bg-[#1a2740]"
-                @click="handleMenuClick"
-              />
+              <template v-if="!isLoggedIn">
+                <UButton
+                  to="/login" color="neutral" variant="solid" size="xl"
+                  label="Connexion" icon="i-heroicons-user" block
+                  class="bg-[#0F1729] text-white hover:bg-[#1a2740]"
+                  @click="handleMenuClick"
+                />
+              </template>
+              <template v-else>
+                <div class="flex items-center gap-3 mb-3 px-1">
+                  <div class="header__avatar">{{ initials }}</div>
+                  <div class="flex-1 min-w-0">
+                    <p class="font-medium text-gray-900 truncate">{{ displayName }}</p>
+                    <p class="text-xs text-gray-500 truncate">{{ profile?.email }}</p>
+                  </div>
+                </div>
+                <UButton
+                  color="neutral" variant="soft" size="xl"
+                  label="Déconnexion" icon="i-heroicons-arrow-right-on-rectangle"
+                  block @click="handleLogout"
+                />
+              </template>
             </div>
           </div>
         </Transition>
@@ -150,10 +207,8 @@ const isMobileMenuOpen = ref(false)
 const { isDesktop } = useBreakpoints()
 
 // ✅ Un seul appel via le composable partagé
-const configData = await useSiteConfig()
+const configData = useStoryblokConfig()
 const config = computed(() => configData.value)
-
-const navigationLinks = computed(() => config.value?.nav_links || [])
 
 const resolveLink = (linkObj) => {
   if (!linkObj) return '#'
@@ -162,6 +217,27 @@ const resolveLink = (linkObj) => {
   }
   return linkObj.url || '#'
 }
+
+// Page codée (hors CMS) : on l'injecte dans la nav Storyblok tant qu'elle n'y est
+// pas ajoutée manuellement. Placée juste après « Tarifs » si présent.
+const INSCRIPTIONS_LINK = {
+  _uid: 'static-inscriptions',
+  label: 'Inscriptions',
+  icon: 'i-heroicons-pencil-square',
+  link: { linktype: 'story', cached_url: 'inscriptions' },
+}
+
+const navigationLinks = computed(() => {
+  const links = [...(config.value?.nav_links || [])]
+  const path = (l) => resolveLink(l.link).replace(/\/$/, '')
+  if (links.some((l) => path(l) === '/inscriptions')) return links
+
+  const tarifsIdx = links.findIndex((l) => /tarif/i.test(path(l)))
+  const contactIdx = links.findIndex((l) => /contact/i.test(path(l)))
+  const at = tarifsIdx >= 0 ? tarifsIdx + 1 : contactIdx >= 0 ? contactIdx : links.length
+  links.splice(at, 0, INSCRIPTIONS_LINK)
+  return links
+})
 
 const openMobileMenu = () => {
   isMobileMenuOpen.value = true
@@ -190,6 +266,49 @@ onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
   if (process.client) document.body.style.overflow = ''
 })
+
+// ✅ NOUVEAU : Auth
+const { isLoggedIn, displayName, initials, isStaff, profile, logout, fetchProfile } = useAuth()
+
+onMounted(async () => {
+  window.addEventListener('scroll', handleScroll)
+  if (isLoggedIn.value) {
+    await fetchProfile()
+  }
+})
+
+const userMenuItems = computed(() => {
+  const items = [
+    [{
+      label: 'Mon profil',
+      icon: 'i-heroicons-user',
+      to: '/profil',
+    }],
+    [{
+      label: 'Mes inscriptions',
+      icon: 'i-heroicons-calendar',
+      to: '/mes-inscriptions',
+    }],
+  ]
+  if (isStaff.value) {
+    items.push([{
+      label: 'Administration',
+      icon: 'i-heroicons-cog-6-tooth',
+      to: '/admin/dashboard',
+    }])
+  }
+  items.push([{
+    label: 'Déconnexion',
+    icon: 'i-heroicons-arrow-right-on-rectangle',
+    onSelect: () => handleLogout(),
+  }])
+  return items
+})
+
+const handleLogout = async () => {
+  closeMobileMenu()
+  await logout()
+}
 </script>
 
 <style lang="scss" scoped>
@@ -235,7 +354,7 @@ onUnmounted(() => {
   &__logo-text {
     display: flex;
     flex-direction: column;
-    line-height: 1.1;
+    line-height: 1.3;
   }
 
   &__logo-vertical {
@@ -248,7 +367,7 @@ onUnmounted(() => {
   &__logo-pulse {
     font-size: 1.05rem;
     font-weight: 300;
-    color: #7FD857;
+    color: var(--vp-green-text);
     letter-spacing: 0.5px;
   }
 
@@ -268,10 +387,10 @@ onUnmounted(() => {
     transition: color 0.2s ease;
     padding: 0.5rem 0;
 
-    &:hover { color: #7FD857; }
+    &:hover { color: var(--vp-green-text); }
 
     &--active {
-      color: #7FD857;
+      color: var(--vp-green-text);
       &::after {
         content: '';
         position: absolute;
@@ -293,12 +412,44 @@ onUnmounted(() => {
     background-color: #0F1729;
     color: white;
     &:hover { background-color: #1a2740; }
-    @media (max-width: 768px) { display: none; }
+    @media (max-width: 1024px) { display: none; }
   }
 
   &__burger {
     display: none;
     @media (max-width: 1024px) { display: flex; }
+  }
+  &__btn-user {
+    @media (max-width: 1024px) { display: none; }
+  }
+
+  &__user-menu {
+    @media (max-width: 1024px) { display: none; }
+  }
+
+
+  &__avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #7FD857;
+    color: #0F1729;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  &__user-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #0F1729;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
@@ -318,8 +469,8 @@ onUnmounted(() => {
 
   &--active {
     background: #F0FDF4;
-    span { color: #7FD857; font-weight: 600; }
-    svg { color: #7FD857; }
+    span { color: var(--vp-green-text); font-weight: 600; }
+    svg { color: var(--vp-green-text); }
   }
 }
 </style>

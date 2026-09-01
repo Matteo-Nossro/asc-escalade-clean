@@ -1,0 +1,15 @@
+services:
+  asc-escalade:
+    build:
+      context: .
+      args:
+        SUPABASE_URL: ${SUPABASE_URL}
+        SUPABASE_KEY: ${SUPABASE_KEY}
+        STORYBLOK_TOKEN: ${STORYBLOK_TOKEN}
+        STORYBLOK_VERSION: ${STORYBLOK_VERSION:-published}
+        STORYBLOK_REGION: ${STORYBLOK_REGION:-eu}
+    container_name: asc-escalade
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file: .env.prod

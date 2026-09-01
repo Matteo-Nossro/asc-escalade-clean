@@ -32,6 +32,16 @@
 					</div>
 				</div>
 			</div>
+
+			<!-- Load More -->
+			<div v-if="hasMore" class="mt-12 flex justify-center">
+				<button
+					@click="loadMore"
+					class="px-8 py-3 bg-[#0F1729] text-white font-bold rounded-full hover:bg-[#7FD857] hover:text-[#0F1729] transition-all duration-300 cursor-pointer"
+				>
+					Voir plus de photos
+				</button>
+			</div>
 		</UContainer>
 
 		<Teleport to="body">
@@ -77,9 +87,15 @@ const props = defineProps({
 
 const isOpen = ref(false)
 const selectedPhoto = ref(null)
+const visibleCount = ref(8)
 
-// blok.photos est un champ Multi-Asset Storyblok
-const photos = computed(() => props.blok.photos || [])
+const allPhotos = computed(() => props.blok.photos || [])
+const photos = computed(() => allPhotos.value.slice(0, visibleCount.value))
+const hasMore = computed(() => visibleCount.value < allPhotos.value.length)
+
+const loadMore = () => {
+	visibleCount.value += 8
+}
 
 const openLightbox = (photo) => {
 	selectedPhoto.value = photo

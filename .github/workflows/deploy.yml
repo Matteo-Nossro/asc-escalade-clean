@@ -1,0 +1,64 @@
+name: Deploy
+
+on:
+  push:
+    branches: [dev]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Libérer espace disque
+        run: docker system prune -af --volumes
+
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build & Push image
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          STORYBLOK_TOKEN: ${{ secrets.STORYBLOK_TOKEN }}
+          STORYBLOK_WEBHOOK_SECRET: ${{ secrets.STORYBLOK_WEBHOOK_SECRET }}
+        run: |
+          docker build \
+            --no-cache \
+            --build-arg SUPABASE_URL="$SUPABASE_URL" \
+            --build-arg SUPABASE_KEY="$SUPABASE_KEY" \
+            --build-arg SUPABASE_SECRET_KEY="$SUPABASE_SECRET_KEY" \
+            --build-arg STORYBLOK_TOKEN="$STORYBLOK_TOKEN" \
+            --build-arg STORYBLOK_VERSION=published \
+            --build-arg STORYBLOK_REGION=eu \
+            --build-arg STORYBLOK_WEBHOOK_SECRET="$STORYBLOK_WEBHOOK_SECRET" \
+            -t ghcr.io/matteo-nossro/asc-escalade-clean:latest .
+          docker push ghcr.io/matteo-nossro/asc-escalade-clean:latest
+
+      - name: Deploy via Portainer API
+        run: |
+          STACK_ID=$(curl -s \
+            -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
+            ${{ secrets.PORTAINER_URL }}/api/stacks | \
+            jq -r '.[] | select(.Name=="asc-escalade") | .Id')
+
+          curl -sk -X POST \
+            -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
+            "${{ secrets.PORTAINER_URL }}/api/stacks/$STACK_ID/images/pull?endpointId=1"
+
+          curl -sk -X PUT \
+            -H "X-API-Key: ${{ secrets.PORTAINER_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"pullImage": true, "prune": false}' \
+            "${{ secrets.PORTAINER_URL }}/api/stacks/$STACK_ID?endpointId=1"
+
+      - name: Nettoyage
+        if: always()
+        run: docker system prune -f

@@ -24,7 +24,11 @@
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
-# Redirections si besoin
+# Redirections de la migration ancien site (www.escalade-chevigny.fr, URLs en .html) :
+# gérées côté application dans server/middleware/legacy-redirects.ts
+# (motifs + filet de sécurité impossibles à exprimer ici en règles statiques).
+#
+# Redirections ponctuelles éventuelles :
 # [[redirects]]
 #   from = "/ancien-chemin"
 #   to = "/nouveau-chemin"

@@ -22,3 +22,10 @@ logs
 .env
 .env.*
 !.env.example
+.storyblok/*
+.claude
+
+# Playwright
+.auth/
+playwright-report/
+test-results/

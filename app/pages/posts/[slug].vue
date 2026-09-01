@@ -1,108 +1,5 @@
-<script setup lang="ts">
-import type { Post } from '~/types/post'
-import Tag from '~/components/ui/Tag.vue'
-
-const route = useRoute()
-const slug = route.params.slug as string
-
-const { getPostBySlug, getPosts } = usePosts()
-
-const { data: post } = await useAsyncData(`post-${slug}`, () => getPostBySlug(slug))
-
-if (!post.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Article non trouvé' })
-}
-
-const p = computed(() => post.value!)
-
-const allPosts = await getPosts(p.value.type)
-
-const relatedPosts = computed(() =>
-  allPosts.filter(pp => pp.id !== p.value.id).slice(0, 3)
-)
-
-const currentIndex = allPosts.findIndex(pp => pp.id === p.value.id)
-const previousPost = computed(() => currentIndex > 0 ? allPosts[currentIndex - 1] : null)
-const nextPost = computed(() => currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null)
-
-const { isMobile } = useBreakpoints()
-const isExpanded = ref(false)
-const contentRef = ref<HTMLElement | null>(null)
-const showReadMore = ref(false)
-const contentHeight = ref(0)
-
-onMounted(() => {
-  if (contentRef.value && isMobile.value) {
-    const fullHeight = contentRef.value.scrollHeight
-    const lineHeight = 24
-    const maxHeight = lineHeight * 20
-
-    if (fullHeight > maxHeight) {
-      showReadMore.value = true
-      contentHeight.value = maxHeight
-    }
-  }
-})
-
-const toggleContent = () => {
-  isExpanded.value = !isExpanded.value
-  if (!isExpanded.value && contentRef.value) {
-    setTimeout(() => {
-      contentRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }, 300)
-  }
-}
-
-const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  })
-}
-
-const getCategoryColor = (category: string) => {
-  const colors: Record<string, string> = {
-    'Falaise': '#7FD857',
-    'Bloc': '#4ECDC4',
-    'Stage': '#9333EA',
-    'Climb Up': '#F97316',
-    'Cime Altitude': '#2563EB',
-    'Infrastructure': '#7FD857',
-    'Compétition': '#EF4444',
-    'Événement': '#F59E0B',
-    'Club': '#3B82F6',
-    'Formation': '#8B5CF6',
-    'Partenariat': '#10B981'
-  }
-  return colors[category] || '#7FD857'
-}
-
-const getDifficultyColor = (difficulty?: string) => {
-  if (!difficulty) return '#6B7280'
-  const colors: Record<string, string> = {
-    'Tous niveaux': '#10B981',
-    'Débutant': '#10B981',
-    'Intermédiaire': '#F59E0B',
-    'Confirmé': '#EF4444',
-    'Expert': '#7C3AED'
-  }
-  return colors[difficulty] || '#6B7280'
-}
-
-useHead({
-  title: p.value.title,
-  meta: [
-    { name: 'description', content: p.value.excerpt },
-    { property: 'og:title', content: p.value.title },
-    { property: 'og:description', content: p.value.excerpt },
-    { property: 'og:image', content: p.value.image },
-  ]
-})
-</script>
-
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div v-if="p" class="min-h-screen bg-gray-50">
     <!-- Hero avec image -->
     <div class="relative h-[60vh] overflow-hidden">
       <img
@@ -381,6 +278,152 @@ useHead({
 
   </div>
 </template>
+<script setup lang="ts">
+import type { Post } from '~/types/post'
+import Tag from '~/components/ui/Tag.vue'
+import { useSeo } from '../../composables/useSeo'
+import { useStoryblokCacheTag } from '../../composables/useStoryblokCacheTag'
+import { computed, ref, onMounted } from 'vue'
+
+const route = useRoute()
+const slug = route.params.slug as string
+const isInEditor = !!route.query._storyblok
+
+// useAsyncStoryblok utilise le bridge Storyblok (postMessage) en mode éditeur,
+// ce qui permet d'afficher les drafts sans avoir besoin d'un preview token CDN.
+const { story } = await useAsyncStoryblok(
+  `posts/${slug}`,
+  {
+    api: { version: isInEditor ? 'draft' : 'published' },
+    bridge: {},
+  },
+)
+
+if (!story.value) {
+  throw createError({ statusCode: 404, message: 'Article non trouvé', fatal: true })
+}
+
+useStoryblokCacheTag(`posts/${slug}`)
+
+const mapStoryToPost = (s: any): Post => ({
+  id: s.id,
+  slug: s.slug,
+  type: s.content.type ?? 'actualite',
+  title: s.content.title,
+  excerpt: s.content.excerpt,
+  content: renderRichText(s.content.content),
+  image: s.content.image?.filename ?? '',
+  category: s.content.category,
+  date: s.content.date,
+  author: {
+    name: s.content.authorName ?? '',
+    avatar: s.content.authorAvatar ?? ''
+  },
+  tags: s.content.tags ?? [],
+  location: s.content.location,
+  maxParticipants: s.content.maxParticipants,
+  currentParticipants: s.content.currentParticipants,
+  price: s.content.price,
+  difficulty: s.content.difficulty,
+  featured: s.content.featured ?? false,
+  eventDate: s.content.eventDate
+})
+
+// p est réactif au bridge : les changements dans l'éditeur Storyblok se reflètent en temps réel
+const p = computed(() => story.value ? mapStoryToPost(story.value) : null)
+
+const { getPosts } = usePosts(isInEditor ? 'draft' : undefined)
+const allPosts = await getPosts((story.value.content.type ?? 'actualite') as 'sortie' | 'actualite')
+
+const relatedPosts = computed(() =>
+  p.value ? allPosts.filter(pp => pp.id !== p.value!.id).slice(0, 3) : []
+)
+
+const currentIndex = computed(() =>
+  p.value ? allPosts.findIndex(pp => pp.id === p.value!.id) : -1
+)
+const previousPost = computed(() => currentIndex.value > 0 ? allPosts[currentIndex.value - 1] : null)
+const nextPost = computed(() => currentIndex.value < allPosts.length - 1 ? allPosts[currentIndex.value + 1] : null)
+
+const { isMobile } = useBreakpoints()
+const isExpanded = ref(false)
+const contentRef = ref<HTMLElement | null>(null)
+const showReadMore = ref(false)
+const contentHeight = ref(0)
+
+onMounted(() => {
+  if (contentRef.value && isMobile.value) {
+    const fullHeight = contentRef.value.scrollHeight
+    const lineHeight = 24
+    const maxHeight = lineHeight * 20
+
+    if (fullHeight > maxHeight) {
+      showReadMore.value = true
+      contentHeight.value = maxHeight
+    }
+  }
+})
+
+const toggleContent = () => {
+  isExpanded.value = !isExpanded.value
+  if (!isExpanded.value && contentRef.value) {
+    setTimeout(() => {
+      contentRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 300)
+  }
+}
+
+const formatDate = (date: string) => {
+  return new Date(date).toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
+}
+
+const getCategoryColor = (category: string) => {
+  const colors: Record<string, string> = {
+    'Falaise': '#7FD857',
+    'Bloc': '#4ECDC4',
+    'Stage': '#9333EA',
+    'Climb Up': '#F97316',
+    'Cime Altitude': '#2563EB',
+    'Infrastructure': '#7FD857',
+    'Compétition': '#EF4444',
+    'Événement': '#F59E0B',
+    'Club': '#3B82F6',
+    'Formation': '#8B5CF6',
+    'Partenariat': '#10B981'
+  }
+  return colors[category] || '#7FD857'
+}
+
+const getDifficultyColor = (difficulty?: string) => {
+  if (!difficulty) return '#6B7280'
+  const colors: Record<string, string> = {
+    'Tous niveaux': '#10B981',
+    'Débutant': '#10B981',
+    'Intermédiaire': '#F59E0B',
+    'Confirmé': '#EF4444',
+    'Expert': '#7C3AED'
+  }
+  return colors[difficulty] || '#6B7280'
+}
+
+const postType = (story.value.content.type ?? 'actualite') as 'actualite' | 'sortie'
+
+useSeo({
+  title: p.value?.title,
+  description: p.value?.excerpt,
+  image: p.value?.image,
+  type: 'article',
+  postType,
+  eventDate: p.value?.eventDate ?? null,
+  location: p.value?.location ?? null,
+  author: p.value?.author?.name ?? null,
+  publishedAt: p.value?.date ?? null,
+})
+</script>
 
 <style scoped>
 :deep(.prose) { color: #374151; }

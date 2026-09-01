@@ -4,8 +4,29 @@
     <!-- Image de fond -->
     <div class="absolute inset-0 z-0">
       <img
-        :src="blok.backgroundImage?.filename || 'https://images.unsplash.com/photo-1516592673884-4a382d1124c2?q=80&w=2070&auto=format&fit=crop'"
-        :alt="blok.backgroundImage?.alt || 'Mur d\'escalade sombre'"
+        v-if="blok.backgroundImage?.filename"
+        :src="`${blok.backgroundImage.filename}/m/1920x1080/filters:quality(75):format(webp)`"
+        :srcset="`
+          ${blok.backgroundImage.filename}/m/640x360/filters:quality(75):format(webp) 640w,
+          ${blok.backgroundImage.filename}/m/1024x576/filters:quality(75):format(webp) 1024w,
+          ${blok.backgroundImage.filename}/m/1920x1080/filters:quality(75):format(webp) 1920w
+        `"
+        sizes="100vw"
+        :alt="blok.backgroundImage.alt || 'Mur d\'escalade sombre'"
+        loading="lazy"
+        class="w-full h-full object-cover"
+      />
+      <img
+        v-else
+        src="https://images.unsplash.com/photo-1516592673884-4a382d1124c2?q=75&w=1920&auto=format&fit=crop&fm=webp"
+        srcset="
+          https://images.unsplash.com/photo-1516592673884-4a382d1124c2?q=75&w=640&auto=format&fit=crop&fm=webp 640w,
+          https://images.unsplash.com/photo-1516592673884-4a382d1124c2?q=75&w=1024&auto=format&fit=crop&fm=webp 1024w,
+          https://images.unsplash.com/photo-1516592673884-4a382d1124c2?q=75&w=1920&auto=format&fit=crop&fm=webp 1920w
+        "
+        sizes="100vw"
+        alt="Mur d'escalade sombre"
+        loading="lazy"
         class="w-full h-full object-cover"
       />
       <div class="absolute inset-0 bg-[#0F1729]/90 mix-blend-multiply"></div>

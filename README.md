@@ -34,6 +34,11 @@ Copie `.env.example` en `.env` et remplis les valeurs :
 ```env
 STORYBLOK_TOKEN=ton_preview_token
 STORYBLOK_REGION=eu
+SUPABASE_URL=...
+SUPABASE_KEY=...
+SUPABASE_SERVICE_KEY=...
+RESEND_API_KEY=...
+STORYBLOK_WEBHOOK_SECRET=...
 ```
 
 > Le serveur de dev tourne en **HTTPS** (certificat auto-signé via `mkcert`). Storyblok requiert HTTPS pour le Visual Editor.
@@ -60,22 +65,34 @@ npm run preview
 ```
 app/
 ├── components/
-│   └── layout/
-│       ├── Header.vue          # Navigation principale (données depuis Storyblok SiteConfig)
-│       └── Footer.vue          # Pied de page (données depuis Storyblok SiteConfig)
+│   ├── layout/
+│   │   ├── Header.vue          # Navigation responsive (données depuis Storyblok SiteConfig)
+│   │   └── Footer.vue          # Pied de page (données depuis Storyblok SiteConfig)
+│   ├── ui/Tag.vue              # Badge coloré réutilisable
+│   └── admin/                  # Composants dashboard admin (KpiCard, MembersTable, modals…)
 │
 ├── composables/
 │   ├── useBreakpoints.ts       # Détection responsive (isMobile, isDesktop…)
 │   ├── useEvents.ts            # Fetch événements calendrier (posts avec eventDate)
 │   ├── usePosts.ts             # Fetch articles / sorties
-│   └── useSiteConfig.ts        # Fetch config globale (logo, nav, footer)
+│   ├── useSiteConfig.ts        # Fetch config globale (logo, nav, footer)
+│   ├── useSeo.ts               # Balises meta/OG
+│   ├── useStoryblokCacheTag.ts # Headers Netlify-Cache-Tag (SSR)
+│   ├── useAuth.ts              # Auth Supabase, profil, rôles
+│   ├── useFamily.ts            # Liens parent → enfants
+│   ├── useGroups.ts            # Groupes, inscriptions, CRUD admin, N-1
+│   ├── useEventRegistrations.ts # Inscriptions aux événements
+│   └── useEnrollmentRequests.ts # Workflow approbation admin
 │
 ├── pages/
 │   ├── [...slug].vue           # Route principale → rendu via Storyblok
 │   ├── posts/[slug].vue        # Page détail d'un article/sortie
-│   ├── mentions-legales.vue    # Page statique
-│   ├── login.vue               # Authentification
-│   └── callback.vue            # Callback OAuth
+│   ├── login.vue               # Authentification + flux mot de passe oublié
+│   ├── callback.vue            # Callback OAuth / recovery
+│   ├── register.vue            # Inscription publique (stepper 3 étapes)
+│   ├── profil.vue              # Profil utilisateur + enfants + reset mot de passe
+│   ├── mes-inscriptions.vue    # Inscriptions groupes & événements (+ N-1)
+│   └── admin/dashboard.vue     # Dashboard admin (membres, groupes, demandes)
 │
 ├── plugins/
 │   └── storyblok.ts            # Enregistrement de tous les composants Storyblok
@@ -93,7 +110,18 @@ app/
 │   └── SiteConfig.vue          # Content type config globale
 │
 └── types/
-    └── post.ts                 # Type TypeScript Post (article + sortie)
+    ├── post.ts                 # Type TypeScript Post (article + sortie)
+    └── auth.ts                 # Interfaces Supabase (Profile, Group, GroupMember…)
+
+server/api/
+├── contact.post.ts             # Formulaire contact → Resend
+├── register.post.ts            # Inscription publique → profil parent + enfants
+├── add-child.post.ts           # Ajout enfant à un parent connecté
+├── revalidate.post.ts          # Webhook Storyblok → purge cache Netlify
+└── admin/
+    ├── members.get.ts          # Liste membres + export CSV (?exportAll=true)
+    ├── create-member.post.ts   # Création membre via admin
+    └── send-email.post.ts      # Notification email inscription
 ```
 
 ---
@@ -127,11 +155,13 @@ app/
 | Technical name | Description |
 |---|---|
 | `club-hero` | Hero de la page club |
-| `club-histoire` | Histoire du club (richtext + image) |
+| `club-histoire` | Histoire du club (richtext + image + slider avant/après) |
+| `club-timeline` | Frise chronologique GSAP (nestable `club-timeline-step`) |
 | `club-equipe` | Grille des membres |
 | `club-statistiques` | Compteurs animés (bloks nestables `club-stat`) |
 | `club-galerie` | Galerie masonry (champ Multi-Asset) |
 | `club-partenaires` | Marquee de logos partenaires |
+| `club-initiateurs` | Marquee 2 lignes des initiateurs (nestable `club-initiateur`) |
 
 #### Tarifs
 | Technical name | Description |
@@ -140,6 +170,7 @@ app/
 | `tarifs-grille-tarifs` | Tableau des tarifs |
 | `tarifs-planning` | Planning des cours |
 | `tarifs-bon-a-savoir` | Section infos pratiques |
+| `liste-groupe-accordeon` | Accordéon des groupes d'escalade (données Supabase) |
 
 #### Sorties
 | Technical name | Description |
@@ -170,7 +201,9 @@ app/
 | `call-to-action` | Bouton d'appel à l'action |
 | `tabs-section` | Contenu à onglets |
 | `galerie` | Galerie photos (Multi-Asset) |
+| `before-after` | Slider interactif avant/après |
 | `bouton` | Bouton simple |
+| `action-bouton` | Bouton avec lien Storyblok (url, story, asset, email) |
 | `carrousel` | Carrousel d'images |
 
 ### Champ `eventDate` sur les posts
@@ -221,6 +254,6 @@ vueApp.component('mon-composant', MonComposant)
 
 ## Déploiement
 
-Le site est hébergé sur **Vercel**. Le déploiement est automatique sur push vers `main`.
+Le site est hébergé sur **Netlify**. Le déploiement est automatique sur push vers `main`.
 
-Les variables d'environnement Storyblok sont à configurer dans le dashboard Vercel.
+Les variables d'environnement sont à configurer dans le dashboard Netlify. La revalidation ISR Storyblok passe par un webhook qui appelle `/api/revalidate` avec le secret `STORYBLOK_WEBHOOK_SECRET`.

@@ -7,29 +7,38 @@
     <!-- Image de fond -->
     <div class="absolute inset-0 z-0">
       <!-- Image Storyblok optimisée -->
-      <NuxtImg
+      <img
         v-if="blok.backgroundImage?.filename"
-        provider="storyblok"
-        :src="blok.backgroundImage.filename"
+        :src="`${blok.backgroundImage.filename}/m/1920x1080/filters:quality(70):format(webp)`"
+        :srcset="`
+          ${blok.backgroundImage.filename}/m/640x360/filters:quality(70):format(webp) 640w,
+          ${blok.backgroundImage.filename}/m/1024x576/filters:quality(70):format(webp) 1024w,
+          ${blok.backgroundImage.filename}/m/1920x1080/filters:quality(70):format(webp) 1920w
+        `"
+        sizes="100vw"
+        width="1920"
+        height="1080"
         :alt="blok.backgroundImage.alt || 'Hero background'"
-        format="webp"
-        :quality="70"
-        :width="1920"
-        :height="1080"
-        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1920px"
+        fetchpriority="high"
+        loading="eager"
         class="w-full h-full object-cover"
       />
 
-      <!-- Fallback Unsplash optimisé via Nuxt Image (remote) -->
-      <NuxtImg
+      <!-- Fallback si pas d'image Storyblok -->
+      <img
         v-else
-        src="https://images.unsplash.com/photo-1516592673884-4a382d1124c2?q=80&w=2070&auto=format&fit=crop"
+        src="https://images.unsplash.com/photo-1516592673884-4a382d1124c2?q=70&w=1920&auto=format&fit=crop&fm=webp"
+        srcset="
+          https://images.unsplash.com/photo-1516592673884-4a382d1124c2?q=70&w=640&auto=format&fit=crop&fm=webp 640w,
+          https://images.unsplash.com/photo-1516592673884-4a382d1124c2?q=70&w=1024&auto=format&fit=crop&fm=webp 1024w,
+          https://images.unsplash.com/photo-1516592673884-4a382d1124c2?q=70&w=1920&auto=format&fit=crop&fm=webp 1920w
+        "
+        sizes="100vw"
+        width="1920"
+        height="1080"
         alt="Mur d'escalade intérieur"
-        format="webp"
-        :quality="70"
-        :width="1920"
-        :height="1080"
-        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1920px"
+        fetchpriority="high"
+        loading="eager"
         class="w-full h-full object-cover"
       />
 
@@ -45,13 +54,13 @@
         <!-- Surtitre -->
         <span
           ref="surtitleRef"
-          class="text-[#7FD857] font-bold tracking-[0.2em] uppercase text-sm md:text-base opacity-0"
+          class="text-[#7FD857] font-bold tracking-[0.2em] uppercase text-xl md:text-2xl"
         >
           {{ blok.surtitle }}
         </span>
 
         <!-- Titre Principal -->
-        <h1 ref="titleRef" class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight drop-shadow-lg opacity-0">
+        <h1 ref="titleRef" class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight drop-shadow-lg">
           {{ blok.title }}<br>
           <!-- <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">
             {{ blok.titleHighlight }}
@@ -59,12 +68,12 @@
         </h1>
 
         <!-- Sous-titre -->
-        <p ref="subtitleRef" class="text-gray-200 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-4 opacity-0">
+        <p ref="subtitleRef" class="text-gray-200 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-4">
           {{ blok.subtitle }}
         </p>
 
         <!-- Boutons -->
-        <div ref="buttonsRef" class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto opacity-0">
+        <div ref="buttonsRef" class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
           <UButton
             :to="blok.primaryButton[0].link.cached_url"
             size="xl"
@@ -96,7 +105,7 @@
     </UContainer>
 
     <!-- SVG décoratifs -->
-    <svg class="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20 z-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080">
+    <svg class="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20 z-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="none">
       <path ref="mountain1Ref" d="M0 800 L200 600 L400 700 L600 500 L800 650 L1000 550 L1200 700 L1400 600 L1600 750 L1800 650 L1920 800" stroke="white" stroke-width="2" fill="none" stroke-dasharray="3500" stroke-dashoffset="3500"/>
       <path ref="mountain2Ref" d="M0 900 L150 750 L300 820 L500 680 L700 800 L900 700 L1100 820 L1300 740 L1500 850 L1700 780 L1920 900" stroke="#7FD857" stroke-width="2.5" fill="none" stroke-dasharray="3500" stroke-dashoffset="3500"/>
       <line ref="altLine1Ref" x1="0" y1="300" x2="1920" y2="300" stroke="white" stroke-width="1" opacity="0.3" stroke-dasharray="3000" stroke-dashoffset="3000"/>
@@ -114,7 +123,7 @@
     </svg>
 
     <!-- Indicateur de scroll -->
-    <div ref="scrollIndicatorRef" class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10 opacity-0">
+    <div ref="scrollIndicatorRef" class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
       <div class="flex flex-col items-center gap-2 text-white/70 animate-bounce">
         <span class="text-xs uppercase tracking-wider">Scroll</span>
         <UIcon name="i-heroicons-chevron-down" class="w-5 h-5" />
@@ -125,9 +134,9 @@
 </template>
 
 <script setup lang="ts">
-import { gsap } from 'gsap'
+import { ref, onMounted } from 'vue'
 
-defineProps<{ blok: any }>()
+defineProps({ blok: Object })
 
 const surtitleRef = ref<HTMLElement | null>(null)
 const titleRef = ref<HTMLElement | null>(null)
@@ -150,14 +159,21 @@ const summit3Ref = ref<SVGCircleElement | null>(null)
 const zigzagRef = ref<SVGPathElement | null>(null)
 const particles = ref<(HTMLElement | null)[]>([])
 
-onMounted(() => {
+onMounted(async () => {
+  // Respecte la préférence système « animations réduites » : aucune animation d'entrée.
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+  const { gsap } = await import('gsap')
+
   const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
 
-  tl.to(surtitleRef.value, { opacity: 1, y: 0, duration: 0.8, delay: 0.3 })
-    .to(titleRef.value, { opacity: 1, y: 0, duration: 1, delay: 0.2 }, '-=0.5')
-    .to(subtitleRef.value, { opacity: 1, y: 0, duration: 0.8 }, '-=0.6')
-    .to(buttonsRef.value, { opacity: 1, y: 0, duration: 0.8 }, '-=0.4')
-    .to(scrollIndicatorRef.value, { opacity: 1, duration: 0.5 }, '-=0.2')
+  // Titre + sous-titre = candidats LCP : jamais masqués (pas de fondu), juste un léger
+  // glissement. Ils comptent donc comme peints dès le premier rendu.
+  tl.from(surtitleRef.value, { opacity: 0, y: 30, duration: 0.8, delay: 0.3 })
+    .from(titleRef.value, { y: 24, duration: 0.9 }, '-=0.5')
+    .from(subtitleRef.value, { y: 20, duration: 0.8 }, '-=0.6')
+    .from(buttonsRef.value, { opacity: 0, y: 30, duration: 0.8 }, '-=0.4')
+    .from(scrollIndicatorRef.value, { opacity: 0, duration: 0.5 }, '-=0.2')
 
   if (mountain1Ref.value) gsap.to(mountain1Ref.value, { strokeDashoffset: 0, duration: 3.5, ease: 'power1.inOut', delay: 0.5 })
   if (mountain2Ref.value) gsap.to(mountain2Ref.value, { strokeDashoffset: 0, duration: 4, ease: 'power1.inOut', delay: 0.8 })
@@ -214,10 +230,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-[ref*="Ref"] {
-  transform: translateY(30px);
-}
-
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }

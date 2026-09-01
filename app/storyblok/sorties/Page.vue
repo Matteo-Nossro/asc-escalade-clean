@@ -120,6 +120,7 @@
 
 <script setup lang="ts">
 import Tag from '~/components/ui/Tag.vue'
+import { useSeo } from '../../composables/useSeo'
 
 const props = defineProps({
 	blok: {
@@ -152,13 +153,9 @@ const getRemainingPlaces = (sortie: any) => {
 
 const isFullyBooked = (sortie: any) => getRemainingPlaces(sortie) <= 0
 
-useHead({
-	title: props.blok.seo_title || 'Sorties & Stages - ASC Escalade',
-	meta: [
-		{
-			name: 'description',
-			content: props.blok.seo_description || 'Découvrez nos sorties en falaise, stages et événements d\'escalade organisés par l\'ASC Escalade.'
-		}
-	]
+useSeo({
+	blok: props.blok,
+	title: props.blok.seo_title || 'Sorties & Stages',
+	description: props.blok.seo_description || 'Découvrez nos sorties en falaise, stages et événements d\'escalade organisés par l\'ASC Escalade.',
 })
 </script>

@@ -84,7 +84,7 @@
       <div
         v-if="blok.badge"
         ref="badge"
-        class="inline-flex items-center px-6 py-3 rounded-full bg-[#7FD857]/10 text-[#7FD857] font-bold text-lg mb-6 opacity-0 translate-y-6"
+        class="inline-flex items-center px-6 py-3 rounded-full bg-[#7FD857]/10 text-[#7FD857] font-bold text-lg mb-6"
       >
         {{ blok.badge }}
       </div>

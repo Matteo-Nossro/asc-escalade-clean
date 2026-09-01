@@ -35,7 +35,7 @@
 							class="max-h-16 w-auto object-contain"
 						/>
 						<img
-							v-else-if="partner.logo_url || 'https://upload.wikimedia.org/wikipedia/fr/thumb/5/52/Logo_Ville_de_Dole.svg/1200px-Logo_Ville_de_Dole.svg.png'"
+							v-else-if="partner.logo_url"
 							:src="partner.logo_url"
 							:alt="partner.name || ''"
 							class="max-h-16 w-auto object-contain"
@@ -61,7 +61,7 @@
 							class="max-h-16 w-auto object-contain"
 						/>
 						<img
-							v-else-if="partner.logo_url || 'https://upload.wikimedia.org/wikipedia/fr/thumb/5/52/Logo_Ville_de_Dole.svg/1200px-Logo_Ville_de_Dole.svg.png'"
+							v-else-if="partner.logo_url"
 							:src="partner.logo_url"
 							:alt="partner.name || ''"
 							class="max-h-16 w-auto object-contain"
@@ -76,13 +76,19 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const props = defineProps({
 	blok: {
 		type: Object,
 		required: true
 	}
+})
+
+const viewportWidth = ref(1920)
+
+onMounted(() => {
+	viewportWidth.value = window.innerWidth
 })
 
 const partners = computed(() => {
@@ -97,11 +103,14 @@ const partners = computed(() => {
 	]
 })
 
-// Répète les partenaires jusqu'à un minimum de 8 pour remplir le marquee
+// Chaque item fait ~192px (w-32=128px + gap-16=64px).
+// Le groupe doit couvrir au moins la largeur du viewport pour que translateX(-50%)
+// ne révèle jamais le fond vide avant la boucle.
 const filledPartners = computed(() => {
 	const p = partners.value
 	if (!p.length) return []
-	const minCount = 8
+	const itemWidth = 192
+	const minCount = Math.ceil(viewportWidth.value / itemWidth) + 4
 	const times = Math.ceil(minCount / p.length)
 	return Array.from({ length: times }, () => p).flat()
 })

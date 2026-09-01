@@ -7,7 +7,7 @@
         <div class="flex flex-col gap-6 lg:col-span-2">
           <NuxtLink to="/" class="flex items-center gap-3 w-fit">
             <template v-if="config?.logo_image?.filename">
-              <img :src="config.logo_image.filename" :alt="config.logo_text_top || 'Logo'" class="h-11 w-auto object-contain" />
+              <img :src="config.logo_image.filename" :alt="config.logo_text_top || 'Logo'" width="154" height="44" class="h-11 w-auto object-contain" />
             </template>
             <template v-else>
               <div class="w-10 h-10 bg-[#7FD857] rounded-lg flex items-center justify-center">
@@ -24,19 +24,49 @@
             {{ config?.footer_description || "L'association sportive d'escalade qui fait vibrer vos sensations." }}
           </p>
 
+          <div v-if="labels.length > 0" class="flex flex-col gap-4">
+            <span class="text-sm font-semibold text-[#7FD857] uppercase tracking-wider">Nos labels et certifications</span>
+            <div class="flex flex-wrap gap-5 items-center">
+              <component
+                :is="label.link ? 'a' : 'div'"
+                v-for="label in labels"
+                :key="label.id"
+                :href="label.link ? resolveLink(label.link) : undefined"
+                :target="label.link ? '_blank' : undefined"
+                :rel="label.link ? 'noopener' : undefined"
+                :class="label.link ? 'cursor-pointer' : 'cursor-default'"
+              >
+                <img
+                  :src="`${label.filename}/m/0x80/filters:quality(90):format(webp)`"
+                  :alt="label.alt || label.title || 'Label'"
+                  class="h-16 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity"
+                />
+              </component>
+            </div>
+          </div>
+
           <div v-if="socialLinks.length > 0" class="flex gap-3">
-            <UButton
+            <a
               v-for="social in socialLinks"
               :key="social._uid"
-              :to="resolveLink(social.link)"
+              :href="resolveLink(social.link)"
               target="_blank"
-              color="neutral"
-              variant="soft"
-              :icon="social.icon || 'i-heroicons-link'"
-              class="bg-white/5 hover:bg-[#7FD857] hover:text-white transition-colors border-none"
-              :ui="{ rounded: 'rounded-lg' }"
-              :aria-label="social.label"
-            />
+              rel="noopener"
+              :aria-label="socialLabel(social)"
+              class="w-10 h-10 rounded-lg bg-white/5 hover:bg-[#7FD857] flex items-center justify-center transition-colors"
+            >
+              <img
+                v-if="social.image?.filename"
+                :src="`${social.image.filename}/m/24x24/filters:quality(90):format(webp)`"
+                :alt="socialLabel(social)"
+                class="w-6 h-6 object-contain"
+              />
+              <UIcon
+                v-else
+                :name="social.icon || 'i-heroicons-link'"
+                class="w-5 h-5"
+              />
+            </a>
           </div>
         </div>
 
@@ -66,16 +96,16 @@
         <!-- Colonne 3 : Navigation -->
         <div class="flex flex-col gap-6">
           <h3 class="text-[#7FD857] font-bold text-lg">Navigation</h3>
-          <ul class="flex flex-col gap-3">
-            <li v-for="link in navigationLinks" :key="link._uid">
-              <NuxtLink
-                :to="resolveLink(link.link)"
-                class="text-gray-400 text-sm hover:text-[#7FD857] transition-colors"
-              >
-                {{ link.label }}
-              </NuxtLink>
-            </li>
-          </ul>
+          <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+            <NuxtLink
+              v-for="link in navigationLinks"
+              :key="link._uid"
+              :to="resolveLink(link.link)"
+              class="text-gray-400 text-sm hover:text-[#7FD857] transition-colors"
+            >
+              {{ link.label }}
+            </NuxtLink>
+          </div>
         </div>
 
         <!-- Colonne 4 : Partenaires -->
@@ -97,7 +127,7 @@
       </div>
 
       <!-- Copyright -->
-      <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500">
+      <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-300">
         <p>© {{ new Date().getFullYear() }} ASC Escalade. Tous droits réservés.</p>
         <p>Designé et réalisé par Matteo Nossereau.</p>
       </div>
@@ -109,12 +139,21 @@
 import { computed } from 'vue'
 
 // ✅ Un seul appel via le composable partagé
-const configData = await useSiteConfig()
+const configData = useStoryblokConfig()
 const config = computed(() => configData.value)
 
-const navigationLinks = computed(() => config.value?.footer_nav_links || [])
+const navigationLinks = computed(() => {
+  const links = [...(config.value?.footer_nav_links || [])]
+  // Page codée hors CMS : injectée tant qu'elle n'est pas ajoutée dans Storyblok.
+  if (links.some((l) => resolveLink(l.link).replace(/\/$/, '') === '/inscriptions')) return links
+  return [
+    ...links,
+    { _uid: 'static-inscriptions', label: 'Inscriptions', link: { linktype: 'story', cached_url: 'inscriptions' } },
+  ]
+})
 const socialLinks = computed(() => config.value?.social_links || [])
 const partners = computed(() => config.value?.partners || [])
+const labels = computed(() => config.value?.labels || [])
 
 const resolveLink = (linkObj) => {
   if (!linkObj) return '#'
@@ -122,5 +161,15 @@ const resolveLink = (linkObj) => {
     return linkObj.cached_url?.startsWith('/') ? linkObj.cached_url : `/${linkObj.cached_url}`
   }
   return linkObj.url || '#'
+}
+
+// Nom accessible d'un lien social : label Storyblok, sinon nom d'hôte de l'URL.
+const socialLabel = (social) => {
+  if (social.label) return social.label
+  try {
+    return new URL(resolveLink(social.link)).hostname.replace(/^www\./, '')
+  } catch {
+    return 'Réseau social'
+  }
 }
 </script>

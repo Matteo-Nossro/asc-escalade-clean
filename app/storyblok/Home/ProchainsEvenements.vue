@@ -49,7 +49,7 @@
                   class="font-bold px-3 py-1"
                   :color="getCategoryColor(event.category)"
                 />
-                <span class="text-sm text-gray-400 flex items-center gap-1.5 font-medium">
+                <span v-if="event.time" class="text-sm text-gray-400 flex items-center gap-1.5 font-medium">
                   <UIcon name="i-heroicons-clock" class="w-4 h-4" />
                   {{ event.time }}
                 </span>
@@ -78,7 +78,7 @@
                 base: 'bg-white',
                 day: {
                   base: 'w-9 h-9 flex items-center justify-center mx-auto rounded-full hover:bg-gray-100 data-[selected]:bg-[#0F1729] data-[selected]:text-white transition-colors text-[#0F1729]',
-                  today: 'text-[#7FD857] font-bold',
+                  today: 'text-[var(--vp-green-text)] font-bold',
                   outside: 'invisible pointer-events-none',
                   disabled: 'text-gray-300'
                 },
@@ -103,7 +103,7 @@
                 Événement
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-[#7FD857] font-bold">12</span>
+                <span class="text-[var(--vp-green-text)] font-bold">12</span>
                 Aujourd'hui
               </div>
               <div class="flex items-center gap-2">
@@ -148,11 +148,20 @@ const getMonthShort = (dateString) => {
 }
 
 const getCategoryColor = (category) => {
-  switch (category) {
-    case 'Vie du club': return 'primary'
-    case 'Sortie': return 'warning'
-    case 'Compétition': return 'error'
-    default: return 'neutral'
+  const map = {
+    'Compétition': 'error',
+    'Sortie Falaise': 'warning',
+    'Falaise': 'warning',
+    'Bloc': 'warning',
+    'Stage': 'secondary',
+    'Climb Up': 'warning',
+    'Cime Altitude': 'info',
+    'Événement': 'primary',
+    'Club': 'primary',
+    'Infrastructure': 'success',
+    'Formation': 'secondary',
+    'Vie du club': 'primary',
   }
+  return map[category] ?? 'neutral'
 }
 </script>

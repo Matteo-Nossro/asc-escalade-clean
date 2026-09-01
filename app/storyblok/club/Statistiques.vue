@@ -21,7 +21,7 @@
 		</div>
 
 		<UContainer class="relative z-10">
-			<div class="grid grid-cols-2 gap-8 text-center" :class="`md:grid-cols-${Math.min(stats.length, 4)}`">
+			<div class="grid gap-8 text-center" :class="gridClass">
 
 				<div
 						v-for="(stat, index) in stats"
@@ -78,6 +78,15 @@ const stats = computed(() => {
 		{ icon: 'i-heroicons-sparkles', value: 25, suffix: '', label: 'Années' },
 		{ icon: 'i-heroicons-hand-raised', value: 15, suffix: '', label: 'Bénévoles' }
 	]
+})
+
+// blok.columns_per_row : nombre de colonnes par ligne (1-6), défini dans Storyblok
+// Fallback : min(nb stats, 4) pour respecter le comportement original
+const gridClass = computed(() => {
+	const requested = Number(props.blok.columns_per_row)
+	const cols = (requested >= 1 && requested <= 6) ? requested : Math.min(stats.value.length, 4)
+	const mobile = Math.min(cols, 2)
+	return `grid-cols-${mobile} md:grid-cols-${cols}`
 })
 
 onMounted(() => {

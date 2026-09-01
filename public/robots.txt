@@ -1,2 +1,8 @@
-User-Agent: *
-Disallow:
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /login
+Disallow: /callback
+Disallow: /api/
+
+Sitemap: https://asc-escalade.fr/sitemap.xml

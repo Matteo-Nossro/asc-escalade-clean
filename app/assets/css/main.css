@@ -1,5 +1,9 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+@plugin "@tailwindcss/typography";
+
+/* Safelist des classes dynamiques de grille (blok.columns_per_row) */
+@source inline("grid-cols-{1,2,3,4,5,6} md:grid-cols-{1,2,3,4,5,6} sm:grid-cols-{1,2,3,4,5,6}");
 
 @theme static {
     --font-sans: 'Public Sans', sans-serif;
@@ -19,6 +23,10 @@
     --vp-green: #7FD857;
     --vp-green-hover: #6bc745;
     --vp-green-light: #9fe57f;
+    /* Vert accessible pour le TEXTE sur fond clair (contraste AA ≈ 5:1 sur blanc).
+       Garder --vp-green pour les fonds, icônes et accents ; utiliser celui-ci
+       dès que le vert sert de couleur de texte sur blanc/gris clair. */
+    --vp-green-text: #3B7D0E;
     --vp-dark: #0F1729;
     --vp-dark-hover: #1a2740;
     --vp-dark-light: #2d3f5f;
@@ -31,9 +39,31 @@
     color-scheme: light;
 
 }
+/* Rich text Storyblok — @tailwindcss/typography accordé à la charte du club.
+   Le reset Tailwind neutralise titres, puces et bordures de tableau : la classe
+   `prose` les restaure, on ne fait ici qu'aligner les couleurs sur #0F1729 / #7FD857. */
+.prose {
+    --tw-prose-body: #4b5563;
+    --tw-prose-headings: #0F1729;
+    --tw-prose-lead: #4b5563;
+    --tw-prose-links: #3B7D0E;
+    --tw-prose-bold: #0F1729;
+    --tw-prose-counters: #6b7280;
+    --tw-prose-bullets: #7FD857;
+    --tw-prose-hr: #e5e7eb;
+    --tw-prose-quotes: #0F1729;
+    --tw-prose-quote-borders: #7FD857;
+    --tw-prose-captions: #6b7280;
+    --tw-prose-th-borders: #d1d5db;
+    --tw-prose-td-borders: #e5e7eb;
+}
+.prose :where(a):hover {
+    color: #7FD857;
+}
+
 /* Espacement pour le header fixe */
 .page-content {
-    padding-top: 80px; /* Hauteur du header (ajuster selon votre header) */
+    padding-top: 6rem; /* Hauteur du header (ajuster selon votre header) */
 }
 
 /* Pour les pages avec hero plein écran */
@@ -44,6 +74,6 @@
 /* Ajustement responsive */
 @media (max-width: 768px) {
     .page-content {
-        padding-top: 70px;
+        padding-top: 6rem;
     }
 }
