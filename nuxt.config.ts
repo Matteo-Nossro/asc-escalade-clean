@@ -103,31 +103,13 @@ export default defineNuxtConfig({
     '/contact': { isr: true, sitemap: { priority: 0.8, changefreq: 'monthly' } },
     '/sorties': { isr: true, sitemap: { priority: 0.8, changefreq: 'monthly' } },
     '/actualites': { isr: true, sitemap: { priority: 0.8, changefreq: 'monthly' } },
+    // Page Inscriptions — contenu statique codé (app/pages/inscriptions.vue), pré-rendue au build
+    '/inscriptions': { prerender: true, sitemap: { priority: 0.8, changefreq: 'yearly' } },
     '/posts/**': { isr: true, sitemap: { priority: 0.6, changefreq: 'never' } },
-    // Redirections 301 — restructuration URLs de l'ancien site (nouveaux chemins)
-    '/actualites/**': { redirect: { to: '/posts/**', statusCode: 301 } },
-    '/sorties/**': { redirect: { to: '/posts/**', statusCode: 301 } },
-    // Redirections 301 — ancien site www.escalade-chevigny.fr → pages club
-    '/le-club-p21.html': { redirect: { to: '/club', statusCode: 301 } },
-    '/presentation-p35.html': { redirect: { to: '/club', statusCode: 301 } },
-    '/le-staff-p33.html': { redirect: { to: '/club', statusCode: 301 } },
-    '/lebureau-p31.html': { redirect: { to: '/club', statusCode: 301 } },
-    '/le-mur-p24.html': { redirect: { to: '/club', statusCode: 301 } },
-    '/evolutiondumur-p36.html': { redirect: { to: '/club', statusCode: 301 } },
-    '/anneespassees-p37.html': { redirect: { to: '/club', statusCode: 301 } },
-    '/l-asc-escalade-est-labellise-ffme-sport-sante-p27.html': { redirect: { to: '/club', statusCode: 301 } },
-    '/reglement-p38.html': { redirect: { to: '/club', statusCode: 301 } },
-    '/violences-p40.html': { redirect: { to: '/club', statusCode: 301 } },
-    // Redirections 301 — ancien site → tarifs
-    '/tarifs-inscription-p29.html': { redirect: { to: '/tarifs', statusCode: 301 } },
-    '/horaires-des-entrainements-p32.html': { redirect: { to: '/tarifs', statusCode: 301 } },
-    // Redirections 301 — ancien site → contact
-    '/nous-contacter-p1.html': { redirect: { to: '/contact', statusCode: 301 } },
-    '/plan-d-acces-p2.html': { redirect: { to: '/contact', statusCode: 301 } },
-    // Redirections 301 — ancien site → sorties
-    '/sorties-falaise-pour-les-adultes-asc-escalade-p26.html': { redirect: { to: '/sorties', statusCode: 301 } },
-    // Redirections 301 — ancien site → actualités (liste + pagination)
-    '/actualites-p6.html': { redirect: { to: '/actualites', statusCode: 301 } },
+    // Redirections 301 (ancien site .html + anciens chemins /actualites/:slug, /sorties/:slug) :
+    // gérées dans server/middleware/legacy-redirects.ts.
+    // NB : ne PAS remettre de règle `/actualites/**` ici — le splat match aussi `/actualites`
+    // et cassait la page liste (redirigée vers /posts).
     // Pages non indexées
     '/login': { sitemap: false },
     '/callback': { sitemap: false },
