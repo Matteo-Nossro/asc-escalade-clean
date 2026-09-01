@@ -208,7 +208,10 @@ function getLevelColor(level: string | null): string {
 }
 
 // ─── Groupement par tranche d'âge ────────────────────────────────────────────
-// L'âge de référence = année N-1 (convention sportive)
+// L'âge d'un groupe est calculé sur l'année de la rentrée : âge = annéeRentrée −
+// année de naissance (règle du club, cutoff au 1er septembre). Ex. saison
+// 2026/2027 → base 2026 → un enfant né en 2020 a « 6 ans », né en 2022 « 4 ans ».
+// L'année de la rentrée bascule le 1er septembre.
 
 function getSectionKey(g: Group): string {
   const minYear = g.min_birth_date?.slice(0, 4) ?? 'null'
@@ -217,7 +220,10 @@ function getSectionKey(g: Group): string {
 }
 
 function getSectionLabel(g: Group): string {
-  const refYear = new Date().getFullYear() - 1
+  // Année de la rentrée : année civile de septembre de la saison en cours
+  // (avant le 1er septembre, on est encore sur la saison entamée l'an dernier).
+  const now = new Date()
+  const refYear = now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1
   const minYear = g.min_birth_date ? parseInt(g.min_birth_date.slice(0, 4)) : null
   const maxYear = g.max_birth_date ? parseInt(g.max_birth_date.slice(0, 4)) : null
 
