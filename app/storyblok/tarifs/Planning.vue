@@ -1,5 +1,5 @@
 <template>
-  <div v-editable="blok" class="max-w-5xl mx-auto px-4 mt-24 mb-20">
+  <div id="creneaux" v-editable="blok" class="scroll-mt-28 max-w-5xl mx-auto px-4 mt-24 mb-20">
     <h2 v-if="blok.title" class="text-3xl font-bold text-center text-[#0F1729] mb-12">
       {{ blok.title }}
     </h2>
