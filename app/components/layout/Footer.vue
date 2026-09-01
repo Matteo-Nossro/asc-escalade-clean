@@ -27,11 +27,13 @@
           <div v-if="labels.length > 0" class="flex flex-col gap-4">
             <span class="text-sm font-semibold text-[#7FD857] uppercase tracking-wider">Nos labels et certifications</span>
             <div class="flex flex-wrap gap-5 items-center">
-              <a
+              <component
+                :is="label.link ? 'a' : 'div'"
                 v-for="label in labels"
                 :key="label.id"
                 :href="label.link ? resolveLink(label.link) : undefined"
                 :target="label.link ? '_blank' : undefined"
+                :rel="label.link ? 'noopener' : undefined"
                 :class="label.link ? 'cursor-pointer' : 'cursor-default'"
               >
                 <img
@@ -39,7 +41,7 @@
                   :alt="label.alt || label.title || 'Label'"
                   class="h-16 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity"
                 />
-              </a>
+              </component>
             </div>
           </div>
 
@@ -49,13 +51,14 @@
               :key="social._uid"
               :href="resolveLink(social.link)"
               target="_blank"
-              :aria-label="social.label"
+              rel="noopener"
+              :aria-label="socialLabel(social)"
               class="w-10 h-10 rounded-lg bg-white/5 hover:bg-[#7FD857] flex items-center justify-center transition-colors"
             >
               <img
                 v-if="social.image?.filename"
                 :src="`${social.image.filename}/m/24x24/filters:quality(90):format(webp)`"
-                :alt="social.label || ''"
+                :alt="socialLabel(social)"
                 class="w-6 h-6 object-contain"
               />
               <UIcon
@@ -136,10 +139,18 @@
 import { computed } from 'vue'
 
 // ✅ Un seul appel via le composable partagé
-const configData = await useSiteConfig()
+const configData = useStoryblokConfig()
 const config = computed(() => configData.value)
 
-const navigationLinks = computed(() => config.value?.footer_nav_links || [])
+const navigationLinks = computed(() => {
+  const links = [...(config.value?.footer_nav_links || [])]
+  // Page codée hors CMS : injectée tant qu'elle n'est pas ajoutée dans Storyblok.
+  if (links.some((l) => resolveLink(l.link).replace(/\/$/, '') === '/inscriptions')) return links
+  return [
+    ...links,
+    { _uid: 'static-inscriptions', label: 'Inscriptions', link: { linktype: 'story', cached_url: 'inscriptions' } },
+  ]
+})
 const socialLinks = computed(() => config.value?.social_links || [])
 const partners = computed(() => config.value?.partners || [])
 const labels = computed(() => config.value?.labels || [])
@@ -150,5 +161,15 @@ const resolveLink = (linkObj) => {
     return linkObj.cached_url?.startsWith('/') ? linkObj.cached_url : `/${linkObj.cached_url}`
   }
   return linkObj.url || '#'
+}
+
+// Nom accessible d'un lien social : label Storyblok, sinon nom d'hôte de l'URL.
+const socialLabel = (social) => {
+  if (social.label) return social.label
+  try {
+    return new URL(resolveLink(social.link)).hostname.replace(/^www\./, '')
+  } catch {
+    return 'Réseau social'
+  }
 }
 </script>

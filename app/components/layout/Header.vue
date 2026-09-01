@@ -66,6 +66,8 @@
           color="neutral"
           variant="ghost"
           icon="i-heroicons-bars-3"
+          aria-label="Ouvrir le menu"
+          :aria-expanded="isMobileMenuOpen"
           class="header__burger"
           @click="openMobileMenu"
         />
@@ -123,6 +125,7 @@
                 color="neutral"
                 variant="ghost"
                 icon="i-heroicons-x-mark-20-solid"
+                aria-label="Fermer le menu"
                 @click="closeMobileMenu"
               />
             </div>
@@ -204,10 +207,8 @@ const isMobileMenuOpen = ref(false)
 const { isDesktop } = useBreakpoints()
 
 // ✅ Un seul appel via le composable partagé
-const configData = await useSiteConfig()
+const configData = useStoryblokConfig()
 const config = computed(() => configData.value)
-
-const navigationLinks = computed(() => config.value?.nav_links || [])
 
 const resolveLink = (linkObj) => {
   if (!linkObj) return '#'
@@ -216,6 +217,27 @@ const resolveLink = (linkObj) => {
   }
   return linkObj.url || '#'
 }
+
+// Page codée (hors CMS) : on l'injecte dans la nav Storyblok tant qu'elle n'y est
+// pas ajoutée manuellement. Placée juste après « Tarifs » si présent.
+const INSCRIPTIONS_LINK = {
+  _uid: 'static-inscriptions',
+  label: 'Inscriptions',
+  icon: 'i-heroicons-pencil-square',
+  link: { linktype: 'story', cached_url: 'inscriptions' },
+}
+
+const navigationLinks = computed(() => {
+  const links = [...(config.value?.nav_links || [])]
+  const path = (l) => resolveLink(l.link).replace(/\/$/, '')
+  if (links.some((l) => path(l) === '/inscriptions')) return links
+
+  const tarifsIdx = links.findIndex((l) => /tarif/i.test(path(l)))
+  const contactIdx = links.findIndex((l) => /contact/i.test(path(l)))
+  const at = tarifsIdx >= 0 ? tarifsIdx + 1 : contactIdx >= 0 ? contactIdx : links.length
+  links.splice(at, 0, INSCRIPTIONS_LINK)
+  return links
+})
 
 const openMobileMenu = () => {
   isMobileMenuOpen.value = true
@@ -345,7 +367,7 @@ const handleLogout = async () => {
   &__logo-pulse {
     font-size: 1.05rem;
     font-weight: 300;
-    color: #7FD857;
+    color: var(--vp-green-text);
     letter-spacing: 0.5px;
   }
 
@@ -365,10 +387,10 @@ const handleLogout = async () => {
     transition: color 0.2s ease;
     padding: 0.5rem 0;
 
-    &:hover { color: #7FD857; }
+    &:hover { color: var(--vp-green-text); }
 
     &--active {
-      color: #7FD857;
+      color: var(--vp-green-text);
       &::after {
         content: '';
         position: absolute;
@@ -447,8 +469,8 @@ const handleLogout = async () => {
 
   &--active {
     background: #F0FDF4;
-    span { color: #7FD857; font-weight: 600; }
-    svg { color: #7FD857; }
+    span { color: var(--vp-green-text); font-weight: 600; }
+    svg { color: var(--vp-green-text); }
   }
 }
 </style>

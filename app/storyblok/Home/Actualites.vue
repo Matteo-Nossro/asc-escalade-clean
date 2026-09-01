@@ -78,7 +78,7 @@
             </div>
           </div>
 
-          <NuxtLink :to="`/posts/${featuredPost.slug}`" class="absolute inset-0 z-10" />
+          <NuxtLink :to="`/posts/${featuredPost.slug}`" :aria-label="featuredPost.title" class="absolute inset-0 z-10" />
         </div>
 
         <!-- Colonne droite -->
@@ -98,6 +98,8 @@
                 icon="i-heroicons-arrow-right"
                 variant="ghost"
                 color="neutral"
+                tabindex="-1"
+                aria-hidden="true"
                 class="bg-white hover:bg-gray-50 rounded-lg transition-transform hover:translate-x-1"
               />
             </div>
@@ -112,7 +114,7 @@
               <h3 class="text-lg font-bold text-[#0F1729] mb-2">{{ secondaryPosts[0].title }}</h3>
               <p class="text-sm text-gray-600 line-clamp-2">{{ secondaryPosts[0].excerpt }}</p>
             </div>
-            <NuxtLink :to="`/posts/${secondaryPosts[0].slug}`" class="absolute inset-0 z-10" />
+            <NuxtLink :to="`/posts/${secondaryPosts[0].slug}`" :aria-label="secondaryPosts[0].title" class="absolute inset-0 z-10" />
           </div>
 
           <!-- Article 3 (Dark) -->
@@ -140,7 +142,7 @@
               </h3>
               <p class="text-sm text-gray-400 line-clamp-2">{{ secondaryPosts[1].excerpt }}</p>
             </div>
-            <NuxtLink :to="`/posts/${secondaryPosts[1].slug}`" class="absolute inset-0 z-10" />
+            <NuxtLink :to="`/posts/${secondaryPosts[1].slug}`" :aria-label="secondaryPosts[1].title" class="absolute inset-0 z-10" />
           </div>
 
         </div>

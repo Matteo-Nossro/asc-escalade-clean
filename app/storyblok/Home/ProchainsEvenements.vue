@@ -78,7 +78,7 @@
                 base: 'bg-white',
                 day: {
                   base: 'w-9 h-9 flex items-center justify-center mx-auto rounded-full hover:bg-gray-100 data-[selected]:bg-[#0F1729] data-[selected]:text-white transition-colors text-[#0F1729]',
-                  today: 'text-[#7FD857] font-bold',
+                  today: 'text-[var(--vp-green-text)] font-bold',
                   outside: 'invisible pointer-events-none',
                   disabled: 'text-gray-300'
                 },
@@ -103,7 +103,7 @@
                 Événement
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-[#7FD857] font-bold">12</span>
+                <span class="text-[var(--vp-green-text)] font-bold">12</span>
                 Aujourd'hui
               </div>
               <div class="flex items-center gap-2">

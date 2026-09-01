@@ -22,6 +22,10 @@
     --vp-green: #7FD857;
     --vp-green-hover: #6bc745;
     --vp-green-light: #9fe57f;
+    /* Vert accessible pour le TEXTE sur fond clair (contraste AA ≈ 5:1 sur blanc).
+       Garder --vp-green pour les fonds, icônes et accents ; utiliser celui-ci
+       dès que le vert sert de couleur de texte sur blanc/gris clair. */
+    --vp-green-text: #3B7D0E;
     --vp-dark: #0F1729;
     --vp-dark-hover: #1a2740;
     --vp-dark-light: #2d3f5f;
