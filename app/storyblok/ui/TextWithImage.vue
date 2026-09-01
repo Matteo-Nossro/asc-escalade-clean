@@ -12,10 +12,11 @@
             <UIcon v-if="blok.icon" :name="blok.icon" class="w-8 h-8 text-[#7FD857]" />
             <h2 class="text-3xl font-bold text-[#0F1729]">{{ blok.title }}</h2>
           </div>
-          <StoryblokRichText
-            :doc="blok.content"
-            class="space-y-6 text-gray-600 leading-relaxed text-justify prose max-w-none"
-          />
+          <!-- StoryblokRichText ne transmet pas d'attribut `class` : on enveloppe
+               le rendu dans un conteneur `prose` pour retrouver titres, listes, etc. -->
+          <div class="prose max-w-none leading-relaxed text-justify">
+            <StoryblokRichText :doc="blok.content" />
+          </div>
         </div>
 
         <!-- Colonne Visuel -->
