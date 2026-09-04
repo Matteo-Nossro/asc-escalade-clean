@@ -12,16 +12,25 @@
 
 		<div class="relative w-full max-w-[100vw]">
 
-			<div class="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-gray-50 to-transparent z-10"></div>
-			<div class="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-gray-50 to-transparent z-10"></div>
+			<div class="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none"></div>
+			<div class="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none"></div>
 
-			<div class="flex w-max animate-marquee hover:pause">
-
-				<!-- GROUPE 1 -->
-				<div class="flex items-center gap-16 px-8">
-					<div
-						v-for="(partner, index) in filledPartners"
-						:key="`a-${index}`"
+			<!--
+				Marquee CSS pur : la liste réelle est rendue UNE seule fois.
+				Le second groupe (aria-hidden) est un simple clone visuel nécessaire
+				à la boucle sans couture ; il est ignoré par les lecteurs d'écran
+				et n'ajoute pas de contenu indexable distinct.
+			-->
+			<div class="marquee">
+				<ul
+					v-for="group in 2"
+					:key="group"
+					class="marquee__track"
+					:aria-hidden="group === 2 ? 'true' : undefined"
+				>
+					<li
+						v-for="(partner, index) in partners"
+						:key="`${group}-${index}`"
 						class="flex items-center justify-center h-24 w-32 grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all duration-300"
 					>
 						<NuxtImg
@@ -40,35 +49,8 @@
 							:alt="partner.name || ''"
 							class="max-h-16 w-auto object-contain"
 						/>
-					</div>
-				</div>
-
-				<!-- GROUPE 2 (Duplicata pour l'illusion d'infini) -->
-				<div class="flex items-center gap-16 px-8">
-					<div
-						v-for="(partner, index) in filledPartners"
-						:key="`b-${index}`"
-						class="flex items-center justify-center h-24 w-32 grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all duration-300"
-					>
-						<NuxtImg
-							v-if="partner.logo?.filename"
-							provider="storyblok"
-							:src="partner.logo.filename"
-							:alt="partner.name || partner.logo.alt || ''"
-							format="webp"
-							:quality="80"
-							:height="64"
-							class="max-h-16 w-auto object-contain"
-						/>
-						<img
-							v-else-if="partner.logo_url"
-							:src="partner.logo_url"
-							:alt="partner.name || ''"
-							class="max-h-16 w-auto object-contain"
-						/>
-					</div>
-				</div>
-
+					</li>
+				</ul>
 			</div>
 		</div>
 
@@ -76,19 +58,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { computed } from 'vue'
 
 const props = defineProps({
 	blok: {
 		type: Object,
 		required: true
 	}
-})
-
-const viewportWidth = ref(1920)
-
-onMounted(() => {
-	viewportWidth.value = window.innerWidth
 })
 
 const partners = computed(() => {
@@ -102,31 +78,50 @@ const partners = computed(() => {
 		{ name: 'Petzl', logo_url: 'https://upload.wikimedia.org/wikipedia/en/thumb/8/8b/Petzl_logo.svg/1200px-Petzl_logo.svg.png' },
 	]
 })
-
-// Chaque item fait ~192px (w-32=128px + gap-16=64px).
-// Le groupe doit couvrir au moins la largeur du viewport pour que translateX(-50%)
-// ne révèle jamais le fond vide avant la boucle.
-const filledPartners = computed(() => {
-	const p = partners.value
-	if (!p.length) return []
-	const itemWidth = 192
-	const minCount = Math.ceil(viewportWidth.value / itemWidth) + 4
-	const times = Math.ceil(minCount / p.length)
-	return Array.from({ length: times }, () => p).flat()
-})
 </script>
 
 <style scoped>
-.animate-marquee {
-	animation: marquee 30s linear infinite;
+.marquee {
+	display: flex;
+	width: 100%;
+	overflow: hidden;
+	user-select: none;
 }
 
-.hover\:pause:hover {
+.marquee__track {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+	gap: 4rem;
+	min-width: 100%;
+	padding: 0 2rem;
+	margin: 0;
+	list-style: none;
+	animation: marquee-scroll 30s linear infinite;
+}
+
+.marquee:hover .marquee__track {
 	animation-play-state: paused;
 }
 
-@keyframes marquee {
-	0% { transform: translateX(0); }
-	100% { transform: translateX(-50%); }
+/* La boucle : chaque groupe fait au moins 100% de large, le décalage d'une
+   largeur de groupe complète amène le clone exactement à la place de l'original. */
+@keyframes marquee-scroll {
+	to { transform: translateX(-100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.marquee {
+		overflow-x: auto;
+	}
+	.marquee__track {
+		animation: none;
+		min-width: 0;
+		justify-content: flex-start;
+	}
+	.marquee__track[aria-hidden='true'] {
+		display: none;
+	}
 }
 </style>

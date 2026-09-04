@@ -81,17 +81,23 @@ Le champ Datetime retourne `"YYYY-MM-DD HH:MM"`, pas `"YYYY-MM-DD"`.
 date: story.content.eventDate.split(' ')[0]   // "2026-03-13 00:00" → "2026-03-13"
 ```
 
-### 6. Marquee avec peu d'éléments
-Avec peu d'éléments, le marquee laisse du vide. Solution : répliquer jusqu'à un minimum :
-```ts
-const filledPartners = computed(() => {
-  const p = partners.value
-  if (!p.length) return []
-  const minCount = 8
-  const times = Math.ceil(minCount / p.length)
-  return Array.from({ length: times }, () => p).flat()
-})
+### 6. Marquee — ne pas dupliquer le contenu en JS (SEO)
+Ancienne approche (`filledPartners` répliquant les items en JS) : cassait le SEO
+en faisant apparaître chaque logo/nom 4 à 6 fois dans le HTML rendu.
+
+Approche actuelle (`Partenaires.vue`, `Initiateurs.vue`) — marquee **CSS pur** :
+la liste réelle est rendue **une seule fois**, suivie d'un **unique** clone
+`aria-hidden="true"` nécessaire à la boucle sans couture.
 ```
+.marquee        { display:flex; overflow:hidden; }
+.marquee__track { flex-shrink:0; min-width:100%; justify-content:space-around;
+                  animation: marquee-scroll 30s linear infinite; }
+@keyframes marquee-scroll { to { transform: translateX(-100%); } }
+```
+`min-width:100%` + `translateX(-100%)` → seamless quel que soit le nombre d'items ;
+`justify-content:space-around` gère le cas « peu d'éléments » sans réplication.
+Sens inverse : `animation-direction: reverse`. Respecter `prefers-reduced-motion`
+(désactiver l'animation + masquer le clone).
 
 ### 7. Conflits de noms de composants
 Nuxt auto-importe tous les composants dans `app/storyblok/`. Plusieurs fichiers `Header.vue` dans des sous-dossiers différents génèrent un conflit WARN. Ce conflit n'affecte pas les composants enregistrés manuellement dans le plugin, mais crée du bruit dans les logs.

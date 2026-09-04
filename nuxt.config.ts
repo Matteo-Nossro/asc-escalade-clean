@@ -8,7 +8,7 @@ export default defineNuxtConfig({
   modules: ['@nuxt/ui', '@storyblok/nuxt', '@nuxt/image', '@nuxtjs/supabase', '@nuxtjs/sitemap'],
 
   site: {
-    url: process.env.NUXT_PUBLIC_SITE_URL || 'https://asc-escalade.fr',
+    url: process.env.NUXT_PUBLIC_SITE_URL || 'https://escalade-chevigny.fr',
     name: 'ASC Escalade',
   },
 
@@ -135,7 +135,7 @@ export default defineNuxtConfig({
     resendApiKey: process.env.RESEND_API_KEY || '',
     public: {
       storyblokVersion: process.env.STORYBLOK_VERSION || 'published',
-      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://asc-escalade.fr',
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://escalade-chevigny.fr',
     }
   },
 
