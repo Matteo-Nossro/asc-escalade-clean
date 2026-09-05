@@ -52,7 +52,24 @@ gsap.from(title.value, { opacity: 0, y: 30, duration: 1, delay: 0.3 })
 // ❌
 gsap.set(title.value, { opacity: 0, y: 30 })
 gsap.to(title.value, { opacity: 1, y: 0, duration: 1 })
+// ❌ variante : class="opacity-0" dans le template + gsap.to({ opacity: 1 })
 ```
+
+**Pattern GSAP standard d'un blok** (cf. `Home/Hero.vue`, `*/Header.vue`, bloks `inscriptions-*`) :
+```ts
+onMounted(async () => {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+    import('gsap'),
+    import('gsap/ScrollTrigger'),
+  ])
+  gsap.registerPlugin(ScrollTrigger)
+  // …
+})
+```
+- Import **dynamique** dans `onMounted` (jamais `import { gsap } from 'gsap'` au niveau module → GSAP sortirait du lazy-loading du blok).
+- Garde `prefers-reduced-motion` en première ligne.
+- Le `<h1>` candidat LCP : `gsap.from({ y })` sans `opacity`, jamais masqué.
 
 ### 3. Refs dans les templates avec v-for
 ```html

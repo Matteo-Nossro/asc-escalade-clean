@@ -95,25 +95,22 @@
 
 		<UContainer class="relative z-10 text-center">
 
-			<h1 ref="title" class="text-4xl md:text-6xl font-extrabold text-[#0F1729] mb-4 uppercase tracking-tight opacity-0">
+			<h1 ref="title" class="text-4xl md:text-6xl font-extrabold text-[#0F1729] mb-4 uppercase tracking-tight">
 				{{ blok.title || 'ACTUALITÉS' }}
 			</h1>
 
-			<p ref="subtitle" class="text-gray-500 text-lg md:text-xl font-medium max-w-2xl mx-auto mb-8 opacity-0">
+			<p ref="subtitle" class="text-gray-500 text-lg md:text-xl font-medium max-w-2xl mx-auto mb-8">
 				{{ blok.subtitle || 'Suivez toute l\'actualité du club' }}
 			</p>
 
-			<div ref="line" class="h-1.5 bg-[#7FD857] rounded-full mx-auto opacity-0" style="width: 0"></div>
+			<div ref="line" class="h-1.5 bg-[#7FD857] rounded-full mx-auto" style="width: 64px"></div>
 
 		</UContainer>
 	</section>
 </template>
 
 <script setup lang="ts">
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-gsap.registerPlugin(ScrollTrigger)
+import { ref, onMounted } from 'vue'
 
 const props = defineProps({
 	blok: {
@@ -134,23 +131,33 @@ const card1 = ref<SVGRectElement | null>(null)
 const card2 = ref<SVGRectElement | null>(null)
 const newsIcons = ref<(HTMLElement | null)[]>([])
 
-onMounted(() => {
+onMounted(async () => {
+	// Respecte la préférence système « animations réduites ».
+	if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+	// GSAP chargé à la demande — hors du bundle initial du blok.
+	const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+		import('gsap'),
+		import('gsap/ScrollTrigger'),
+	])
+	gsap.registerPlugin(ScrollTrigger)
+
 	const tl = gsap.timeline({ defaults: { ease: 'power2.out' } })
 
-	tl.to(title.value, {
-		opacity: 1,
-		y: 0,
-		duration: 1,
+	// Titre = candidat LCP : glissement seul, jamais masqué.
+	tl.from(title.value, {
+		y: 24,
+		duration: 0.9,
 		delay: 0.3
 	})
-			.to(subtitle.value, {
-				opacity: 1,
-				y: 0,
+			.from(subtitle.value, {
+				opacity: 0,
+				y: 20,
 				duration: 0.8
 			}, '-=0.5')
-			.to(line.value, {
-				width: '64px',
-				opacity: 1,
+			.from(line.value, {
+				width: 0,
+				opacity: 0,
 				duration: 0.6
 			}, '-=0.4')
 
