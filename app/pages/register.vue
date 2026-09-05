@@ -102,6 +102,11 @@
           @close="stepError = ''"
         />
 
+        <p v-if="stepError && children.length" class="-mt-3 text-xs text-gray-500">
+          Les {{ children.length }} enfant{{ children.length > 1 ? 's' : '' }} déjà ajouté{{ children.length > 1 ? 's' : '' }}
+          sont conservé{{ children.length > 1 ? 's' : '' }} — corrigez le champ signalé puis continuez.
+        </p>
+
         <!-- Identité -->
         <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
           <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
@@ -194,6 +199,21 @@
                 </template>
               </UInput>
             </UFormField>
+
+            <ul class="space-y-1">
+              <li
+                v-for="check in passwordChecks"
+                :key="check.label"
+                class="flex items-center gap-2 text-xs transition-colors"
+                :class="check.ok ? 'text-[#5ab43a]' : 'text-gray-400'"
+              >
+                <UIcon
+                  :name="check.ok ? 'i-lucide-check-circle-2' : 'i-lucide-circle'"
+                  class="w-3.5 h-3.5 shrink-0"
+                />
+                {{ check.label }}
+              </li>
+            </ul>
 
             <UFormField label="Confirmer le mot de passe" required :error="errors.passwordConfirm">
               <UInput
@@ -573,18 +593,34 @@ watch(() => childForm.value.sameAddress, (checked) => {
   }
 })
 
+// true si la date de naissance correspond à 18 ans révolus ou plus aujourd'hui.
+function isAdultBirthDate(dateStr: string): boolean {
+  if (!dateStr) return false
+  const birth = new Date(dateStr)
+  if (Number.isNaN(birth.getTime())) return false
+  const cutoff = new Date()
+  cutoff.setFullYear(cutoff.getFullYear() - 18)
+  return birth <= cutoff
+}
+
 function validateChild(): boolean {
   const e = { first_name: '', last_name: '', birth_date: '', gender: '' }
   if (!childForm.value.first_name.trim()) e.first_name = 'Le prénom est requis'
   if (!childForm.value.last_name.trim()) e.last_name = 'Le nom est requis'
-  if (!childForm.value.birth_date) e.birth_date = 'La date de naissance est requise'
+  if (!childForm.value.birth_date) {
+    e.birth_date = 'La date de naissance est requise'
+  } else if (new Date(childForm.value.birth_date) > new Date()) {
+    e.birth_date = 'La date de naissance ne peut pas être dans le futur'
+  } else if (isAdultBirthDate(childForm.value.birth_date)) {
+    e.birth_date = 'Ce parcours est réservé aux enfants mineurs'
+  }
   if (!childForm.value.gender) e.gender = 'Le sexe est requis'
   childErrors.value = e
   return !Object.values(e).some(v => v)
 }
 
-function addChild() {
-  if (!validateChild()) return
+function addChild(): boolean {
+  if (!validateChild()) return false
   children.value.push({
     first_name: childForm.value.first_name,
     last_name: childForm.value.last_name,
@@ -597,6 +633,7 @@ function addChild() {
   })
   childForm.value = { first_name: '', last_name: '', birth_date: '', gender: '', address: '', postal_code: '', city: '', sameAddress: false }
   childErrors.value = { first_name: '', last_name: '', birth_date: '', gender: '' }
+  return true
 }
 
 function removeChild(index: number) {
@@ -622,6 +659,22 @@ const maxBirthDate = computed(() => {
   d.setFullYear(d.getFullYear() - 18)
   return d.toISOString().split('T')[0]
 })
+
+// ── Exigences de mot de passe ─────────────────────────────────────────────────
+// Alignées sur la politique Supabase (min/maj, chiffre, caractère spécial).
+// Vérifiées en direct pour éviter un rejet au moment de la création du compte
+// (parcours mineur : après avoir déjà saisi les enfants à l'étape 3).
+const passwordChecks = computed(() => {
+  const p = form.value.password
+  return [
+    { label: 'Au moins 8 caractères', ok: p.length >= 8 },
+    { label: 'Une lettre minuscule', ok: /[a-z]/.test(p) },
+    { label: 'Une lettre majuscule', ok: /[A-Z]/.test(p) },
+    { label: 'Un chiffre', ok: /\d/.test(p) },
+    { label: 'Un caractère spécial (! ? @ # …)', ok: /[^A-Za-z0-9]/.test(p) },
+  ]
+})
+const passwordValid = computed(() => passwordChecks.value.every(c => c.ok))
 
 // ── Autocomplétion adresse (Base Adresse Nationale) ───────────────────────────
 interface AddressSuggestion {
@@ -700,8 +753,8 @@ function validate(): boolean {
 
   if (!form.value.password) {
     e.password = 'Le mot de passe est requis'
-  } else if (form.value.password.length < 8) {
-    e.password = 'Le mot de passe doit contenir au moins 8 caractères'
+  } else if (!passwordValid.value) {
+    e.password = 'Le mot de passe ne respecte pas toutes les exigences indiquées'
   }
 
   if (!form.value.passwordConfirm) {
@@ -757,7 +810,10 @@ async function submitRegistration() {
   const hasAny = cf.first_name.trim() || cf.last_name.trim() || cf.birth_date || cf.address.trim()
 
   if (hasRequired) {
-    addChild()
+    if (!addChild()) {
+      stepError.value = "Le dernier enfant saisi comporte une erreur. Corrigez le champ signalé ou videz le formulaire avant de terminer."
+      return
+    }
   } else if (hasAny) {
     stepError.value = 'Le formulaire enfant est incomplet. Complétez le prénom, le nom et la date de naissance, ou videz-le avant de terminer.'
     return

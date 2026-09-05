@@ -236,6 +236,16 @@
               Lier
             </UButton>
           </div>
+
+          <label class="flex items-center gap-2 text-xs text-gray-500 cursor-pointer">
+            <input
+              type="checkbox"
+              :checked="linkChildrenIncludeAdults"
+              class="rounded border-gray-300"
+              @change="onToggleIncludeAdults"
+            />
+            Afficher aussi les personnes majeures (par défaut, seuls les mineurs sont proposés)
+          </label>
         </div>
       </form>
     </template>
@@ -297,6 +307,7 @@ const props = defineProps<{
   availableRoles: { code: string; label: string }[]
   linkableChildren: { label: string; value: string }[]
   childToLink: string | null
+  linkChildrenIncludeAdults: boolean
   linkedParents: { id: string; name: string; birth_date?: string | null; phone?: string | null; mobile?: string | null }[]
 }>()
 
@@ -304,6 +315,7 @@ const emit = defineEmits<{
   'update:open': [value: boolean]
   'save': []
   'update:childToLink': [value: string | null]
+  'update:linkChildrenIncludeAdults': [value: boolean]
   'add-child': []
   'remove-child': [childId: string]
 }>()
@@ -382,5 +394,9 @@ function formatBirthDate(dateStr: string | null | undefined): string {
   if (!dateStr) return ''
   const [y, m, d] = dateStr.split('-')
   return `${d}/${m}/${y}`
+}
+
+function onToggleIncludeAdults(e: Event) {
+  emit('update:linkChildrenIncludeAdults', (e.target as HTMLInputElement).checked)
 }
 </script>

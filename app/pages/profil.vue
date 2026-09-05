@@ -72,7 +72,20 @@
               />
             </UFormField>
 
-            <p class="text-xs text-gray-400">Minimum 8 caractères.</p>
+            <ul class="space-y-1">
+              <li
+                v-for="check in resetPasswordChecks"
+                :key="check.label"
+                class="flex items-center gap-2 text-xs transition-colors"
+                :class="check.ok ? 'text-[#5ab43a]' : 'text-gray-400'"
+              >
+                <UIcon
+                  :name="check.ok ? 'i-lucide-check-circle-2' : 'i-lucide-circle'"
+                  class="w-3.5 h-3.5 shrink-0"
+                />
+                {{ check.label }}
+              </li>
+            </ul>
 
             <UButton
               type="submit"
@@ -560,6 +573,19 @@ const resetSuccess = ref(false)
 const resetError = ref('')
 const resetErrors = ref({ password: '', confirm: '' })
 
+// Exigences alignées sur la politique Supabase (min/maj, chiffre, caractère spécial).
+const resetPasswordChecks = computed(() => {
+  const p = resetForm.value.password
+  return [
+    { label: 'Au moins 8 caractères', ok: p.length >= 8 },
+    { label: 'Une lettre minuscule', ok: /[a-z]/.test(p) },
+    { label: 'Une lettre majuscule', ok: /[A-Z]/.test(p) },
+    { label: 'Un chiffre', ok: /\d/.test(p) },
+    { label: 'Un caractère spécial (! ? @ # …)', ok: /[^A-Za-z0-9]/.test(p) },
+  ]
+})
+const resetPasswordValid = computed(() => resetPasswordChecks.value.every(c => c.ok))
+
 async function handleResetPassword() {
   resetErrors.value = { password: '', confirm: '' }
   resetError.value = ''
@@ -568,8 +594,8 @@ async function handleResetPassword() {
   if (!resetForm.value.password) {
     resetErrors.value.password = 'Le mot de passe est requis'
     valid = false
-  } else if (resetForm.value.password.length < 8) {
-    resetErrors.value.password = 'Le mot de passe doit contenir au moins 8 caractères'
+  } else if (!resetPasswordValid.value) {
+    resetErrors.value.password = 'Le mot de passe ne respecte pas toutes les exigences indiquées'
     valid = false
   }
   if (!resetForm.value.confirm) {

@@ -81,10 +81,12 @@
       :available-roles="availableRoles"
       :linkable-children="linkableChildrenOptions"
       :child-to-link="childToLink"
+      :link-children-include-adults="linkChildrenIncludeAdults"
       :linked-parents="linkedParents"
       @update:open="isModalOpen = $event"
       @save="saveMember"
       @update:child-to-link="childToLink = $event"
+      @update:link-children-include-adults="linkChildrenIncludeAdults = $event"
       @add-child="addChildLink"
       @remove-child="removeChildLink"
     />
@@ -307,10 +309,27 @@ const saving = ref(false)
 const childToLink = ref<string | null>(null)
 const linkedParents = ref<{ id: string; name: string }[]>([])
 
+// Par défaut, le select « enfant à lier » ne propose que des personnes mineures
+// à la date du jour. Cette case (dans le modal) permet d'afficher aussi les majeurs.
+const linkChildrenIncludeAdults = ref(false)
+
 function formatBirthDate(dateStr: string | null | undefined): string {
   if (!dateStr) return ''
   const [y, m, d] = dateStr.split('-')
   return `${d}/${m}/${y}`
+}
+
+// true seulement si la date de naissance est connue ET vaut 18 ans ou plus aujourd'hui.
+// Une date inconnue reste proposée : on ne masque que les majeurs certains.
+function isAdultToday(dateStr: string | null | undefined): boolean {
+  if (!dateStr) return false
+  const birth = new Date(dateStr)
+  if (Number.isNaN(birth.getTime())) return false
+  const now = new Date()
+  let age = now.getFullYear() - birth.getFullYear()
+  const m = now.getMonth() - birth.getMonth()
+  if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) age--
+  return age >= 18
 }
 
 const memberForm = ref({
@@ -360,6 +379,7 @@ const availableRoles = [
 const linkableChildrenOptions = computed(() =>
   allRows.value
     .filter(r => !memberForm.value.linkedChildren.some(c => c.id === r.id) && r.id !== memberForm.value.id)
+    .filter(r => linkChildrenIncludeAdults.value || !isAdultToday(r._profile?.birth_date))
     .map(r => {
       const bd = formatBirthDate(r._profile?.birth_date)
       return { label: bd ? `${r.name} — ${bd}` : r.name, value: r.id }
@@ -442,6 +462,7 @@ async function openMemberModal(member: AdherentWithRoles | null = null) {
     linkedParents.value = []
   }
   childToLink.value = null
+  linkChildrenIncludeAdults.value = false
   isModalOpen.value = true
 }
 
