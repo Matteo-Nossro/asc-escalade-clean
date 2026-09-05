@@ -62,7 +62,7 @@
 				</li>
 			</ul>
 
-			<UButton to="#" block color="primary" variant="solid" size="lg" class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6nc546] font-bold">
+			<UButton to="#" block color="primary" variant="solid" size="lg" class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546] font-bold">
 				S'inscrire
 			</UButton>
 		</div>

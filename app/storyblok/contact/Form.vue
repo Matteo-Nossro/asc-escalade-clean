@@ -96,10 +96,10 @@
 					type="submit"
 					size="xl"
 					:loading="loading"
-					:color="success ? 'green' : 'primary'"
+					:color="success ? 'success' : 'primary'"
 					class="font-bold transition-all duration-300"
 					:class="[
-						success ? 'bg-green-500 text-white' : 'bg-[#7FD857] hover:bg-[#6nc546] text-[#0F1729]'
+						success ? 'bg-green-500 text-white' : 'bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729]'
 					]"
 					:ui="{ rounded: 'rounded-lg', padding: { xl: 'px-8 py-3' } }"
 				>

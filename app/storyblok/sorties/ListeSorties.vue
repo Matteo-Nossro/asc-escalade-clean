@@ -181,11 +181,11 @@ const getCategoryColor = (category: string) => {
 }
 
 const getRemainingPlaces = (sortie: any) => {
-	if (!sortie.max_participants || !sortie.current_participants) return 0
-	return sortie.max_participants - sortie.current_participants
+	if (sortie.max_participants == null) return 0
+	return Math.max(0, sortie.max_participants - (sortie.current_participants ?? 0))
 }
 
 const isFullyBooked = (sortie: any) => {
-	return getRemainingPlaces(sortie) <= 0
+	return sortie.max_participants != null && getRemainingPlaces(sortie) <= 0
 }
 </script>
