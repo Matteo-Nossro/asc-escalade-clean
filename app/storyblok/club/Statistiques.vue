@@ -27,7 +27,7 @@
 						v-for="(stat, index) in stats"
 						:key="stat._uid || index"
 						:ref="el => { if (el) statRefs[index] = el }"
-						class="flex flex-col items-center gap-2 opacity-0"
+						class="flex flex-col items-center gap-2"
 				>
 					<div class="relative">
 						<UIcon :name="stat.icon || 'i-heroicons-chart-bar'" class="w-8 h-8 text-[#7FD857] transition-transform hover:scale-110 duration-300" />
@@ -39,7 +39,7 @@
 					<span
 							:ref="el => { if (el) countRefs[index] = el }"
 							class="text-4xl font-extrabold text-[#0F1729]"
-					>0</span>
+					>{{ formatStat(stat) }}</span>
 					<span class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ stat.label }}</span>
 				</div>
 
@@ -80,6 +80,11 @@ const stats = computed(() => {
 	]
 })
 
+// Valeur finale affichée dans le HTML rendu côté serveur (lisible sans JS / par les crawlers).
+// L'animation « compteur » côté client repart de 0 uniquement si le JS est actif.
+const formatStat = (stat: Record<string, any>) =>
+	`${Number(stat.value) || 0}${stat.suffix || ''}`
+
 // blok.columns_per_row : nombre de colonnes par ligne (1-6), défini dans Storyblok
 // Fallback : min(nb stats, 4) pour respecter le comportement original
 const gridClass = computed(() => {
@@ -90,6 +95,9 @@ const gridClass = computed(() => {
 })
 
 onMounted(() => {
+	// Respecte « animations réduites » : les valeurs sont déjà dans le HTML, on ne touche à rien.
+	if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
 	if (triangleRef.value) {
 		gsap.to(triangleRef.value, {
 			y: -20,
@@ -128,7 +136,7 @@ onMounted(() => {
 	})
 
 	statRefs.value.forEach((el, index) => {
-		tl.to(el, { opacity: 1, y: 0, duration: 0.6, ease: 'back.out(1.5)' }, index === 0 ? undefined : '-=0.4')
+		tl.from(el, { opacity: 0, y: 20, duration: 0.6, ease: 'back.out(1.5)' }, index === 0 ? undefined : '-=0.4')
 	})
 
 	pulseRefs.value.forEach((pulse, index) => {

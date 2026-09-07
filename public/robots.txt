@@ -5,4 +5,4 @@ Disallow: /login
 Disallow: /callback
 Disallow: /api/
 
-Sitemap: https://asc-escalade.fr/sitemap.xml
+Sitemap: https://escalade-chevigny.fr/sitemap.xml

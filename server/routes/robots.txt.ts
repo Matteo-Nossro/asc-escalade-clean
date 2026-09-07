@@ -5,7 +5,7 @@
  */
 export default defineEventHandler((event) => {
   const config = useRuntimeConfig(event)
-  const siteUrl = (config.public.siteUrl as string) || 'https://asc-escalade.fr'
+  const siteUrl = (config.public.siteUrl as string) || 'https://escalade-chevigny.fr'
 
   setHeader(event, 'Content-Type', 'text/plain; charset=utf-8')
 

@@ -25,13 +25,20 @@ export async function requireAdmin(
     throw createError({ statusCode: 401, statusMessage: 'Non authentifié' })
   }
 
+  // serverSupabaseUser peut retourner le payload JWT brut (avec `sub`) plutôt
+  // qu'un objet User Supabase (avec `id`) selon la version de @nuxtjs/supabase.
+  const userId: string = user.id || (user as any).sub
+  if (!userId) {
+    throw createError({ statusCode: 401, statusMessage: 'Non authentifié' })
+  }
+
   const client = serverSupabaseServiceRole(event)
   const allowed = options.requiredRole ? [options.requiredRole] : [...ADMIN_ROLES]
 
   const { data, error } = await client
     .from('user_roles')
     .select('role_code')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .in('role_code', allowed)
     .limit(1)
 
@@ -39,5 +46,5 @@ export async function requireAdmin(
     throw createError({ statusCode: 403, statusMessage: 'Accès refusé' })
   }
 
-  return { user, roles: data.map(r => r.role_code as string) }
+  return { user, userId, roles: data.map(r => r.role_code as string) }
 }

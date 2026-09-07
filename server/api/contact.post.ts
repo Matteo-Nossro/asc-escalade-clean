@@ -50,8 +50,8 @@ export default defineEventHandler(async (event) => {
     : `[Contact] Message de ${cleanName}`
 
   const { error } = await resend.emails.send({
-    from: 'ASC Escalade <noreply@asc.nossereau.fr>',
-    to: 'matnoss@gmail.com',
+    from: 'ASC Escalade <contact@escalade-chevigny.fr>',
+    to: 'escaladechevigny@gmail.com',
     replyTo: cleanEmail,
     subject: subjectLine,
     html: `

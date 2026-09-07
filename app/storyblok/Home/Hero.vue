@@ -75,20 +75,22 @@
         <!-- Boutons -->
         <div ref="buttonsRef" class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
           <UButton
-            :to="blok.primaryButton[0].link.cached_url"
+            v-if="blok.primaryButton?.[0]"
+            :to="blok.primaryButton[0].link?.cached_url"
             size="xl"
             class="group relative bg-[#7FD857] hover:bg-[#6bc745] text-[#0F1729] font-bold px-8 py-4 justify-center overflow-hidden shadow-lg hover:shadow-xl transition-all"
             :ui="{ rounded: 'rounded-full' }"
           >
             <span class="relative z-10 flex items-center gap-2">
-              {{ blok.primaryButton[0].text  }}
+              {{ blok.primaryButton[0].text }}
               <UIcon name="i-heroicons-arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </span>
             <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
           </UButton>
 
           <UButton
-            :to="blok.secondaryButton[0].link.cached_url"
+            v-if="blok.secondaryButton?.[0]"
+            :to="blok.secondaryButton[0].link?.cached_url"
             size="xl"
             class="group relative bg-white/10 backdrop-blur-md hover:bg-white/20 text-white font-bold px-8 py-4 justify-center border-2 border-white/30 hover:border-white shadow-lg hover:shadow-xl transition-all"
             :ui="{ rounded: 'rounded-full' }"
@@ -157,7 +159,6 @@ const summit1Ref = ref<SVGCircleElement | null>(null)
 const summit2Ref = ref<SVGCircleElement | null>(null)
 const summit3Ref = ref<SVGCircleElement | null>(null)
 const zigzagRef = ref<SVGPathElement | null>(null)
-const particles = ref<(HTMLElement | null)[]>([])
 
 onMounted(async () => {
   // Respecte la préférence système « animations réduites » : aucune animation d'entrée.
@@ -212,20 +213,6 @@ onMounted(async () => {
     gsap.to(zigzagRef.value, { strokeDashoffset: 0, duration: 2, ease: 'power1.inOut', delay: 3 })
     gsap.to(zigzagRef.value, { strokeDashoffset: -800, duration: 8, repeat: -1, ease: 'linear', delay: 5 })
   }
-
-  particles.value.forEach((particle) => {
-    if (particle) {
-      gsap.to(particle, {
-        opacity: Math.random() * 0.6 + 0.2,
-        y: -100 - Math.random() * 150,
-        x: (Math.random() - 0.5) * 100,
-        duration: 4 + Math.random() * 4,
-        delay: Math.random() * 2,
-        repeat: -1,
-        ease: 'none'
-      })
-    }
-  })
 })
 </script>
 

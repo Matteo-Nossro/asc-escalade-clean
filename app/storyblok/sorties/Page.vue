@@ -147,11 +147,12 @@ const getCategoryColor = (category: string) => {
 }
 
 const getRemainingPlaces = (sortie: any) => {
-	if (!sortie.maxParticipants || !sortie.currentParticipants) return 0
-	return sortie.maxParticipants - sortie.currentParticipants
+	if (sortie.maxParticipants == null) return 0
+	return Math.max(0, sortie.maxParticipants - (sortie.currentParticipants ?? 0))
 }
 
-const isFullyBooked = (sortie: any) => getRemainingPlaces(sortie) <= 0
+const isFullyBooked = (sortie: any) =>
+	sortie.maxParticipants != null && getRemainingPlaces(sortie) <= 0
 
 useSeo({
 	blok: props.blok,

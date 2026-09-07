@@ -13,6 +13,48 @@ const SITE_NAME = 'ASC Escalade'
 const DEFAULT_DESCRIPTION =
   "Club d'escalade de Chevigny-Saint-Sauveur. Séances en salle et en falaise pour tous les niveaux."
 
+/**
+ * Image sociale par défaut (og:image / twitter:image) utilisée quand une page
+ * ne définit pas son propre `seo_og_image` dans Storyblok.
+ * Logo officiel recadré en 1200×630 (ratio recommandé), fond blanc ajouté pour
+ * les zones transparentes. Remplacer par une photo paysage du mur si disponible.
+ */
+const DEFAULT_OG_IMAGE: string | null =
+  'https://a.storyblok.com/f/291351822158044/2481x3508/ea0c2d1e7b/logoasc-escalade-2026-sans-texte.png/m/fit-in/1200x630/filters:fill(ffffff):format(jpeg):quality(85)'
+
+/**
+ * Coordonnées officielles du club — source unique pour les données structurées.
+ * Fournies par le club (audit SEO). Ne pas inventer : compléter via cette constante
+ * quand une information manque (ex. openingHoursSpecification).
+ */
+const CLUB_INFO = {
+  logo: 'https://a.storyblok.com/f/291351822158044/2481x3508/ea0c2d1e7b/logoasc-escalade-2026-sans-texte.png',
+  telephone: '+33380464671',
+  email: 'contact@escalade-chevigny.fr',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'Gymnase Boivin',
+    postalCode: '21800',
+    addressLocality: 'Chevigny-Saint-Sauveur',
+    addressRegion: 'Bourgogne-Franche-Comté',
+    addressCountry: 'FR',
+  },
+  sameAs: [
+    'https://www.facebook.com/ascescaladechevigny/',
+    'https://www.instagram.com/asc.escalade.chevigny/',
+  ],
+  /** Créneaux d'ouverture de la salle (Gymnase Boivin). Dimanche fermé → non listé. */
+  openingHoursSpecification: [
+    { '@type': 'OpeningHoursSpecification', dayOfWeek: 'Monday', opens: '17:30', closes: '22:00' },
+    { '@type': 'OpeningHoursSpecification', dayOfWeek: 'Tuesday', opens: '16:00', closes: '21:00' },
+    { '@type': 'OpeningHoursSpecification', dayOfWeek: 'Wednesday', opens: '11:30', closes: '12:30' },
+    { '@type': 'OpeningHoursSpecification', dayOfWeek: 'Wednesday', opens: '14:00', closes: '21:45' },
+    { '@type': 'OpeningHoursSpecification', dayOfWeek: 'Thursday', opens: '17:30', closes: '21:15' },
+    { '@type': 'OpeningHoursSpecification', dayOfWeek: 'Friday', opens: '17:30', closes: '22:30' },
+    { '@type': 'OpeningHoursSpecification', dayOfWeek: 'Saturday', opens: '09:30', closes: '12:30' },
+  ],
+} as const
+
 interface SeoOptions {
   /** Titre de la page (sans le nom du site). Prend le dessus sur blok.seo_title. */
   title?: string | null
@@ -49,7 +91,6 @@ export const useSeo = (options: SeoOptions = {}) => {
   const { blok, type = 'website', noindex = false } = options
 
   const requestUrl = useRequestURL()
-  const route = useRoute()
   const canonicalUrl = `${requestUrl.origin}${requestUrl.pathname}`
   const siteOrigin = requestUrl.origin
 
@@ -71,13 +112,13 @@ export const useSeo = (options: SeoOptions = {}) => {
     blok?.excerpt ??
     DEFAULT_DESCRIPTION
 
-  // Image OG : override > seo_og_image Storyblok (transformée en 1200×630 webp)
+  // Image OG : override > seo_og_image Storyblok (transformée en 1200×630 webp) > image sociale par défaut du site
   const ogImageFilename = blok?.seo_og_image?.filename as string | undefined
   const pageImage: string | null =
     options.image ??
     (ogImageFilename
       ? `${ogImageFilename}/m/1200x630/filters:quality(80):format(webp)`
-      : null)
+      : DEFAULT_OG_IMAGE)
 
   useSeoMeta({
     title: pageTitle,
@@ -103,40 +144,26 @@ export const useSeo = (options: SeoOptions = {}) => {
 
   const scripts: { type: string; key: string; innerHTML: string }[] = []
 
-  // Organization — présent sur toutes les pages
+  // SportsClub — entité principale du club, présente sur toutes les pages.
+  // (SportsClub est un sous-type de Organization : une seule entité, pas de doublon.)
   scripts.push({
     type: 'application/ld+json',
-    key: 'json-ld-org',
+    key: 'json-ld-sportsclub',
     innerHTML: JSON.stringify({
       '@context': 'https://schema.org',
-      '@type': 'Organization',
+      '@type': 'SportsClub',
       name: SITE_NAME,
+      description: DEFAULT_DESCRIPTION,
       url: siteOrigin,
-      logo: `${siteOrigin}/images/logo.png`,
-      sameAs: [] as string[]
+      logo: CLUB_INFO.logo,
+      telephone: CLUB_INFO.telephone,
+      email: CLUB_INFO.email,
+      address: CLUB_INFO.address,
+      sameAs: CLUB_INFO.sameAs,
+      openingHoursSpecification: CLUB_INFO.openingHoursSpecification,
+      sport: 'Climbing'
     })
   })
-
-  // SportsClub — page d'accueil uniquement
-  if (route.path === '/') {
-    scripts.push({
-      type: 'application/ld+json',
-      key: 'json-ld-sportsclub',
-      innerHTML: JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'SportsClub',
-        name: SITE_NAME,
-        description: pageDescription,
-        url: siteOrigin,
-        address: {
-          '@type': 'PostalAddress',
-          addressLocality: 'Chevigny-Saint-Sauveur',
-          addressRegion: 'Bourgogne-Franche-Comté',
-          addressCountry: 'FR'
-        }
-      })
-    })
-  }
 
   // BlogPosting — posts de type actualité
   if (options.postType === 'actualite') {

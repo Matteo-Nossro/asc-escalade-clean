@@ -19,13 +19,15 @@
 
 <script setup>
 import { computed } from 'vue'
+import { renderRichText } from '@storyblok/vue'
 
 const props = defineProps({ blok: Object })
 
 const tabItems = computed(() => {
   return props.blok.tabs?.map(tab => ({
     label: tab.label,
-    richContent: tab.content // Stocké pour le v-html dans le template
+    // `content` peut être un champ Richtext (objet) ou un simple texte.
+    richContent: typeof tab.content === 'string' ? tab.content : renderRichText(tab.content)
   })) || []
 })
 </script>
