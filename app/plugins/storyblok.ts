@@ -67,6 +67,19 @@ export default defineNuxtPlugin(({ vueApp }) => {
   vueApp.component('tarifs-grille-tarifs', lazy(() => import('../storyblok/tarifs/GrilleTarifs.vue')))
   vueApp.component('liste-groupe-accordeon', lazy(() => import('../storyblok/tarifs/ListeGroupeAccordeon.vue')))
 
+  // Inscriptions
+  vueApp.component('inscriptions-page', lazy(() => import('../storyblok/inscriptions/InscriptionsPage.vue')))
+  vueApp.component('inscriptions-hero', lazy(() => import('../storyblok/inscriptions/InscriptionsHero.vue')))
+  vueApp.component('inscriptions-parcours', lazy(() => import('../storyblok/inscriptions/InscriptionsParcours.vue')))
+  vueApp.component('inscriptions-niveaux', lazy(() => import('../storyblok/inscriptions/InscriptionsNiveaux.vue')))
+  vueApp.component('inscriptions-permanences', lazy(() => import('../storyblok/inscriptions/InscriptionsPermanences.vue')))
+  vueApp.component('inscriptions-documents', lazy(() => import('../storyblok/inscriptions/InscriptionsDocuments.vue')))
+  vueApp.component('inscriptions-sante', lazy(() => import('../storyblok/inscriptions/InscriptionsSante.vue')))
+  vueApp.component('inscriptions-cartes-info', lazy(() => import('../storyblok/inscriptions/InscriptionsCartesInfo.vue')))
+  vueApp.component('inscriptions-cotisations', lazy(() => import('../storyblok/inscriptions/InscriptionsCotisations.vue')))
+  vueApp.component('inscriptions-aides', lazy(() => import('../storyblok/inscriptions/InscriptionsAides.vue')))
+  vueApp.component('inscriptions-cta', lazy(() => import('../storyblok/inscriptions/InscriptionsCta.vue')))
+
   // UI général
   vueApp.component('action-bouton', lazy(() => import('../storyblok/ui/ActionBouton.vue')))
   vueApp.component('bouton', lazy(() => import('../storyblok/ui/Bouton.vue')))
