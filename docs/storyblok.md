@@ -21,6 +21,7 @@ vueApp.component('technical-name', ImportedComponent)
 | `contact-page` | `storyblok/contact/ContactPage.vue` | `body` (Blocks) layout 2 colonnes |
 | `actualites-page` | `storyblok/actualites/Page.vue` | `body` (Blocks) |
 | `sorties-page` | `storyblok/sorties/Page.vue` | `body` (Blocks) |
+| `inscriptions-page` | `storyblok/inscriptions/InscriptionsPage.vue` | `body` (Blocks) — story slug `inscriptions` (le fichier `app/pages/inscriptions.vue` la masque tant qu'il existe) |
 
 ---
 
@@ -76,6 +77,88 @@ vueApp.component('technical-name', ImportedComponent)
 | `tarifs-bon-a-savoir` | `tarifs/BonASavoir.vue` | — |
 | `tarifs-grille-tarifs` | `tarifs/GrilleTarifs.vue` | — |
 | `liste-groupe-accordeon` | `tarifs/ListeGroupeAccordeon.vue` | `title` (Text) — accordéon des groupes d'escalade, données chargées depuis Supabase via `GroupsAccordion` |
+
+### Inscriptions
+
+Story slug `inscriptions`, content type `inscriptions-page` (champ `body`). Ordre des bloks
+reproduisant la page actuelle : `inscriptions-hero` → `inscriptions-permanences` →
+`inscriptions-niveaux` → `inscriptions-documents` → `inscriptions-sante` → `inscriptions-cartes-info` (Assurance &
+règlement) → `inscriptions-cotisations` → `inscriptions-aides` → `inscriptions-cartes-info`
+(Créneaux & groupes) → `inscriptions-cta`.
+
+**Tous les bloks `inscriptions-*` acceptent un champ `fond` (Option, technical values : `blanc`
+\| `gris` \| `vert` \| `bleu-nuit`, défaut `blanc`)** et un champ `anchor_id` (Text). Cela permet
+de réordonner les bloks librement dans `body` et d'alterner les couleurs de section sans toucher
+au code. Le mapping couleur → classes est centralisé dans `useInscriptionsFond()`
+(`app/composables/useInscriptionsFond.ts`) ; `bleu-nuit` (fond sombre + titres clairs) est à
+réserver aux bloks composés de cartes blanches (permanences, documents, santé, cotisations,
+aides, niveaux).
+
+| Technical name | Composant | Champs (hors `fond` + `anchor_id`, communs) |
+|---|---|---|
+| `inscriptions-hero` | `inscriptions/InscriptionsHero.vue` | `badge` (Text), `title` (Text), `subtitle` (Textarea), `liens` (Blocks → `inscriptions-ancre`) |
+| `inscriptions-niveaux` | `inscriptions/InscriptionsNiveaux.vue` | `surtitre?`, `title` (Text, défaut « Quel est mon niveau ? »), `intro` (Textarea), `niveaux` (Blocks → `inscriptions-niveau`), `note` (Textarea — bandeau bleu nuit en bas) — grille 2 colonnes des équivalences de niveaux |
+| `inscriptions-permanences` | `inscriptions/InscriptionsPermanences.vue` | `surtitre` (Text, ex `Étape 1`), `title` (Text), `permanences` (Blocks → `inscriptions-permanence`), `encadre` (Richtext — bandeau bleu nuit en bas) |
+| `inscriptions-documents` | `inscriptions/InscriptionsDocuments.vue` | `surtitre`, `title`, `intro` (Textarea), `colonnes` (Blocks → `inscriptions-doc-groupe`), `document_seul` (Blocks → `inscriptions-doc`, 1 seul — carte pleine largeur) |
+| `inscriptions-sante` | `inscriptions/InscriptionsSante.vue` | `surtitre`, `title`, `etapes` (Blocks → `inscriptions-sante-etape`) |
+| `inscriptions-cartes-info` | `inscriptions/InscriptionsCartesInfo.vue` | `surtitre?`, `title?`, `cartes` (Blocks → `inscriptions-carte-info`) — grille 2 colonnes réutilisable |
+| `inscriptions-cotisations` | `inscriptions/InscriptionsCotisations.vue` | `surtitre`, `title`, `intro` (Textarea), `lignes` (Blocks → `inscriptions-cotisation-ligne`), `note` (Textarea). **En-têtes de colonnes figés** (Catégorie / Licence FFME / CT21 / Ligue / Cotisation club / Total) |
+| `inscriptions-aides` | `inscriptions/InscriptionsAides.vue` | `titre_reductions` (Text), `reductions` (Blocks → `inscriptions-item`), `titre_paiement` (Text), `paiement_texte` (Textarea), `paiement_modes` (Blocks → `inscriptions-item`) |
+| `inscriptions-cta` | `inscriptions/InscriptionsCta.vue` | `title` (Text), `texte` (Textarea), `bouton_label` (Text), `bouton_lien` (Link), `icon` (Text, défaut `i-heroicons-envelope`) |
+
+**Nestables inscriptions** (schémas Storyblok uniquement — pas de `.vue`, consommés comme données) :
+- `inscriptions-ancre` : `label` (Text), `ancre` (Text, ex `#permanences`)
+- `inscriptions-niveau` : `numero` (Text, ex `1`), `titre` (Text), `resume` (Textarea — phrase courte en italique), `competences` (Blocks → `inscriptions-item`), `equivalence` (Text — pastille « Équivaut à : … »)
+- `inscriptions-permanence` : `icon` (Text, défaut `i-heroicons-calendar-days`), `tag` (Text), `title` (Text), `audience` (Text), `date` (Text), `horaire` (Text), `lieu` (Text)
+- `inscriptions-doc-groupe` : `icon` (Text), `titre` (Text), `sous_titre` (Text), `documents` (Blocks → `inscriptions-doc`)
+- `inscriptions-doc` : `titre` (Text), `hint` (Text), `icon` (Text), `fichier` (**Asset** — document dans la bibliothèque Storyblok, prioritaire), `url_externe` (Link — repli si pas d'asset)
+- `inscriptions-sante-etape` : `numero` (Text, ex `1`), `titre` (Text), `texte` (Richtext), `encadre` (Textarea — encart vert clair optionnel), `cas` (Blocks → `inscriptions-sante-cas`), `bouton_label` (Text), `bouton_fichier` (Asset optionnel), `bouton_lien` (Link)
+- `inscriptions-sante-cas` : `numero` (Text, ex `1er cas`), `titre` (Text), `detail` (Text)
+- `inscriptions-carte-info` : `icon` (Text), `titre` (Text), `texte` (Richtext), `theme` (Option : `clair` \| `fonce`), `liens` (Blocks → `inscriptions-lien`), `bouton_label` (Text), `bouton_fichier` (Asset optionnel), `bouton_lien` (Link), `bouton_style` (Option : `vert` \| `sombre` \| `outline`)
+- `inscriptions-lien` : `label` (Text), `fichier` (**Asset** — prioritaire), `lien` (Link — repli), `icon` (Text, défaut `i-heroicons-arrow-top-right-on-square`)
+- `inscriptions-cotisation-ligne` : `categorie` (Text), `hint` (Text), `licence` (Text), `ct21` (Text), `ligue` (Text), `club` (Text), `total` (Text)
+- `inscriptions-parcours-etape` : `numero` (Text), `titre` (Text), `texte` (Richtext), `bouton_label` (Text), `bouton_fichier` (Asset optionnel), `bouton_lien` (Link)
+- `inscriptions-item` : `texte` (Text)
+
+**Fichiers / documents** : les champs `fichier` / `bouton_fichier` sont des **Assets Storyblok** (PDF, Word…),
+résolus en priorité sur le champ Link associé via `useStoryblokLink().resolveFileOrLink(asset, link)`.
+Un champ Asset sans `filetypes` accepte tous les types de fichiers.
+
+#### Créer ces bloks sans passer par l'UI
+
+Le script `scripts/storyblok-inscriptions-components.mjs` génère les 23 définitions
+(content type + sections + nestables) au format CLI Storyblok v4.
+
+```bash
+npm run sb:inscriptions        # écrit .storyblok/components/inscriptions.components.json (référence)
+
+npx storyblok login
+npx storyblok components pull --space <SPACE_ID>                       # rafraîchit le miroir local
+node scripts/storyblok-inscriptions-components.mjs --merge \
+  .storyblok/components/<SPACE_ID>/components.json                     # fusionne (remplace par name)
+npx storyblok components push --space <SPACE_ID>                       # crée / met à jour dans Storyblok
+```
+
+Le `--merge` ne touche qu'aux composants `inscriptions-*` ; les autres composants du
+`components.json` fraîchement « pull » sont conservés tels quels.
+
+**Contenu du parcours en ligne** (`inscriptions-parcours`, onglets adulte / enfant, récupéré de
+l'ancienne page `inscriptions.vue`) : `npm run sb:inscriptions:parcours` écrit le bloc pré-rempli.
+Pour l'injecter dans la story :
+
+```bash
+npx storyblok stories pull --space <SPACE_ID> --starts-with inscriptions
+node scripts/storyblok-inscriptions-parcours-content.mjs --into .storyblok/stories/<SPACE_ID>/inscriptions.json
+npx storyblok stories push --space <SPACE_ID>
+```
+
+Le bloc est inséré juste avant `inscriptions-cta` (ou en fin de `body`), et tout `inscriptions-parcours`
+déjà présent est remplacé.
+
+Helpers associés : `useStoryblokLink()` (`resolveLink(link)` → `{ href, external }` ;
+`resolveFileOrLink(asset, link)` → asset prioritaire),
+`useGsapReveal(rootRef)` (fondu au scroll des `[data-reveal]`) et
+`useInscriptionsFond(() => blok.fond)` (couleur de section → `{ section, titre, texte, sombre }`).
 
 ### Contact
 | Technical name | Composant | Champs |
