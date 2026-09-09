@@ -5,6 +5,9 @@
 
   Ce composant n'est PAS un bloc Storyblok : il est utilisé en interne.
 
+  Quand un ancêtre fournit `blocDansModal = true` (bloc-popup), le châssis se
+  réduit : pas de <section> pleine largeur, pas de padding vertical, pas de fond.
+
   Props :
     - fond        : 'blanc' | 'gris' | 'vert' | 'bleu-nuit'
     - anchorId    : id d'ancre (#...)
@@ -17,17 +20,21 @@
     - #header : remplace l'en-tête standard
 -->
 <template>
-  <section
+  <component
+    :is="dansModal ? 'div' : 'section'"
     :id="anchorId || undefined"
     ref="root"
-    class="scroll-mt-28"
-    :class="[fondClasses.section, compact ? 'py-10 md:py-14' : 'py-16 md:py-24']"
+    :class="[
+      dansModal ? '' : 'scroll-mt-28',
+      dansModal ? '' : fondClasses.section,
+      dansModal ? '' : compact ? 'py-10 md:py-14' : 'py-16 md:py-24',
+    ]"
   >
-    <UContainer>
+    <component :is="dansModal ? 'div' : 'UContainer'">
       <div
         v-if="$slots.header || surtitre || titre || intro"
-        class="text-center mb-12"
-        :class="headerWidth"
+        class="text-center max-w-3xl mx-auto"
+        :class="dansModal ? 'mb-6' : 'mb-12'"
         data-reveal
       >
         <slot name="header">
@@ -39,8 +46,8 @@
           </span>
           <h2
             v-if="titre"
-            class="text-3xl md:text-4xl font-bold mt-2"
-            :class="fondClasses.titre"
+            class="font-bold mt-2"
+            :class="[dansModal ? 'text-xl md:text-2xl' : 'text-3xl md:text-4xl', fondClasses.titre]"
           >
             {{ titre }}
           </h2>
@@ -48,15 +55,15 @@
         </slot>
       </div>
 
-      <div :class="contentWidth">
+      <div :class="dansModal ? 'w-full' : contentWidth">
         <slot />
       </div>
-    </UContainer>
-  </section>
+    </component>
+  </component>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, inject } from 'vue'
 import { useSectionFond } from '~/composables/useSectionFond'
 
 const props = defineProps({
@@ -68,6 +75,8 @@ const props = defineProps({
   largeur: { type: String, default: 'large' },
   compact: { type: Boolean, default: false },
 })
+
+const dansModal = inject('blocDansModal', false)
 
 const root = ref(null)
 useGsapReveal(root)
@@ -82,6 +91,4 @@ const contentWidth = computed(
       large: 'w-full',
     })[props.largeur] || 'w-full',
 )
-
-const headerWidth = computed(() => (props.largeur === 'lisible' ? 'max-w-3xl mx-auto' : 'max-w-3xl mx-auto'))
 </script>

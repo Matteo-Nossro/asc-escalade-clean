@@ -441,6 +441,44 @@ const components = [
     },
   }),
 
+  comp('bloc-popup', {
+    display: 'Popup au clic',
+    description:
+      'Affiche un lien ou un bouton dans la page ; au clic, ouvre une fenêtre contenant d’autres blocs (grille de tarifs, niveaux, FAQ…). Se ferme avec la croix, un clic à l’extérieur ou la touche Échap.',
+    schema: {
+      declencheur_label: F.text('Texte du déclencheur', 'Ce qui est cliquable dans la page. Défaut : « En savoir plus ».'),
+      declencheur_style: F.option('Apparence du déclencheur', '', [
+        { name: 'Lien souligné', value: 'lien' },
+        { name: 'Bouton', value: 'bouton' },
+      ], 'lien'),
+      declencheur_icon: ICON('Petite icône avant le texte. Optionnel.'),
+      pleine_largeur: F.bool('Déclencheur pleine largeur', 'Le bouton occupe toute la largeur disponible.'),
+      titre: F.text('Titre de la fenêtre', 'Affiché en haut de la popup. Optionnel.'),
+      taille: F.option('Largeur de la fenêtre', '', [
+        { name: 'Moyenne', value: 'M' },
+        { name: 'Grande', value: 'L' },
+        { name: 'Très grande (tableaux)', value: 'XL' },
+      ], 'L'),
+      contenu: F.bloks(
+        'Contenu de la fenêtre',
+        'Les blocs affichés dans la popup. Choisir « Très grande » pour un tableau.',
+        [
+          'bloc-texte',
+          'bloc-tableau',
+          'bloc-grille-cartes',
+          'bloc-infos-cles',
+          'bloc-programme',
+          'bloc-faq',
+          'bloc-galerie',
+          'bloc-carte-acces',
+          'bloc-documents',
+          'bloc-encadre',
+          'inscriptions-niveaux',
+        ],
+      ),
+    },
+  }),
+
   // ── Conversion & utilitaires ─────────────────────────────────────────────
   comp('bloc-cta', {
     display: 'Appel à l’action',

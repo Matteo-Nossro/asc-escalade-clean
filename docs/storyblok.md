@@ -47,6 +47,7 @@ Groupe Storyblok **Réutilisable**, tag **ui**.
 | `bloc-tableau` | `blocs/BlocTableau.vue` | tableau (champ `table` natif), colonne surlignable, 1ʳᵉ col figeable ; **< md : chaque ligne devient une carte** (En-tête : valeur), ≥ md : tableau avec dégradé + « faites défiler » si scrollable |
 | `bloc-documents` | `blocs/BlocDocuments.vue` | centre de téléchargement — nestables `bloc-document-groupe` / `bloc-document` (asset `fichier` + `url_externe`) |
 | `bloc-agenda` | `blocs/BlocAgenda.vue` | événements datés, tri à venir/passés + JSON-LD Event — nestable `bloc-agenda-evenement` |
+| `bloc-popup` | `blocs/BlocPopup.vue` | lien/bouton dans la page → ouvre une fenêtre contenant d'autres blocs (tarifs, niveaux, FAQ…). Fournit `blocDansModal` (injecté par `_SectionShell` → châssis réduit). Fermeture croix/extérieur/Échap, focus piégé, scroll bloqué, bottom-sheet sur mobile |
 | `bloc-cta` | `blocs/BlocCta.vue` | encadré coloré + boutons |
 | `bloc-encadre` | `blocs/BlocEncadre.vue` | callout info/succès/attention/sombre |
 | `bloc-alerte` | `blocs/BlocAlerte.vue` | bandeau d'annonce (fermable, mémorisé localStorage) — **pas de `fond`** |
@@ -72,8 +73,7 @@ npx storyblok components push --space <SPACE_ID>
 ```
 Groupe (`Réutilisable`) et tag (`ui`) sont déjà renseignés dans les définitions (space `291351822158044`).
 
-**Page de test** : `/test-blocs` ([app/pages/test-blocs.vue](../app/pages/test-blocs.vue)) rend les 19 blocs
-avec des données d'exemple — à supprimer une fois validés.
+Une page de test locale (`app/pages/test-blocs.vue`) a servi à valider le rendu ; supprimée après validation.
 
 ## Bloks par page
 

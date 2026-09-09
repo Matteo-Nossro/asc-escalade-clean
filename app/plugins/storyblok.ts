@@ -95,6 +95,7 @@ export default defineNuxtPlugin(({ vueApp }) => {
   vueApp.component('bloc-colonnes', lazy(() => import('../storyblok/blocs/BlocColonnes.vue')))
   vueApp.component('bloc-espacement', lazy(() => import('../storyblok/blocs/BlocEspacement.vue')))
   vueApp.component('bloc-separateur', lazy(() => import('../storyblok/blocs/BlocSeparateur.vue')))
+  vueApp.component('bloc-popup', lazy(() => import('../storyblok/blocs/BlocPopup.vue')))
   vueApp.component('bloc-tableau', lazy(() => import('../storyblok/blocs/BlocTableau.vue')))
   vueApp.component('bloc-alerte', lazy(() => import('../storyblok/blocs/BlocAlerte.vue')))
   vueApp.component('bloc-carte-acces', lazy(() => import('../storyblok/blocs/BlocCarteAcces.vue')))
