@@ -73,7 +73,9 @@ npx storyblok components push --space <SPACE_ID>
 ```
 Groupe (`Réutilisable`) et tag (`ui`) sont déjà renseignés dans les définitions (space `291351822158044`).
 
-Une page de test locale (`app/pages/test-blocs.vue`) a servi à valider le rendu ; supprimée après validation.
+**Référence visuelle** : `/admin/blocs` ([app/pages/admin/blocs.vue](../app/pages/admin/blocs.vue)) rend un
+exemple (+ variantes) de chaque bloc avec des données factices. Réservée au staff via le middleware
+global (`app/middleware/auth.global.ts`, préfixe `/admin` → rôle `admin`/`secretary`/`initiateur`).
 
 ## Bloks par page
 
