@@ -25,6 +25,56 @@ vueApp.component('technical-name', ImportedComponent)
 
 ---
 
+## Kit de blocs réutilisables (`bloc-*`)
+
+Composants génériques pour composer n'importe quelle page (boutique, événement, page info…),
+tous sous le même châssis DA (`app/storyblok/blocs/_SectionShell.vue` + `useSectionFond()`).
+Groupe Storyblok **Réutilisable**, tag **ui**.
+
+| Technical name | Composant | Rôle |
+|---|---|---|
+| `bloc-hero` | `blocs/BlocHero.vue` | bandeau titre (badge, titre, sous-titre, image de fond, boutons) |
+| `bloc-texte` | `blocs/BlocTexte.vue` | paragraphe riche, largeur lisible |
+| `bloc-texte-media` | `blocs/BlocTexteMedia.vue` | texte + image côte à côte |
+| `bloc-grille-cartes` | `blocs/BlocGrilleCartes.vue` | grille (avec `nb_visibles` + « Voir plus ») ou carrousel — nestable `bloc-carte` |
+| `bloc-infos-cles` | `blocs/BlocInfosCles.vue` | rangée de chiffres / faits — nestable `bloc-info-cle` |
+| `bloc-programme` | `blocs/BlocProgramme.vue` | étapes numérotées + horaire — nestable `bloc-programme-etape` |
+| `bloc-colonnes` | `blocs/BlocColonnes.vue` | 2-3 colonnes libres (texte/image/bouton), `alignement` gauche/centre — nestable `bloc-colonne` |
+| `bloc-galerie` | `blocs/BlocGalerie.vue` | grille photos + visionneuse (multiasset `photos`) |
+| `bloc-logos` | `blocs/BlocLogos.vue` | logos partenaires, grille ou défilement — nestable `bloc-logo` |
+| `bloc-carte-acces` | `blocs/BlocCarteAcces.vue` | plan + adresse + accès + itinéraire |
+| `bloc-faq` | `blocs/BlocFaq.vue` | accordéon Q/R + JSON-LD FAQPage — nestable `bloc-faq-item` |
+| `bloc-tableau` | `blocs/BlocTableau.vue` | tableau (champ `table` natif), colonne surlignable, 1ʳᵉ col figeable ; **< md : chaque ligne devient une carte** (En-tête : valeur), ≥ md : tableau avec dégradé + « faites défiler » si scrollable |
+| `bloc-documents` | `blocs/BlocDocuments.vue` | centre de téléchargement — nestables `bloc-document-groupe` / `bloc-document` (asset `fichier` + `url_externe`) |
+| `bloc-agenda` | `blocs/BlocAgenda.vue` | événements datés, tri à venir/passés + JSON-LD Event — nestable `bloc-agenda-evenement` |
+| `bloc-cta` | `blocs/BlocCta.vue` | encadré coloré + boutons |
+| `bloc-encadre` | `blocs/BlocEncadre.vue` | callout info/succès/attention/sombre |
+| `bloc-alerte` | `blocs/BlocAlerte.vue` | bandeau d'annonce (fermable, mémorisé localStorage) — **pas de `fond`** |
+| `bloc-espacement` | `blocs/BlocEspacement.vue` | blanc réglable S/M/L/XL |
+| `bloc-separateur` | `blocs/BlocSeparateur.vue` | trait fin (largeur pleine/courte, épaisseur fine/épaisse) |
+
+Largeur de section (`_SectionShell`, prop `largeur`) : `large` (pleine largeur du conteneur, ~1760px — **défaut**,
+comme les pages club/accueil), `normale` (max-w-6xl, pour `texte-media`/`programme`/`encadre`/`agenda`),
+`lisible` (max-w-3xl, pour `texte`/`faq`).
+
+Primitives internes (préfixe `_`, non enregistrées) : `_SectionShell`, `_BlocBouton`, `_Carte`, `_DocLien`, `_AgendaLigne`.
+Nestable commun : `bloc-bouton` (`label`, `lien`, `fichier` asset, `style`, `icon`), `bloc-item` (`texte`).
+
+**Champs communs** : tous les blocs de section ont `fond` (Option `blanc`/`gris`/`vert`/`bleu-nuit`)
+et `anchor_id` (Text). `bloc-alerte`/`bloc-espacement`/`bloc-separateur` n'ont pas d'`anchor_id`.
+
+**Générer / pousser** :
+```bash
+npm run sb:blocs        # écrit .storyblok/components/blocs-reutilisables.components.json
+npx storyblok components pull --space <SPACE_ID>
+node scripts/storyblok-blocs-reutilisables.mjs --merge .storyblok/components/<SPACE_ID>/components.json
+npx storyblok components push --space <SPACE_ID>
+```
+Groupe (`Réutilisable`) et tag (`ui`) sont déjà renseignés dans les définitions (space `291351822158044`).
+
+**Page de test** : `/test-blocs` ([app/pages/test-blocs.vue](../app/pages/test-blocs.vue)) rend les 19 blocs
+avec des données d'exemple — à supprimer une fois validés.
+
 ## Bloks par page
 
 ### Homepage

@@ -15,7 +15,8 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "playwright show-report",
     "sb:inscriptions": "node scripts/storyblok-inscriptions-components.mjs",
-    "sb:inscriptions:parcours": "node scripts/storyblok-inscriptions-parcours-content.mjs"
+    "sb:inscriptions:parcours": "node scripts/storyblok-inscriptions-parcours-content.mjs",
+    "sb:blocs": "node scripts/storyblok-blocs-reutilisables.mjs"
   },
   "dependencies": {
     "@netlify/functions": "^5.1.5",
