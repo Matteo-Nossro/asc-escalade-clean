@@ -36,6 +36,11 @@ const rootFwd = root.replace(/\\/g, '/')
 
 // "chemin(ligne,col): error TS1234: message"
 const lineRe = /^(.+?)\(\d+,\d+\): error (TS\d+): (.*)$/
+
+// L'ordre des membres d'une union de littéraux varie selon l'ordre de vérification de TS
+// ('"error" | "primary"' puis '"primary" | "error"') : tri des membres pour une clé stable.
+const unionRe = /(?:"[^"]*"|undefined|null)(?: \| (?:"[^"]*"|undefined|null))+/g
+const normalizeKey = (key) => key.replace(unionRe, (u) => u.split(' | ').sort().join(' | '))
 const current = {}
 let total = 0
 for (const raw of output.split(/\r?\n/)) {
@@ -44,7 +49,7 @@ for (const raw of output.split(/\r?\n/)) {
   let file = m[1].replace(/\\/g, '/')
   // Préfixe racine retiré sans tenir compte de la casse (lettre de lecteur Windows).
   if (file.toLowerCase().startsWith(`${rootFwd.toLowerCase()}/`)) file = file.slice(rootFwd.length + 1)
-  const key = `${file} | ${m[2]} | ${m[3].trim()}`
+  const key = normalizeKey(`${file} | ${m[2]} | ${m[3].trim()}`)
   current[key] = (current[key] ?? 0) + 1
   total++
 }
@@ -83,7 +88,9 @@ if (!existsSync(baselinePath)) {
 
 let baseline
 try {
-  baseline = JSON.parse(readFileSync(baselinePath, 'utf8')).errors ?? {}
+  const raw = JSON.parse(readFileSync(baselinePath, 'utf8')).errors ?? {}
+  baseline = {}
+  for (const [k, n] of Object.entries(raw)) baseline[normalizeKey(k)] = (baseline[normalizeKey(k)] ?? 0) + n
 } catch (e) {
   console.error(`[typecheck] baseline illisible ou corrompue (${baselinePath}) : ${e.message}`)
   console.error('Restaurer le fichier (git checkout) ; ne régénérer qu\'avec validation de l\'utilisateur.')
