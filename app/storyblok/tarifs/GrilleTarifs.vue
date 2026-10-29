@@ -1,5 +1,5 @@
 <template>
-	<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto px-4 items-center">
+	<div v-editable="blok" class="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto px-4 items-center">
 
 		<!-- CARTE 1 : LICENCE SÈCHE -->
 		<div class="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 flex flex-col h-full hover:-translate-y-1 transition-transform duration-300">
@@ -100,3 +100,7 @@
 
 	</div>
 </template>
+
+<script setup lang="ts">
+defineProps({ blok: Object })
+</script>

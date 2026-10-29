@@ -50,7 +50,7 @@
         <UButton
           :to="blok.ctaButton[0].link.cached_url"
           size="xl"
-          class="font-bold px-8 py-4 transition-transform hover:scale-105 bg-[#7FD857] hover:bg-[#6bc745] text-[#0F1729]"
+          class="font-bold px-8 py-4 transition-transform hover:scale-105 bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729]"
           :ui="{ rounded: 'rounded-md' }"
         >
           {{ blok.ctaButton[0].text }}
