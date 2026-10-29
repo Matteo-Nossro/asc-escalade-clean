@@ -53,7 +53,7 @@
         <!-- CONNECTÉ : dropdown (desktop uniquement) -->
         <template v-else-if="isDesktop">
           <UDropdownMenu :items="userMenuItems" class="header__user-menu">
-            <UButton color="neutral" variant="ghost" size="md" class="header__btn-user">
+            <UButton color="neutral" variant="ghost" size="md" class="header__btn-user" data-testid="btn-user-menu">
               <div class="header__avatar">{{ initials }}</div>
               <span class="header__user-name">{{ displayName }}</span>
               <UIcon name="i-heroicons-chevron-down" class="w-4 h-4 opacity-60" />
@@ -268,13 +268,11 @@ onUnmounted(() => {
 })
 
 // ✅ NOUVEAU : Auth
-const { isLoggedIn, displayName, initials, isStaff, profile, logout, fetchProfile } = useAuth()
+// Le profil et les rôles sont chargés une seule fois par le plugin auth-sync
+const { isLoggedIn, displayName, initials, isStaff, profile, logout } = useAuth()
 
-onMounted(async () => {
+onMounted(() => {
   window.addEventListener('scroll', handleScroll)
-  if (isLoggedIn.value) {
-    await fetchProfile()
-  }
 })
 
 const userMenuItems = computed(() => {

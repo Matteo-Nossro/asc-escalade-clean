@@ -5,6 +5,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
+import { clearNuxtState } from '#imports'
 import { createSupabaseMock } from '../../utils/supabase-mock'
 
 const { client, from, user } = createSupabaseMock({ withAuth: true, user: { id: 'u-fictif', email: 'compte@example.com' } })
@@ -33,6 +34,9 @@ function serveRoles(rolesResponse: Promise<{ data: any; error: any }>) {
 const withRoles = (codes: string[]) => serveRoles(Promise.resolve({ data: codes.map(role_code => ({ role_code })), error: null }))
 
 beforeEach(() => {
+  // auth-profils (A6) : useAuth() partage son état entre les appels ; on le remet à zéro entre les tests
+  // (mise en place seulement, les assertions ne changent pas).
+  clearNuxtState(key => key.startsWith('auth:'))
   vi.stubGlobal('fetch', vi.fn(async (input: any) => {
     const body = String(input) === '/api/admin/helloasso-forms' ? FORMS : {}
     return new Response(JSON.stringify(body), { status: 200, headers: { 'Content-Type': 'application/json' } })

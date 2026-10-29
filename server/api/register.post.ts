@@ -1,164 +1,72 @@
 /**
  * POST /api/register
- * Inscription publique : crée le profil parent + rôle + profils enfants.
+ * Inscription publique : complète le profil parent créé par le trigger `handle_new_user`,
+ * crée les profils enfants (rôle parent seulement s'il y en a, voir completeProfile).
  * Le compte auth est créé côté client via supabase.auth.signUp().
- * Cette route utilise le service role pour bypasser les RLS.
+ * Cette route utilise le service role pour bypasser les RLS : l'identité est donc vérifiée d'abord.
  *
- * Sécurité :
- *  - Si une session est présente, le userId du body DOIT correspondre à la
- *    session. Sinon, un attaquant connaissant un UUID auth pourrait écraser
- *    le profil de cet utilisateur.
- *  - Le profil est créé via INSERT (et non UPSERT) : impossible d'écraser
- *    un profil existant. La détection de l'email déjà utilisé est faite
- *    côté client via signUpData.user.identities (anti-énumération Supabase).
+ * Sécurité (l'e-mail seul ne suffit jamais) :
+ *  - Avec une session : son id doit correspondre à `userId`.
+ *  - Sans session : `userId` (UUID renvoyé par signUp) ET l'e-mail doivent désigner le même compte,
+ *    jamais connecté (`last_sign_in_at` vide) et créé il y a moins d'une heure.
+ *  - Dans les deux cas, l'e-mail du compte auth doit égaler `parent.email` (insensible à la casse).
+ *  - 409 uniquement si le profil est déjà complété (`profile_completed_at`).
  */
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+import { completeProfile, validateProfileInput } from '../utils/completeProfile'
+import type { ChildPayload, ParentPayload } from '../utils/completeProfile'
 
-interface ChildPayload {
-  first_name: string
-  last_name: string
-  birth_date: string | null
-  address: string | null
-  postal_code: string | null
-  city: string | null
-}
-
-interface ParentPayload {
-  first_name: string
-  last_name: string
-  email: string
-  birth_date: string | null
-  gender: string | null
-  phone: string | null
-  address: string | null
-  postal_code: string | null
-  city: string | null
-}
+const MAX_ACCOUNT_AGE_MS = 60 * 60 * 1000
 
 export default defineEventHandler(async (event) => {
   const client = serverSupabaseServiceRole(event)
 
   const body = await readBody(event) as {
-    userId: string
-    parent: ParentPayload
-    children: ChildPayload[]
-  }
+    userId?: string
+    parent?: ParentPayload
+    children?: ChildPayload[]
+  } | null
 
-  const { userId, parent, children = [] } = body
+  const { userId, parent, children = [] } = body ?? {}
 
-  if (!userId || !parent?.email) {
+  if (!userId || typeof userId !== 'string' || !parent?.email || typeof parent.email !== 'string' || !parent.email.trim()) {
     throw createError({ statusCode: 400, statusMessage: 'Données manquantes' })
   }
+  validateProfileInput(parent, children)
 
   // Si une session existe, exiger qu'elle corresponde au userId fourni.
-  // Empêche un attaquant connaissant un UUID auth d'écraser le profil cible.
   const sessionUser = await serverSupabaseUser(event)
-  if (sessionUser && sessionUser.id !== userId) {
+  const sessionId = sessionUser ? (sessionUser.id || (sessionUser as any).sub) : null
+  if (sessionUser && sessionId !== userId) {
     throw createError({ statusCode: 403, statusMessage: 'Identifiant utilisateur incohérent avec la session' })
   }
 
-  // Vérifier que le userId correspond à un compte auth existant
-  const { data: authUser, error: authCheckError } = await client.auth.admin.getUserById(userId)
-  if (authCheckError || !authUser?.user) {
+  // Le userId doit désigner un compte auth existant dont l'e-mail est celui du formulaire.
+  const { data: authData, error: authCheckError } = await client.auth.admin.getUserById(userId)
+  const authUser = authData?.user
+  if (authCheckError || !authUser) {
     throw createError({ statusCode: 400, statusMessage: 'Compte utilisateur introuvable' })
   }
-
-  // Refuser l'écrasement d'un profil déjà initialisé.
-  // (Le client gère le cas anti-énumération Supabase via signUpData.user.identities.)
-  const { data: existingProfile } = await client
-    .from('profiles')
-    .select('id')
-    .eq('id', userId)
-    .maybeSingle()
-  if (existingProfile) {
-    throw createError({ statusCode: 409, statusMessage: 'Profil déjà initialisé' })
+  const authEmail = (authUser.email ?? '').trim().toLowerCase()
+  if (!authEmail || authEmail !== parent.email.trim().toLowerCase()) {
+    throw createError({ statusCode: 403, statusMessage: 'Identité non vérifiée' })
   }
 
-  const fullName = `${parent.first_name ?? ''} ${parent.last_name ?? ''}`.trim()
+  // Sans session : seulement un compte tout juste créé et jamais utilisé.
+  if (!sessionUser) {
+    const createdAt = Date.parse(authUser.created_at)
+    const tooOld = Number.isNaN(createdAt) || Date.now() - createdAt > MAX_ACCOUNT_AGE_MS
+    if (authUser.last_sign_in_at || tooOld) {
+      throw createError({ statusCode: 403, statusMessage: 'Identité non vérifiée' })
+    }
+  }
 
-  // ── 1. Créer le profil parent ─────────────────────────────────────────────
-  const { error: profileError } = await client.from('profiles').insert({
-    id: userId,
-    email: parent.email,
-    first_name: parent.first_name || null,
-    last_name: parent.last_name || null,
-    full_name: fullName || '',
-    birth_date: parent.birth_date || null,
-    gender: parent.gender || null,
-    phone: parent.phone || null,
-    address: parent.address || null,
-    postal_code: parent.postal_code || null,
-    city: parent.city || null,
-    status: 'En attente',
+  await completeProfile(client, {
+    userId,
+    email: authUser.email as string,
+    parent,
+    children,
   })
-
-  if (profileError) {
-    throw createError({ statusCode: 500, statusMessage: profileError.message })
-  }
-
-  // ── 2. Assigner le rôle parent (si pas encore présent) ───────────────────
-  const { data: existingRole } = await client
-    .from('user_roles')
-    .select('id')
-    .eq('user_id', userId)
-    .eq('role_code', 'parent')
-    .maybeSingle()
-
-  if (!existingRole) {
-    const { error: roleError } = await client.from('user_roles').insert({
-      user_id: userId,
-      role_code: 'parent',
-    })
-    if (roleError) {
-      throw createError({ statusCode: 500, statusMessage: roleError.message })
-    }
-  }
-
-  // ── 3. Créer les profils enfants (sans compte auth) ───────────────────────
-  // On ne crée les enfants que s'il n'en existe pas déjà pour ce parent,
-  // afin d'éviter les doublons en cas de re-soumission du formulaire.
-  if (children.length > 0) {
-    const { data: existingChild } = await client
-      .from('parent_access')
-      .select('id')
-      .eq('parent_id', userId)
-      .limit(1)
-      .maybeSingle()
-
-    if (!existingChild) {
-      for (const child of children) {
-        const childId = crypto.randomUUID()
-        const childFullName = `${child.first_name ?? ''} ${child.last_name ?? ''}`.trim()
-
-        const { error: childError } = await client.from('profiles').insert({
-          id: childId,
-          email: null,
-          first_name: child.first_name || null,
-          last_name: child.last_name || null,
-          full_name: childFullName || '',
-          birth_date: child.birth_date || null,
-          address: child.address || null,
-          postal_code: child.postal_code || null,
-          city: child.city || null,
-          status: 'En attente',
-        })
-
-        if (childError) {
-          throw createError({ statusCode: 500, statusMessage: `Erreur profil enfant : ${childError.message}` })
-        }
-
-        const { error: accessError } = await client.from('parent_access').insert({
-          parent_id: userId,
-          child_id: childId,
-          access_type: 'full',
-        })
-
-        if (accessError) {
-          throw createError({ statusCode: 500, statusMessage: `Erreur lien parent-enfant : ${accessError.message}` })
-        }
-      }
-    }
-  }
 
   return { success: true }
 })

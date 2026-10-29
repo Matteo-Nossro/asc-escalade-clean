@@ -31,6 +31,41 @@
 							@close="error = ''"
 					/>
 
+					<!-- E-mail non confirmé : renvoi du lien de confirmation (R2-f) -->
+					<div v-if="needsConfirmation" class="mb-6 -mt-3 space-y-3">
+						<UButton
+								type="button"
+								color="neutral"
+								variant="outline"
+								block
+								:loading="resendLoading"
+								:disabled="resendLoading"
+								data-testid="btn-login-resend"
+								@click="handleResend"
+						>
+							Renvoyer l'e-mail de confirmation
+						</UButton>
+						<p
+								v-if="resendStatus === 'sent'"
+								role="status"
+								class="text-sm text-[#0F1729] bg-[#7FD857]/15 rounded-xl p-3"
+								data-testid="msg-resend-sent"
+						>
+							Si une inscription non confirmée existe pour cette adresse, un nouvel e-mail vient d'être envoyé.
+							Si votre adresse est déjà confirmée, connectez-vous.
+						</p>
+						<p
+								v-else-if="resendStatus === 'rate_limited' || resendStatus === 'error'"
+								role="alert"
+								class="text-sm text-red-700 bg-red-50 rounded-xl p-3"
+								data-testid="msg-resend-error"
+						>
+							{{ resendStatus === 'rate_limited'
+								? 'Trop de demandes pour le moment : patientez quelques instants avant de réessayer.'
+								: "L'e-mail n'a pas pu être envoyé. Réessayez dans quelques instants." }}
+						</p>
+					</div>
+
 					<form @submit.prevent="handleLogin" class="space-y-6">
 
 						<!-- Email -->
@@ -226,7 +261,7 @@ definePageMeta({
   middleware: 'guest'
 })
 
-const { loginWithEmail, loginWithOAuth, user } = useAuth()
+const { loginWithEmail, loginWithOAuth, resendSignupConfirmation, user } = useAuth()
 const supabase = useSupabaseClient()
 const route = useRoute()
 
@@ -247,7 +282,34 @@ const forgotLoading = ref(false)
 const forgotError = ref('')
 const forgotSuccess = ref(false)
 
+// E-mail non confirmé : renvoi du lien de confirmation
+const needsConfirmation = ref(false)
+const resendLoading = ref(false)
+const resendStatus = ref<'' | 'sent' | 'rate_limited' | 'error'>('')
+
+const handleResend = async () => {
+  resendStatus.value = ''
+  fieldErrors.value.email = ''
+  const email = credentials.value.email.trim()
+  if (!email) {
+    fieldErrors.value.email = "L'email est requis"
+    return
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    fieldErrors.value.email = "Format d'email invalide"
+    return
+  }
+  resendLoading.value = true
+  try {
+    resendStatus.value = await resendSignupConfirmation(email)
+  } finally {
+    resendLoading.value = false
+  }
+}
+
 const handleLogin = async () => {
+  needsConfirmation.value = false
+  resendStatus.value = ''
   fieldErrors.value = { email: '', password: '' }
   let valid = true
   if (!credentials.value.email.trim()) {
@@ -285,8 +347,9 @@ const handleLogin = async () => {
     const msg = err.message || ''
     if (msg.includes('Invalid login credentials')) {
       error.value = 'Email ou mot de passe incorrect'
-    } else if (msg.includes('Email not confirmed')) {
+    } else if (err.code === 'email_not_confirmed' || msg.includes('Email not confirmed')) {
       error.value = 'Veuillez confirmer votre adresse email'
+      needsConfirmation.value = true
     } else if (msg.includes('Too many requests')) {
       error.value = 'Trop de tentatives, veuillez patienter'
     } else {

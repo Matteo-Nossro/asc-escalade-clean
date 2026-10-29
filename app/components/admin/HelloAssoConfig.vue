@@ -198,9 +198,7 @@ interface TestResult {
 }
 
 const toast = useToast()
-// Contournement : useAuth() ne partage pas ses rôles entre appels, le composant les charge lui-même
-// (fetchProfile au montage). À retirer quand useAuth partagera ses rôles (feature « authentification et profils »).
-const { isAdmin, fetchProfile } = useAuth()
+const { isAdmin } = useAuth()
 
 const forms = ref<HelloAssoForm[]>([])
 const loading = ref(false)
@@ -367,7 +365,6 @@ async function syncNow() {
 }
 
 onMounted(() => {
-  fetchProfile()
   loadForms()
 })
 </script>

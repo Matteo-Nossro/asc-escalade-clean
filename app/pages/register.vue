@@ -27,6 +27,7 @@
           type="button"
           class="w-full bg-white rounded-3xl shadow-xl border-2 p-6 text-left transition-all hover:shadow-2xl"
           :class="typeChoice === 'adult' ? 'border-[#7FD857]' : 'border-transparent hover:border-[#7FD857]'"
+          data-testid="btn-type-adult"
           @click="typeChoice = 'adult'"
         >
           <div class="flex items-start gap-4">
@@ -45,6 +46,7 @@
           type="button"
           class="w-full bg-white rounded-3xl shadow-xl border-2 p-6 text-left transition-all hover:shadow-2xl"
           :class="typeChoice === 'minor' ? 'border-amber-400' : 'border-transparent hover:border-amber-400'"
+          data-testid="btn-type-minor"
           @click="typeChoice = 'minor'"
         >
           <div class="flex items-start gap-4">
@@ -73,6 +75,7 @@
           size="xl"
           :disabled="!typeChoice"
           class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold shadow-lg hover:shadow-xl transition-all"
+          data-testid="btn-register-continue"
           @click="currentStep = 2"
         >
           Continuer
@@ -107,207 +110,93 @@
           sont conservé{{ children.length > 1 ? 's' : '' }} — corrigez le champ signalé puis continuez.
         </p>
 
-        <!-- Identité -->
-        <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-          <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <UIcon name="i-lucide-user" class="w-5 h-5 text-[#7FD857]" />
-            Identité
-          </h3>
-          <div class="space-y-5">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <UFormField label="Prénom" required :error="errors.first_name">
-                <UInput v-model="form.first_name" placeholder="Jean" icon="i-lucide-user" size="lg" class="w-full" />
-              </UFormField>
-              <UFormField label="Nom" required :error="errors.last_name">
-                <UInput v-model="form.last_name" placeholder="Dupont" icon="i-lucide-user" size="lg" class="w-full" />
-              </UFormField>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <UFormField label="Date de naissance" required :error="errors.birth_date">
-                <UInput
-                  v-model="form.birth_date"
-                  type="date"
-                  icon="i-lucide-calendar"
-                  size="lg"
-                  class="w-full"
-                  :max="maxBirthDate"
-                />
-              </UFormField>
-              <UFormField label="Sexe" required :error="errors.gender">
-                <select
-                  v-model="form.gender"
-                  class="w-full h-[46px] px-3 rounded-lg border text-sm text-gray-900 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#7FD857] focus:border-transparent transition-all"
-                  :class="errors.gender ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-white'"
-                >
-                  <option value="">Sélectionner…</option>
-                  <option value="Homme">Homme</option>
-                  <option value="Femme">Femme</option>
-                </select>
-              </UFormField>
-            </div>
-
-            <UFormField label="Téléphone" :error="errors.phone">
-              <UInput
-                v-model="form.phone"
-                type="tel"
-                placeholder="06 00 00 00 00"
-                icon="i-lucide-smartphone"
-                size="lg"
-                class="w-full"
-              />
-            </UFormField>
-          </div>
-        </div>
-
-        <!-- Connexion -->
-        <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-          <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <UIcon name="i-lucide-lock" class="w-5 h-5 text-[#7FD857]" />
-            Connexion
-          </h3>
-          <div class="space-y-5">
-            <UFormField label="Adresse email" required :error="errors.email">
-              <UInput
-                v-model="form.email"
-                type="email"
-                placeholder="votre@email.com"
-                icon="i-lucide-mail"
-                size="lg"
-                class="w-full"
-              />
-            </UFormField>
-
-            <UFormField label="Mot de passe" required :error="errors.password">
-              <UInput
-                v-model="form.password"
-                :type="showPassword ? 'text' : 'password'"
-                placeholder="••••••••"
-                icon="i-lucide-lock"
-                size="lg"
-                class="w-full"
-              >
-                <template #trailing>
-                  <UButton
-                    :icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-                    color="neutral"
-                    variant="ghost"
-                    size="sm"
-                    type="button"
-                    @click="showPassword = !showPassword"
+        <!-- Identité + Adresse (champs partagés avec /completer-profil) ; Connexion s'intercale entre les deux -->
+        <AuthProfileFieldsForm v-model="form" :errors="errors">
+          <template #after-identity>
+            <!-- Connexion -->
+            <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+              <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <UIcon name="i-lucide-lock" class="w-5 h-5 text-[#7FD857]" />
+                Connexion
+              </h3>
+              <div class="space-y-5">
+                <UFormField label="Adresse email" required :error="errors.email">
+                  <UInput
+                    v-model="form.email"
+                    data-testid="input-register-email"
+                    type="email"
+                    placeholder="votre@email.com"
+                    icon="i-lucide-mail"
+                    size="lg"
+                    class="w-full"
                   />
-                </template>
-              </UInput>
-            </UFormField>
+                </UFormField>
 
-            <ul class="space-y-1">
-              <li
-                v-for="check in passwordChecks"
-                :key="check.label"
-                class="flex items-center gap-2 text-xs transition-colors"
-                :class="check.ok ? 'text-[#5ab43a]' : 'text-gray-400'"
-              >
-                <UIcon
-                  :name="check.ok ? 'i-lucide-check-circle-2' : 'i-lucide-circle'"
-                  class="w-3.5 h-3.5 shrink-0"
-                />
-                {{ check.label }}
-              </li>
-            </ul>
-
-            <UFormField label="Confirmer le mot de passe" required :error="errors.passwordConfirm">
-              <UInput
-                v-model="form.passwordConfirm"
-                :type="showPasswordConfirm ? 'text' : 'password'"
-                placeholder="••••••••"
-                icon="i-lucide-lock"
-                size="lg"
-                class="w-full"
-              >
-                <template #trailing>
-                  <UButton
-                    :icon="showPasswordConfirm ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-                    color="neutral"
-                    variant="ghost"
-                    size="sm"
-                    type="button"
-                    @click="showPasswordConfirm = !showPasswordConfirm"
-                  />
-                </template>
-              </UInput>
-            </UFormField>
-          </div>
-        </div>
-
-        <!-- Adresse -->
-        <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-          <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <UIcon name="i-lucide-map-pin" class="w-5 h-5 text-[#7FD857]" />
-            Adresse
-          </h3>
-          <div class="space-y-5">
-            <UFormField label="Adresse">
-              <div class="relative w-full">
-                <UInput
-                  v-model="form.address"
-                  placeholder="12 rue de l'Escalade"
-                  icon="i-lucide-home"
-                  size="lg"
-                  :loading="addressLoading"
-                  autocomplete="off"
-                  class="w-full"
-                  @input="onAddressInput"
-                  @focus="showAddressSuggestions = addressSuggestions.length > 0"
-                  @blur="hideAddressSuggestions"
-                />
-                <Transition
-                  enter-active-class="transition ease-out duration-100"
-                  enter-from-class="opacity-0 -translate-y-1"
-                  enter-to-class="opacity-100 translate-y-0"
-                  leave-active-class="transition ease-in duration-75"
-                  leave-from-class="opacity-100 translate-y-0"
-                  leave-to-class="opacity-0 -translate-y-1"
-                >
-                  <div
-                    v-if="showAddressSuggestions && addressSuggestions.length"
-                    class="absolute top-full left-0 right-0 z-50 mt-1 bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden"
+                <UFormField label="Mot de passe" required :error="errors.password">
+                  <UInput
+                    v-model="form.password"
+                    data-testid="input-register-password"
+                    :type="showPassword ? 'text' : 'password'"
+                    placeholder="••••••••"
+                    icon="i-lucide-lock"
+                    size="lg"
+                    class="w-full"
                   >
-                    <button
-                      v-for="(s, i) in addressSuggestions"
-                      :key="s.id || i"
-                      type="button"
-                      class="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-start gap-3 border-b border-gray-100 last:border-0 transition-colors cursor-pointer"
-                      @mousedown.prevent="selectAddress(s)"
-                    >
-                      <UIcon name="i-lucide-map-pin" class="w-4 h-4 text-[#7FD857] mt-0.5 shrink-0" />
-                      <div class="min-w-0">
-                        <p class="text-sm font-medium text-gray-900 truncate">{{ s.name }}</p>
-                        <p class="text-xs text-gray-500">{{ s.postcode }} {{ s.city }}</p>
-                      </div>
-                    </button>
-                    <div class="px-4 py-2 bg-gray-50 border-t border-gray-100">
-                      <span class="text-xs text-gray-400">Base Adresse Nationale</span>
-                    </div>
-                  </div>
-                </Transition>
+                    <template #trailing>
+                      <UButton
+                        :icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                        color="neutral"
+                        variant="ghost"
+                        size="sm"
+                        type="button"
+                        @click="showPassword = !showPassword"
+                      />
+                    </template>
+                  </UInput>
+                </UFormField>
+
+                <ul class="space-y-1">
+                  <li
+                    v-for="check in passwordChecks"
+                    :key="check.label"
+                    class="flex items-center gap-2 text-xs transition-colors"
+                    :class="check.ok ? 'text-[#5ab43a]' : 'text-gray-400'"
+                  >
+                    <UIcon
+                      :name="check.ok ? 'i-lucide-check-circle-2' : 'i-lucide-circle'"
+                      class="w-3.5 h-3.5 shrink-0"
+                    />
+                    {{ check.label }}
+                  </li>
+                </ul>
+
+                <UFormField label="Confirmer le mot de passe" required :error="errors.passwordConfirm">
+                  <UInput
+                    v-model="form.passwordConfirm"
+                    data-testid="input-register-password-confirm"
+                    :type="showPasswordConfirm ? 'text' : 'password'"
+                    placeholder="••••••••"
+                    icon="i-lucide-lock"
+                    size="lg"
+                    class="w-full"
+                  >
+                    <template #trailing>
+                      <UButton
+                        :icon="showPasswordConfirm ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                        color="neutral"
+                        variant="ghost"
+                        size="sm"
+                        type="button"
+                        @click="showPasswordConfirm = !showPasswordConfirm"
+                      />
+                    </template>
+                  </UInput>
+                </UFormField>
               </div>
-            </UFormField>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <UFormField label="Code postal" :error="errors.postal_code">
-                <UInput v-model="form.postal_code" placeholder="21000" icon="i-lucide-hash" size="lg" class="w-full" />
-              </UFormField>
-              <UFormField label="Ville">
-                <UInput v-model="form.city" placeholder="Dijon" icon="i-lucide-building-2" size="lg" class="w-full" />
-              </UFormField>
             </div>
+          </template>
+        </AuthProfileFieldsForm>
 
-            <p class="text-xs text-gray-400 flex items-center gap-1">
-              <UIcon name="i-lucide-info" class="w-3 h-3" />
-              Tapez votre adresse pour obtenir des suggestions.
-            </p>
-          </div>
-        </div>
 
         <!-- Navigation -->
         <div class="flex gap-3">
@@ -319,6 +208,7 @@
           </UButton>
           <UButton
             type="submit"
+            data-testid="btn-register-submit"
             block
             size="xl"
             :loading="submitting"
@@ -359,94 +249,15 @@
           </p>
         </div>
 
-        <!-- Cartes enfants déjà ajoutés -->
-        <div v-if="children.length > 0" class="space-y-3">
-          <div
-            v-for="(child, i) in children"
-            :key="i"
-            class="bg-white rounded-2xl shadow p-4 border border-gray-100 flex items-center justify-between gap-4"
-          >
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-[#7FD857]/10 flex items-center justify-center font-bold text-[#7FD857] text-sm shrink-0">
-                {{ getChildInitials(child) }}
-              </div>
-              <div>
-                <p class="font-semibold text-gray-900">{{ child.first_name }} {{ child.last_name }}</p>
-                <p class="text-xs text-gray-500">{{ formatDate(child.birth_date) }}</p>
-              </div>
-            </div>
-            <UButton icon="i-lucide-trash-2" color="error" variant="ghost" size="sm" @click="removeChild(i)" />
-          </div>
-        </div>
+        <!-- Enfants (liste + formulaire d'ajout, partagés avec /completer-profil) -->
+        <AuthChildrenForm
+          ref="childrenForm"
+          v-model="children"
+          v-model:draft="childDraft"
+          v-model:draftErrors="childDraftErrors"
+          :parent-address="{ address: form.address, postal_code: form.postal_code, city: form.city }"
+        />
 
-        <!-- Formulaire ajout enfant -->
-        <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-          <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <UIcon name="i-lucide-user-plus" class="w-5 h-5 text-[#7FD857]" />
-            Ajouter un enfant
-          </h3>
-          <div class="space-y-5">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <UFormField label="Prénom" :error="childErrors.first_name">
-                <UInput v-model="childForm.first_name" placeholder="Marie" icon="i-lucide-user" size="lg" class="w-full" />
-              </UFormField>
-              <UFormField label="Nom" :error="childErrors.last_name">
-                <UInput v-model="childForm.last_name" placeholder="Dupont" icon="i-lucide-user" size="lg" class="w-full" />
-              </UFormField>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <UFormField label="Date de naissance" required :error="childErrors.birth_date">
-                <UInput
-                  v-model="childForm.birth_date"
-                  type="date"
-                  icon="i-lucide-calendar"
-                  size="lg"
-                  class="w-full"
-                  :max="today"
-                />
-              </UFormField>
-              <UFormField label="Sexe" required :error="childErrors.gender">
-                <select
-                  v-model="childForm.gender"
-                  class="w-full h-[46px] px-3 rounded-lg border text-sm text-gray-900 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#7FD857] focus:border-transparent transition-all"
-                  :class="childErrors.gender ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-white'"
-                >
-                  <option value="">Sélectionner…</option>
-                  <option value="Homme">Garçon</option>
-                  <option value="Femme">Fille</option>
-                </select>
-              </UFormField>
-            </div>
-
-            <div class="space-y-3">
-              <UCheckbox v-model="childForm.sameAddress" label="Même adresse que le parent" />
-              <template v-if="!childForm.sameAddress">
-                <UFormField label="Adresse">
-                  <UInput v-model="childForm.address" placeholder="12 rue de l'Escalade" icon="i-lucide-home" size="lg" class="w-full" />
-                </UFormField>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <UFormField label="Code postal">
-                    <UInput v-model="childForm.postal_code" placeholder="21000" icon="i-lucide-hash" size="lg" class="w-full" />
-                  </UFormField>
-                  <UFormField label="Ville">
-                    <UInput v-model="childForm.city" placeholder="Dijon" icon="i-lucide-building-2" size="lg" class="w-full" />
-                  </UFormField>
-                </div>
-              </template>
-              <template v-else>
-                <div class="px-4 py-3 bg-gray-50 rounded-xl text-sm text-gray-600 flex items-center gap-2">
-                  <UIcon name="i-lucide-map-pin" class="w-4 h-4 text-gray-400 shrink-0" />
-                  <span>{{ [form.address, form.postal_code, form.city].filter(Boolean).join(', ') || 'Adresse du parent' }}</span>
-                </div>
-              </template>
-            </div>
-
-            <UButton variant="soft" size="lg" class="w-full" icon="i-lucide-plus" type="button" @click="addChild">
-              Ajouter cet enfant
-            </UButton>
-          </div>
-        </div>
 
         <!-- Navigation + soumission -->
         <div class="flex gap-3">
@@ -462,6 +273,7 @@
             :loading="submitting"
             :disabled="submitting"
             class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold shadow-lg hover:shadow-xl transition-all"
+            data-testid="btn-register-finish"
             @click="submitRegistration"
           >
             <template #leading>
@@ -517,7 +329,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
+import { signupConfirmationRedirect } from '~/utils/authRedirect'
+import {
+  emptyParentFields,
+  emptyParentErrors,
+  emptyChild,
+  emptyChildErrors,
+  validateParent,
+  hasErrors,
+  buildParentPayload,
+  buildChildrenPayload,
+} from '~/utils/profileForm'
+import type { ChildData } from '~/utils/profileForm'
 
 definePageMeta({
   layout: false,
@@ -535,130 +359,26 @@ const showPasswordConfirm = ref(false)
 const stepError = ref('')
 const submitting = ref(false)
 
-// ── Formulaire ────────────────────────────────────────────────────────────────
+// ── Formulaire (champs du profil partagés + identifiants de connexion) ───────
 const form = ref({
-  first_name: '',
-  last_name: '',
+  ...emptyParentFields(),
   email: '',
   password: '',
   passwordConfirm: '',
-  birth_date: '',
-  gender: '',
-  phone: '',
-  address: '',
-  postal_code: '',
-  city: '',
 })
 
 const errors = ref({
-  first_name: '',
-  last_name: '',
+  ...emptyParentErrors(),
   email: '',
   password: '',
   passwordConfirm: '',
-  birth_date: '',
-  gender: '',
-  phone: '',
-  postal_code: '',
 })
 
-// ── Formulaire enfant ─────────────────────────────────────────────────────────
-interface ChildData {
-  first_name: string
-  last_name: string
-  birth_date: string
-  gender: string
-  address: string
-  postal_code: string
-  city: string
-  sameAddress: boolean
-}
-
+// ── Enfants (étape 3) ─────────────────────────────────────────────────────────
 const children = ref<ChildData[]>([])
-const childForm = ref<ChildData>({
-  first_name: '', last_name: '', birth_date: '', gender: '',
-  address: '', postal_code: '', city: '', sameAddress: false,
-})
-const childErrors = ref({ first_name: '', last_name: '', birth_date: '', gender: '' })
-
-watch(() => childForm.value.sameAddress, (checked) => {
-  if (checked) {
-    childForm.value.address = form.value.address
-    childForm.value.postal_code = form.value.postal_code
-    childForm.value.city = form.value.city
-  } else {
-    childForm.value.address = ''
-    childForm.value.postal_code = ''
-    childForm.value.city = ''
-  }
-})
-
-// true si la date de naissance correspond à 18 ans révolus ou plus aujourd'hui.
-function isAdultBirthDate(dateStr: string): boolean {
-  if (!dateStr) return false
-  const birth = new Date(dateStr)
-  if (Number.isNaN(birth.getTime())) return false
-  const cutoff = new Date()
-  cutoff.setFullYear(cutoff.getFullYear() - 18)
-  return birth <= cutoff
-}
-
-function validateChild(): boolean {
-  const e = { first_name: '', last_name: '', birth_date: '', gender: '' }
-  if (!childForm.value.first_name.trim()) e.first_name = 'Le prénom est requis'
-  if (!childForm.value.last_name.trim()) e.last_name = 'Le nom est requis'
-  if (!childForm.value.birth_date) {
-    e.birth_date = 'La date de naissance est requise'
-  } else if (new Date(childForm.value.birth_date) > new Date()) {
-    e.birth_date = 'La date de naissance ne peut pas être dans le futur'
-  } else if (isAdultBirthDate(childForm.value.birth_date)) {
-    e.birth_date = 'Ce parcours est réservé aux enfants mineurs'
-  }
-  if (!childForm.value.gender) e.gender = 'Le sexe est requis'
-  childErrors.value = e
-  return !Object.values(e).some(v => v)
-}
-
-function addChild(): boolean {
-  if (!validateChild()) return false
-  children.value.push({
-    first_name: childForm.value.first_name,
-    last_name: childForm.value.last_name,
-    birth_date: childForm.value.birth_date,
-    gender: childForm.value.gender,
-    address: childForm.value.sameAddress ? form.value.address : childForm.value.address,
-    postal_code: childForm.value.sameAddress ? form.value.postal_code : childForm.value.postal_code,
-    city: childForm.value.sameAddress ? form.value.city : childForm.value.city,
-    sameAddress: childForm.value.sameAddress,
-  })
-  childForm.value = { first_name: '', last_name: '', birth_date: '', gender: '', address: '', postal_code: '', city: '', sameAddress: false }
-  childErrors.value = { first_name: '', last_name: '', birth_date: '', gender: '' }
-  return true
-}
-
-function removeChild(index: number) {
-  children.value.splice(index, 1)
-}
-
-function getChildInitials(child: ChildData): string {
-  return [child.first_name, child.last_name].filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?'
-}
-
-function formatDate(d: string): string {
-  if (!d) return ''
-  try { return new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) }
-  catch { return d }
-}
-
-// ── Dates ─────────────────────────────────────────────────────────────────────
-const today = computed(() => new Date().toISOString().split('T')[0])
-
-// Date max : l'utilisateur doit avoir 18 ans révolus
-const maxBirthDate = computed(() => {
-  const d = new Date()
-  d.setFullYear(d.getFullYear() - 18)
-  return d.toISOString().split('T')[0]
-})
+const childDraft = ref<ChildData>(emptyChild())
+const childDraftErrors = ref(emptyChildErrors())
+const childrenForm = ref<{ flushPending: () => { ok: boolean, error?: string } } | null>(null)
 
 // ── Exigences de mot de passe ─────────────────────────────────────────────────
 // Alignées sur la politique Supabase (min/maj, chiffre, caractère spécial).
@@ -676,74 +396,9 @@ const passwordChecks = computed(() => {
 })
 const passwordValid = computed(() => passwordChecks.value.every(c => c.ok))
 
-// ── Autocomplétion adresse (Base Adresse Nationale) ───────────────────────────
-interface AddressSuggestion {
-  id: string
-  name: string
-  postcode: string
-  city: string
-}
-
-const addressSuggestions = ref<AddressSuggestion[]>([])
-const addressLoading = ref(false)
-const showAddressSuggestions = ref(false)
-let addressDebounce: ReturnType<typeof setTimeout> | null = null
-
-function onAddressInput() {
-  if (addressDebounce) clearTimeout(addressDebounce)
-  const q = form.value.address.trim()
-  if (q.length < 3) { addressSuggestions.value = []; showAddressSuggestions.value = false; return }
-  addressDebounce = setTimeout(() => fetchAddressSuggestions(q), 200)
-}
-
-function hideAddressSuggestions() {
-  setTimeout(() => { showAddressSuggestions.value = false }, 150)
-}
-
-function selectAddress(s: AddressSuggestion) {
-  form.value.address = s.name
-  form.value.postal_code = s.postcode
-  form.value.city = s.city
-  addressSuggestions.value = []
-  showAddressSuggestions.value = false
-}
-
-async function fetchAddressSuggestions(query: string) {
-  addressLoading.value = true
-  try {
-    const url = `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=8&autocomplete=1`
-    const res = await fetch(url)
-    const data = await res.json()
-    addressSuggestions.value = (data.features ?? []).map((f: any) => ({
-      id: f.properties.id ?? '',
-      name: f.properties.name ?? '',
-      postcode: f.properties.postcode ?? '',
-      city: f.properties.city ?? '',
-    }))
-    showAddressSuggestions.value = addressSuggestions.value.length > 0
-  } catch {
-    // silent fail — l'utilisateur peut saisir manuellement
-  } finally {
-    addressLoading.value = false
-  }
-}
-
 // ── Validation ────────────────────────────────────────────────────────────────
 function validate(): boolean {
-  const e = {
-    first_name: '',
-    last_name: '',
-    email: '',
-    password: '',
-    passwordConfirm: '',
-    birth_date: '',
-    gender: '',
-    phone: '',
-    postal_code: '',
-  }
-
-  if (!form.value.first_name.trim()) e.first_name = 'Le prénom est requis'
-  if (!form.value.last_name.trim()) e.last_name = 'Le nom est requis'
+  const e = { ...validateParent(form.value), email: '', password: '', passwordConfirm: '' }
 
   if (!form.value.email.trim()) {
     e.email = "L'email est requis"
@@ -763,28 +418,8 @@ function validate(): boolean {
     e.passwordConfirm = 'Les mots de passe ne correspondent pas'
   }
 
-  if (!form.value.birth_date) {
-    e.birth_date = 'La date de naissance est requise'
-  } else {
-    const birth = new Date(form.value.birth_date)
-    const cutoff = new Date()
-    cutoff.setFullYear(cutoff.getFullYear() - 18)
-    if (birth > cutoff) e.birth_date = 'Vous devez avoir au moins 18 ans'
-  }
-
-  if (!form.value.gender) e.gender = 'Le sexe est requis'
-
-  if (form.value.phone) {
-    const digits = form.value.phone.replace(/\D/g, '')
-    if (digits.length < 10 || digits.length > 11) e.phone = 'Numéro de téléphone invalide'
-  }
-
-  if (form.value.postal_code && !/^\d{5}$/.test(form.value.postal_code)) {
-    e.postal_code = 'Code postal invalide (5 chiffres)'
-  }
-
   errors.value = e
-  return !Object.values(e).some(v => v)
+  return !hasErrors(e)
 }
 
 // ── Soumission ────────────────────────────────────────────────────────────────
@@ -805,20 +440,11 @@ async function handleSubmit() {
 // Étape 3 → auto-ajoute l'enfant en cours de saisie si complet, puis soumet
 async function submitRegistration() {
   stepError.value = ''
-  const cf = childForm.value
-  const hasRequired = cf.first_name.trim() && cf.last_name.trim() && cf.birth_date
-  const hasAny = cf.first_name.trim() || cf.last_name.trim() || cf.birth_date || cf.address.trim()
-
-  if (hasRequired) {
-    if (!addChild()) {
-      stepError.value = "Le dernier enfant saisi comporte une erreur. Corrigez le champ signalé ou videz le formulaire avant de terminer."
-      return
-    }
-  } else if (hasAny) {
-    stepError.value = 'Le formulaire enfant est incomplet. Complétez le prénom, le nom et la date de naissance, ou videz-le avant de terminer.'
+  const pending = childrenForm.value?.flushPending() ?? { ok: true }
+  if (!pending.ok) {
+    stepError.value = pending.error ?? ''
     return
   }
-
   await submitWithChildren(children.value)
 }
 
@@ -828,7 +454,10 @@ async function submitWithChildren(childrenToRegister: ChildData[]) {
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: form.value.email,
       password: form.value.password,
-      options: { data: { full_name: `${form.value.first_name} ${form.value.last_name}`.trim() } },
+      options: {
+        data: { full_name: `${form.value.first_name} ${form.value.last_name}`.trim() },
+        emailRedirectTo: signupConfirmationRedirect(),
+      },
     })
 
     if (signUpError) {
@@ -851,30 +480,17 @@ async function submitWithChildren(childrenToRegister: ChildData[]) {
       return
     }
 
+    // Sécurité : /api/register exige l'UUID renvoyé par signUp ET l'e-mail du même compte
     const res = await fetch('/api/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         userId,
         parent: {
-          first_name: form.value.first_name,
-          last_name: form.value.last_name,
+          ...buildParentPayload(form.value),
           email: form.value.email,
-          birth_date: form.value.birth_date || null,
-          gender: form.value.gender || null,
-          phone: form.value.phone || null,
-          address: form.value.address || null,
-          postal_code: form.value.postal_code || null,
-          city: form.value.city || null,
         },
-        children: childrenToRegister.map(c => ({
-          first_name: c.first_name,
-          last_name: c.last_name,
-          birth_date: c.birth_date || null,
-          address: c.address || null,
-          postal_code: c.postal_code || null,
-          city: c.city || null,
-        })),
+        children: buildChildrenPayload(childrenToRegister),
       }),
     })
 

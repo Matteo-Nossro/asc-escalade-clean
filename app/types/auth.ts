@@ -29,6 +29,7 @@ export interface Profile {
   ffme_insurance: 'certificat_renouvellement' | 'mail_renouvellement' | 'non' | null
   category: string | null
   tshirt: string | null
+  profile_completed_at: string | null
 }
 
 export type RoleCode = 'parent' | 'admin' | 'secretary' | 'initiateur'
