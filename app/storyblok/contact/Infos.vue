@@ -1,5 +1,5 @@
 <template>
-	<div v-editable="blok" class="bg-[#0F1729] text-white p-8 md:p-10 rounded-3xl h-full flex flex-col justify-between relative overflow-hidden shadow-xl">
+	<div v-editable="blok" class="bg-vp-dark text-white p-8 md:p-10 rounded-3xl h-full flex flex-col justify-between relative overflow-hidden shadow-xl">
 
 		<div class="relative z-10 space-y-8">
 			<div>
@@ -16,7 +16,7 @@
 
 				<!-- Adresse -->
 				<div class="flex items-start gap-4 group">
-					<div class="w-10 h-10 rounded-lg bg-[#7FD857]/10 flex items-center justify-center text-[#7FD857] group-hover:bg-[#7FD857] group-hover:text-[#0F1729] transition-colors">
+					<div class="w-10 h-10 rounded-lg bg-vp-green/10 flex items-center justify-center text-vp-green group-hover:bg-vp-green group-hover:text-vp-dark transition-colors">
 						<UIcon name="i-heroicons-map-pin" class="w-5 h-5" />
 					</div>
 					<div>
@@ -30,14 +30,14 @@
 
 				<!-- Email -->
 				<div class="flex items-start gap-4 group">
-					<div class="w-10 h-10 rounded-lg bg-[#7FD857]/10 flex items-center justify-center text-[#7FD857] group-hover:bg-[#7FD857] group-hover:text-[#0F1729] transition-colors">
+					<div class="w-10 h-10 rounded-lg bg-vp-green/10 flex items-center justify-center text-vp-green group-hover:bg-vp-green group-hover:text-vp-dark transition-colors">
 						<UIcon name="i-heroicons-envelope" class="w-5 h-5" />
 					</div>
 					<div>
 						<h4 class="font-bold text-white">Email</h4>
 						<a
 							:href="`mailto:${blok.email || 'contact@escalade-chevigny.fr'}`"
-							class="text-gray-400 text-sm mt-1 hover:text-[#7FD857] transition-colors"
+							class="text-gray-400 text-sm mt-1 hover:text-vp-green transition-colors"
 						>
 							{{ blok.email || 'contact@escalade-chevigny.fr' }}
 						</a>
@@ -46,7 +46,7 @@
 
 				<!-- Téléphone -->
 				<div class="flex items-start gap-4 group">
-					<div class="w-10 h-10 rounded-lg bg-[#7FD857]/10 flex items-center justify-center text-[#7FD857] group-hover:bg-[#7FD857] group-hover:text-[#0F1729] transition-colors">
+					<div class="w-10 h-10 rounded-lg bg-vp-green/10 flex items-center justify-center text-vp-green group-hover:bg-vp-green group-hover:text-vp-dark transition-colors">
 						<UIcon name="i-heroicons-phone" class="w-5 h-5" />
 					</div>
 					<div>

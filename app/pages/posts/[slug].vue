@@ -44,7 +44,7 @@
 
           <div class="flex flex-wrap items-center gap-4 text-white/90">
             <div class="flex items-center gap-2">
-              <UAvatar :alt="p.author.name" size="sm" class="bg-[#7FD857]">
+              <UAvatar :alt="p.author.name" size="sm" class="bg-vp-green">
                 {{ p.author.avatar || p.author.name.split(' ').map(n => n[0]).join('').toUpperCase() }}
               </UAvatar>
               <span class="font-medium">{{ p.author.name }}</span>
@@ -100,7 +100,7 @@
                 variant="outline"
                 size="lg"
                 @click="toggleContent"
-                class="font-bold border-2 hover:bg-[#7FD857] hover:text-white hover:border-[#7FD857] transition-all"
+                class="font-bold border-2 hover:bg-vp-green hover:text-white hover:border-vp-green transition-all"
               />
             </div>
 
@@ -112,7 +112,7 @@
                   v-for="tag in p.tags"
                   :key="tag"
                   :label="tag"
-                  color="#7FD857"
+                  :color="DEFAULT_TAG_COLOR"
                   size="sm"
                   variant="soft"
                 />
@@ -137,12 +137,12 @@
 
           <!-- Card Inscription (sorties) -->
           <div v-if="p.type === 'sortie'" class="bg-white rounded-3xl shadow-lg p-6 mb-6 sticky top-24">
-            <h3 class="text-xl font-bold text-[#0F1729] mb-4">Informations</h3>
+            <h3 class="text-xl font-bold text-vp-dark mb-4">Informations</h3>
 
             <div class="space-y-4 mb-6">
               <div v-if="p.price" class="flex justify-between items-center pb-3 border-b border-gray-100">
                 <span class="text-gray-600">Tarif</span>
-                <span class="text-2xl font-bold text-[#7FD857]">{{ p.price }}€</span>
+                <span class="text-2xl font-bold text-vp-green">{{ p.price }}€</span>
               </div>
 
               <div v-if="p.maxParticipants" class="flex justify-between items-center pb-3 border-b border-gray-100">
@@ -170,7 +170,7 @@
             <div v-if="p.maxParticipants && p.currentParticipants" class="mb-6">
               <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
                 <div
-                  class="h-full bg-[#7FD857] transition-all duration-300"
+                  class="h-full bg-vp-green transition-all duration-300"
                   :style="{ width: `${(p.currentParticipants / p.maxParticipants) * 100}%` }"
                 ></div>
               </div>
@@ -182,7 +182,7 @@
             <UButton
               size="xl"
               block
-              class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold"
+              class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold"
               icon="i-heroicons-check"
               :disabled="p.currentParticipants && p.maxParticipants && p.currentParticipants >= p.maxParticipants"
             >
@@ -193,14 +193,14 @@
           </div>
 
           <!-- Card Contact (actualités) -->
-          <div v-else class="bg-[#0F1729] rounded-3xl shadow-lg p-6 mb-6 text-white sticky top-24">
+          <div v-else class="bg-vp-dark rounded-3xl shadow-lg p-6 mb-6 text-white sticky top-24">
             <h3 class="text-xl font-bold mb-2">Une question ?</h3>
             <p class="text-white/80 mb-6">Contactez-nous pour plus d'informations</p>
             <UButton
               to="/contact"
               size="lg"
               block
-              class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold"
+              class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold"
               icon="i-heroicons-envelope"
             >
               Nous contacter
@@ -209,7 +209,7 @@
 
           <!-- Articles similaires -->
           <div v-if="relatedPosts.length > 0" class="bg-white rounded-3xl shadow-lg p-6">
-            <h3 class="text-xl font-bold text-[#0F1729] mb-4">
+            <h3 class="text-xl font-bold text-vp-dark mb-4">
               {{ p.type === 'sortie' ? 'Autres sorties' : 'Autres actualités' }}
             </h3>
 
@@ -227,7 +227,7 @@
                     class="w-20 h-20 object-cover rounded-lg"
                   />
                   <div class="flex-1 min-w-0">
-                    <h4 class="font-bold text-sm text-gray-900 group-hover:text-[#7FD857] transition-colors line-clamp-2 mb-1">
+                    <h4 class="font-bold text-sm text-gray-900 group-hover:text-vp-green transition-colors line-clamp-2 mb-1">
                       {{ related.title }}
                     </h4>
                     <p class="text-xs text-gray-500">{{ formatDate(related.date) }}</p>
@@ -250,10 +250,10 @@
             :to="`/posts/${previousPost.slug}`"
             class="flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors group"
           >
-            <UIcon name="i-heroicons-arrow-left" class="w-6 h-6 text-gray-400 group-hover:text-[#7FD857] transition-colors flex-shrink-0" />
+            <UIcon name="i-heroicons-arrow-left" class="w-6 h-6 text-gray-400 group-hover:text-vp-green transition-colors flex-shrink-0" />
             <div class="flex-1 min-w-0">
               <p class="text-xs text-gray-500 uppercase font-bold mb-1">Précédent</p>
-              <h4 class="font-bold text-gray-900 group-hover:text-[#7FD857] transition-colors truncate">
+              <h4 class="font-bold text-gray-900 group-hover:text-vp-green transition-colors truncate">
                 {{ previousPost.title }}
               </h4>
             </div>
@@ -266,11 +266,11 @@
           >
             <div class="flex-1 min-w-0 text-left md:text-right">
               <p class="text-xs text-gray-500 uppercase font-bold mb-1">Suivant</p>
-              <h4 class="font-bold text-gray-900 group-hover:text-[#7FD857] transition-colors truncate">
+              <h4 class="font-bold text-gray-900 group-hover:text-vp-green transition-colors truncate">
                 {{ nextPost.title }}
               </h4>
             </div>
-            <UIcon name="i-heroicons-arrow-right" class="w-6 h-6 text-gray-400 group-hover:text-[#7FD857] transition-colors flex-shrink-0" />
+            <UIcon name="i-heroicons-arrow-right" class="w-6 h-6 text-gray-400 group-hover:text-vp-green transition-colors flex-shrink-0" />
           </NuxtLink>
         </div>
       </div>
@@ -281,6 +281,7 @@
 <script setup lang="ts">
 import type { Post } from '~/types/post'
 import Tag from '~/components/ui/Tag.vue'
+import { getCategoryColor, getDifficultyColor, DEFAULT_TAG_COLOR } from '~/utils/categoryColors'
 import { useSeo } from '../../composables/useSeo'
 import { useStoryblokCacheTag } from '../../composables/useStoryblokCacheTag'
 import { computed, ref, onMounted } from 'vue'
@@ -381,35 +382,6 @@ const formatDate = (date: string) => {
   })
 }
 
-const getCategoryColor = (category: string) => {
-  const colors: Record<string, string> = {
-    'Falaise': '#7FD857',
-    'Bloc': '#4ECDC4',
-    'Stage': '#9333EA',
-    'Climb Up': '#F97316',
-    'Cime Altitude': '#2563EB',
-    'Infrastructure': '#7FD857',
-    'Compétition': '#EF4444',
-    'Événement': '#F59E0B',
-    'Club': '#3B82F6',
-    'Formation': '#8B5CF6',
-    'Partenariat': '#10B981'
-  }
-  return colors[category] || '#7FD857'
-}
-
-const getDifficultyColor = (difficulty?: string) => {
-  if (!difficulty) return '#6B7280'
-  const colors: Record<string, string> = {
-    'Tous niveaux': '#10B981',
-    'Débutant': '#10B981',
-    'Intermédiaire': '#F59E0B',
-    'Confirmé': '#EF4444',
-    'Expert': '#7C3AED'
-  }
-  return colors[difficulty] || '#6B7280'
-}
-
 const postType = (story.value.content.type ?? 'actualite') as 'actualite' | 'sortie'
 
 useSeo({
@@ -426,14 +398,14 @@ useSeo({
 </script>
 
 <style scoped>
-:deep(.prose) { color: #374151; }
-:deep(.prose h2) { color: #0F1729; font-size: 1.75rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; }
-:deep(.prose h3) { color: #0F1729; font-size: 1.25rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+:deep(.prose) { color: var(--color-gray-700); }
+:deep(.prose h2) { color: var(--vp-dark); font-size: 1.75rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; }
+:deep(.prose h3) { color: var(--vp-dark); font-size: 1.25rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.75rem; }
 :deep(.prose p) { margin-bottom: 1rem; line-height: 1.75; }
 :deep(.prose ul) { list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
 :deep(.prose li) { margin-bottom: 0.5rem; }
 :deep(.prose ol) { list-style: decimal; padding-left: 1.5rem; margin-bottom: 1rem; }
-:deep(.prose strong) { font-weight: 600; color: #0F1729; }
-:deep(.prose a) { color: #7FD857; text-decoration: underline; }
-:deep(.prose a:hover) { color: #6bc546; }
+:deep(.prose strong) { font-weight: 600; color: var(--vp-dark); }
+:deep(.prose a) { color: var(--vp-green); text-decoration: underline; }
+:deep(.prose a:hover) { color: var(--vp-green-hover); }
 </style>

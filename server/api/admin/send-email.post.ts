@@ -5,6 +5,7 @@
 import { Resend } from 'resend'
 import {requireAdmin} from '../../utils/requireAdmin'
 import { escapeHtml } from '../../utils/escapeHtml'
+import { EMAIL_COLORS } from '../../utils/email-theme'
 
 interface EmailPayload {
   to: string
@@ -66,7 +67,7 @@ function buildEmailHtml(opts: {
 }): string {
   const { isApproval, typeLabel, userName, targetName, adminNote } = opts
 
-  const accentColor = isApproval ? '#7FD857' : '#f97316'
+  const accentColor = isApproval ? EMAIL_COLORS.green : EMAIL_COLORS.orange
   const statusLabel = isApproval ? 'Inscription confirmée' : 'Inscription refusée'
   const statusIcon = isApproval ? '✓' : '✗'
 
@@ -80,36 +81,36 @@ function buildEmailHtml(opts: {
 
   const noteBlock = adminNote ? `
     <tr>
-      <td style="padding: 0 40px 16px; background:#ffffff">
-        <p style="margin:0;font-size:14px;color:#334155;line-height:1.6;">${safeAdminNote}</p>
+      <td style="padding: 0 40px 16px; background:${EMAIL_COLORS.white}">
+        <p style="margin:0;font-size:14px;color:${EMAIL_COLORS.textBody};line-height:1.6;">${safeAdminNote}</p>
       </td>
     </tr>` : ''
 
   const footer = isApproval
-    ? `<p style="margin:0;font-size:14px;color:#64748b;">À bientôt au club !</p>`
-    : `<p style="margin:0;font-size:14px;color:#64748b;">N'hésitez pas à nous contacter si vous souhaitez plus d'informations.</p>`
+    ? `<p style="margin:0;font-size:14px;color:${EMAIL_COLORS.textMuted};">À bientôt au club !</p>`
+    : `<p style="margin:0;font-size:14px;color:${EMAIL_COLORS.textMuted};">N'hésitez pas à nous contacter si vous souhaitez plus d'informations.</p>`
 
   return `<!DOCTYPE html>
 <html lang="fr">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:40px 16px;">
+<body style="margin:0;padding:0;background:${EMAIL_COLORS.pageBg};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:${EMAIL_COLORS.pageBg};padding:40px 16px;">
     <tr>
       <td align="center">
         <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
 
           <!-- Header -->
           <tr>
-            <td style="background:#0F1729;border-radius:12px 12px 0 0;padding:28px 40px;">
+            <td style="background:${EMAIL_COLORS.navy};border-radius:12px 12px 0 0;padding:28px 40px;">
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td>
-                    <span style="display:inline-block;background:${accentColor};color:#0F1729;font-weight:800;font-size:13px;padding:4px 10px;border-radius:20px;letter-spacing:.3px;">
+                    <span style="display:inline-block;background:${accentColor};color:${EMAIL_COLORS.navy};font-weight:800;font-size:13px;padding:4px 10px;border-radius:20px;letter-spacing:.3px;">
                       ${statusIcon} ${statusLabel}
                     </span>
                   </td>
                   <td align="right">
-                    <span style="font-size:13px;font-weight:700;color:#7FD857;letter-spacing:.5px;">ASC ESCALADE</span>
+                    <span style="font-size:13px;font-weight:700;color:${EMAIL_COLORS.green};letter-spacing:.5px;">ASC ESCALADE</span>
                   </td>
                 </tr>
               </table>
@@ -118,9 +119,9 @@ function buildEmailHtml(opts: {
 
           <!-- Body -->
           <tr>
-            <td style="background:#ffffff;padding:32px 40px 8px;">
-              <p style="margin:0 0 8px;font-size:16px;color:#0f172a;">Bonjour <strong>${safeUserName}</strong>,</p>
-              <p style="margin:0 0 24px;font-size:15px;color:#334155;line-height:1.6;">${messageBody}</p>
+            <td style="background:${EMAIL_COLORS.white};padding:32px 40px 8px;">
+              <p style="margin:0 0 8px;font-size:16px;color:${EMAIL_COLORS.textStrong};">Bonjour <strong>${safeUserName}</strong>,</p>
+              <p style="margin:0 0 24px;font-size:15px;color:${EMAIL_COLORS.textBody};line-height:1.6;">${messageBody}</p>
             </td>
           </tr>
 
@@ -128,29 +129,29 @@ function buildEmailHtml(opts: {
 
           <!-- Footer message -->
           <tr>
-            <td style="background:#ffffff;padding:8px 40px 28px;">
+            <td style="background:${EMAIL_COLORS.white};padding:8px 40px 28px;">
               ${footer}
             </td>
           </tr>
 
           <!-- Divider -->
           <tr>
-            <td style="background:#ffffff;padding:0 40px;">
-              <hr style="border:none;border-top:1px solid #e2e8f0;margin:0;">
+            <td style="background:${EMAIL_COLORS.white};padding:0 40px;">
+              <hr style="border:none;border-top:1px solid ${EMAIL_COLORS.border};margin:0;">
             </td>
           </tr>
 
           <!-- Club footer -->
           <tr>
-            <td style="background:#ffffff;border-radius:0 0 12px 12px;padding:20px 40px 28px;">
+            <td style="background:${EMAIL_COLORS.white};border-radius:0 0 12px 12px;padding:20px 40px 28px;">
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td>
-                    <p style="margin:0;font-size:13px;font-weight:700;color:#0F1729;">ASC Escalade</p>
-                    <p style="margin:2px 0 0;font-size:12px;color:#94a3b8;">Chevigny-Saint-Sauveur</p>
+                    <p style="margin:0;font-size:13px;font-weight:700;color:${EMAIL_COLORS.navy};">ASC Escalade</p>
+                    <p style="margin:2px 0 0;font-size:12px;color:${EMAIL_COLORS.textSubtle};">Chevigny-Saint-Sauveur</p>
                   </td>
                   <td align="right">
-                    <a href="mailto:contact@asc.nossereau.fr" style="font-size:12px;color:#7FD857;text-decoration:none;">contact@asc.nossereau.fr</a>
+                    <a href="mailto:contact@asc.nossereau.fr" style="font-size:12px;color:${EMAIL_COLORS.green};text-decoration:none;">contact@asc.nossereau.fr</a>
                   </td>
                 </tr>
               </table>

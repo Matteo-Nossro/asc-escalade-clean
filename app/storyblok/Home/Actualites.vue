@@ -4,7 +4,7 @@
       <!-- En-tête de section avec bouton -->
       <div class="flex items-end justify-between mb-12">
         <div>
-          <h2 ref="titleRef" class="text-3xl font-bold text-[#0F1729]">
+          <h2 ref="titleRef" class="text-3xl font-bold text-vp-dark">
             {{ blok.title }}
           </h2>
           <p ref="subtitleRef" class="text-gray-600 mt-2">
@@ -20,7 +20,7 @@
             color="neutral"
             trailing-icon="i-heroicons-arrow-right-20-solid"
             :label="blok.ctaLabel"
-            class="text-[#0F1729] hover:text-[#7FD857] font-bold"
+            class="text-vp-dark hover:text-vp-green font-bold"
           />
         </div>
       </div>
@@ -53,7 +53,7 @@
               v-for="i in 3"
               :key="`particle-${i}`"
               :ref="el => featuredParticles[i] = el"
-              class="absolute w-1 h-1 bg-[#7FD857] rounded-full opacity-0"
+              class="absolute w-1 h-1 bg-vp-green rounded-full opacity-0"
               :style="{ left: `${20 + i * 25}%`, top: `${30 + i * 15}%` }"
             ></div>
           </div>
@@ -88,7 +88,7 @@
           <div
             v-if="secondaryPosts[0]"
             ref="secondary1Ref"
-            class="bg-[#F5F7FA] rounded-2xl p-6 flex flex-col justify-between h-full relative hover:bg-gray-100 transition-all duration-300 hover:shadow-lg"
+            class="bg-vp-gray rounded-2xl p-6 flex flex-col justify-between h-full relative hover:bg-gray-100 transition-all duration-300 hover:shadow-lg"
           >
             <div class="flex justify-between items-start mb-4">
               <span class="text-xs font-semibold text-gray-500 bg-white px-2 py-1 rounded">
@@ -111,7 +111,7 @@
                 variant="soft"
                 class="mb-2"
               />
-              <h3 class="text-lg font-bold text-[#0F1729] mb-2">{{ secondaryPosts[0].title }}</h3>
+              <h3 class="text-lg font-bold text-vp-dark mb-2">{{ secondaryPosts[0].title }}</h3>
               <p class="text-sm text-gray-600 line-clamp-2">{{ secondaryPosts[0].excerpt }}</p>
             </div>
             <NuxtLink :to="`/posts/${secondaryPosts[0].slug}`" :aria-label="secondaryPosts[0].title" class="absolute inset-0 z-10" />
@@ -121,9 +121,9 @@
           <div
             v-if="secondaryPosts[1]"
             ref="secondary2Ref"
-            class="bg-[#0F1729] rounded-2xl p-6 flex flex-col justify-between h-full relative group overflow-hidden hover:shadow-xl transition-all duration-300"
+            class="bg-vp-dark rounded-2xl p-6 flex flex-col justify-between h-full relative group overflow-hidden hover:shadow-xl transition-all duration-300"
           >
-            <div ref="glowRef" class="absolute top-0 right-0 w-24 h-24 bg-[#7FD857] opacity-10 rounded-full blur-2xl -mr-8 -mt-8"></div>
+            <div ref="glowRef" class="absolute top-0 right-0 w-24 h-24 bg-vp-green opacity-10 rounded-full blur-2xl -mr-8 -mt-8"></div>
             <div class="flex justify-between items-start mb-4 relative z-10">
               <span class="text-xs font-semibold text-gray-400 border border-gray-700 px-2 py-1 rounded">
                 {{ formatDateShort(secondaryPosts[1].date) }}
@@ -137,7 +137,7 @@
                 variant="soft"
                 class="mb-2"
               />
-              <h3 class="text-lg font-bold text-white mb-2 group-hover:text-[#7FD857] transition-colors">
+              <h3 class="text-lg font-bold text-white mb-2 group-hover:text-vp-green transition-colors">
                 {{ secondaryPosts[1].title }}
               </h3>
               <p class="text-sm text-gray-400 line-clamp-2">{{ secondaryPosts[1].excerpt }}</p>
@@ -163,7 +163,7 @@
           color="neutral"
           :label="blok.mobileCtaLabel"
           trailing-icon="i-heroicons-arrow-right-20-solid"
-          class="border-2 border-[#0F1729] text-[#0F1729] hover:bg-[#0F1729] hover:text-white font-bold"
+          class="border-2 border-vp-dark text-vp-dark hover:bg-vp-dark hover:text-white font-bold"
         />
       </div>
 
@@ -175,6 +175,7 @@
 import { ref, computed, onMounted } from 'vue'
 import type { Post } from '~/types/post'
 import Tag from '~/components/ui/Tag.vue'
+import { getCategoryColor } from '~/utils/categoryColors'
 
 // ✅ Prop Storyblok
 defineProps({ blok: Object })
@@ -213,19 +214,6 @@ const formatDate = (date: string) =>
 
 const formatDateShort = (date: string) =>
   new Date(date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
-
-const getCategoryColor = (category: string) => {
-  const colors: Record<string, string> = {
-    'Infrastructure': '#7FD857',
-    'Compétition': '#EF4444',
-    'Événement': '#F59E0B',
-    'Club': '#3B82F6',
-    'Formation': '#8B5CF6',
-    'Sortie Falaise': '#7FD857',
-    'Partenariat': '#10B981'
-  }
-  return colors[category] || '#7FD857'
-}
 
 // Animations GSAP (import dynamique — hors bundle initial)
 onMounted(async () => {

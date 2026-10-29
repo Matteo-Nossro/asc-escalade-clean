@@ -17,7 +17,7 @@
         :class="fond.sombre ? 'bg-white/5 border border-white/10' : 'bg-gray-50'"
       >
         <span
-          class="w-9 h-9 rounded-full bg-[#0F1729] text-white text-sm font-bold flex items-center justify-center flex-shrink-0"
+          class="w-9 h-9 rounded-full bg-vp-dark text-white text-sm font-bold flex items-center justify-center flex-shrink-0"
         >
           {{ etape.numero || i + 1 }}
         </span>

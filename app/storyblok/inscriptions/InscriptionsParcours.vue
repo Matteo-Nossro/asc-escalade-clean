@@ -30,15 +30,15 @@
                 class="flex gap-4 bg-gray-50 rounded-2xl p-6"
               >
                 <span
-                  class="w-9 h-9 rounded-full bg-[#0F1729] text-white text-sm font-bold flex items-center justify-center flex-shrink-0"
+                  class="w-9 h-9 rounded-full bg-vp-dark text-white text-sm font-bold flex items-center justify-center flex-shrink-0"
                 >
                   {{ etape.numero || i + 1 }}
                 </span>
                 <div class="flex-grow">
-                  <h3 class="font-bold text-[#0F1729]">{{ etape.titre }}</h3>
+                  <h3 class="font-bold text-vp-dark">{{ etape.titre }}</h3>
                   <div
                     v-if="renderedTexte(etape).length"
-                    class="text-sm text-gray-600 mt-1 [&_p]:mb-2 [&_strong]:text-[#0F1729]"
+                    class="text-sm text-gray-600 mt-1 [&_p]:mb-2 [&_strong]:text-vp-dark"
                     v-html="renderedTexte(etape)"
                   />
                   <UButton
@@ -49,7 +49,7 @@
                     :rel="btn(etape).external ? 'noopener' : undefined"
                     trailing-icon="i-heroicons-arrow-top-right-on-square"
                     size="sm"
-                    class="mt-3 bg-[#0F1729] hover:bg-[#1a2740] text-white font-bold"
+                    class="mt-3 bg-vp-dark hover:bg-vp-dark-hover text-white font-bold"
                   >
                     {{ etape.bouton_label }}
                   </UButton>

@@ -185,6 +185,7 @@ app/
 │   └── auth.global.ts           # Guard auth, complétion du profil, guard admin
 ├── utils/
 │   ├── authRedirect.ts          # URL de retour des e-mails de confirmation (source unique)
+│   ├── categoryColors.ts        # Couleurs des catégories de posts et difficultés (source unique)
 │   └── profileForm.ts           # Champs et validations partagés inscription / complétion
 ├── composables/
 │   ├── useSiteConfig.ts         # Config globale (logo, nav, footer)
@@ -243,7 +244,8 @@ server/
 │       ├── create-member.post.ts # Crée compte Auth + profil + rôles + groupes
 │       └── send-email.post.ts   # Email notification approbation/refus via Resend
 server/utils/
-└── completeProfile.ts           # Logique partagée register / profile/complete (409 atomique, enfants, rôle parent)
+├── completeProfile.ts           # Logique partagée register / profile/complete (409 atomique, enfants, rôle parent)
+└── email-theme.ts               # Couleurs des e-mails HTML (EMAIL_COLORS, par rôle)
 supabase/
 └── migrations/
     ├── 20260409_profiles_children_support.sql  # email nullable + suppression FK id→auth.users

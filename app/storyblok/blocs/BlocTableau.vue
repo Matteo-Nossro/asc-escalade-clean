@@ -23,12 +23,12 @@
       >
         <table class="w-full min-w-[640px] text-sm">
           <thead v-if="entetes.length">
-            <tr class="bg-[#0F1729] text-white text-left">
+            <tr class="bg-vp-dark text-white text-left">
               <th
                 v-for="(cell, ci) in entetes"
                 :key="ci"
                 class="px-4 py-4 font-bold"
-                :class="[ci === 0 ? 'px-5' : 'text-center', colMiseEnAvant === ci ? 'bg-[#7FD857] text-[#0F1729]' : '']"
+                :class="[ci === 0 ? 'px-5' : 'text-center', colMiseEnAvant === ci ? 'bg-vp-green text-vp-dark' : '']"
               >
                 {{ cell.value }}
               </th>
@@ -41,9 +41,9 @@
                 :key="ci"
                 class="px-4 py-3.5"
                 :class="[
-                  ci === 0 ? 'px-5 font-bold text-[#0F1729]' : 'text-center text-gray-700',
+                  ci === 0 ? 'px-5 font-bold text-vp-dark' : 'text-center text-gray-700',
                   ci === 0 && premiereColFigee ? 'sticky left-0 bg-inherit' : '',
-                  colMiseEnAvant === ci ? 'font-black text-[#0F1729] bg-[#7FD857]/10' : '',
+                  colMiseEnAvant === ci ? 'font-black text-vp-dark bg-vp-green/10' : '',
                 ]"
               >
                 {{ cell.value }}
@@ -67,18 +67,18 @@
         :key="ri"
         class="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden"
       >
-        <p class="bg-[#0F1729] text-white font-bold px-4 py-3">{{ row.body[0]?.value }}</p>
+        <p class="bg-vp-dark text-white font-bold px-4 py-3">{{ row.body[0]?.value }}</p>
         <dl class="divide-y divide-gray-100">
           <div
             v-for="(cell, ci) in row.body.slice(1)"
             :key="ci"
             class="flex items-center justify-between gap-4 px-4 py-2.5 text-sm"
-            :class="colMiseEnAvant === ci + 1 ? 'bg-[#7FD857]/10' : ''"
+            :class="colMiseEnAvant === ci + 1 ? 'bg-vp-green/10' : ''"
           >
             <dt class="text-gray-500">{{ entetes[ci + 1]?.value }}</dt>
             <dd
               class="font-bold"
-              :class="colMiseEnAvant === ci + 1 ? 'text-[#0F1729] text-base' : 'text-gray-800'"
+              :class="colMiseEnAvant === ci + 1 ? 'text-vp-dark text-base' : 'text-gray-800'"
             >
               {{ cell.value }}
             </dd>

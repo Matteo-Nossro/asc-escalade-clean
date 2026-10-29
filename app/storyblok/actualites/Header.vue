@@ -37,7 +37,7 @@
 					<path
 							ref="flowLine1"
 							d="M-100 70 C 200 50, 400 90, 720 70 S 1200 50, 1540 70"
-							stroke="#7FD857"
+							class="stroke-vp-green"
 							stroke-width="2"
 							fill="none"
 							stroke-dasharray="2000"
@@ -46,7 +46,7 @@
 					<path
 							ref="flowLine2"
 							d="M-100 120 C 250 100, 450 140, 770 120 S 1250 100, 1540 120"
-							stroke="#7FD857"
+							class="stroke-vp-green"
 							stroke-width="1.5"
 							fill="none"
 							opacity="0.6"
@@ -56,7 +56,7 @@
 					<path
 							ref="flowLine3"
 							d="M-100 170 C 300 150, 500 190, 820 170 S 1300 150, 1540 170"
-							stroke="#0F1729"
+							class="stroke-vp-dark"
 							stroke-width="1"
 							fill="none"
 							opacity="0.3"
@@ -77,25 +77,25 @@
           top: `${20 + (i % 3) * 22}%`
         }"
 			>
-				<UIcon name="i-heroicons-newspaper" class="w-5 h-5 text-[#7FD857]" />
+				<UIcon name="i-heroicons-newspaper" class="w-5 h-5 text-vp-green" />
 			</div>
 
 			<!-- Rectangles de cartes de news -->
 			<svg class="absolute top-12 right-10 w-36 h-36 opacity-8" viewBox="0 0 100 100">
-				<rect ref="card1" x="5" y="10" width="90" height="25" rx="2" stroke="#7FD857" stroke-width="1.5" fill="none" />
-				<line x1="10" y1="18" x2="70" y2="18" stroke="#7FD857" stroke-width="1" opacity="0.5" />
-				<line x1="10" y1="25" x2="50" y2="25" stroke="#7FD857" stroke-width="0.8" opacity="0.4" />
+				<rect ref="card1" x="5" y="10" width="90" height="25" rx="2" class="stroke-vp-green" stroke-width="1.5" fill="none" />
+				<line x1="10" y1="18" x2="70" y2="18" class="stroke-vp-green" stroke-width="1" opacity="0.5" />
+				<line x1="10" y1="25" x2="50" y2="25" class="stroke-vp-green" stroke-width="0.8" opacity="0.4" />
 
-				<rect ref="card2" x="10" y="45" width="85" height="23" rx="2" stroke="#7FD857" stroke-width="1" fill="none" opacity="0.6" />
-				<line x1="15" y1="53" x2="65" y2="53" stroke="#7FD857" stroke-width="0.8" opacity="0.4" />
-				<line x1="15" y1="60" x2="45" y2="60" stroke="#7FD857" stroke-width="0.6" opacity="0.3" />
+				<rect ref="card2" x="10" y="45" width="85" height="23" rx="2" class="stroke-vp-green" stroke-width="1" fill="none" opacity="0.6" />
+				<line x1="15" y1="53" x2="65" y2="53" class="stroke-vp-green" stroke-width="0.8" opacity="0.4" />
+				<line x1="15" y1="60" x2="45" y2="60" class="stroke-vp-green" stroke-width="0.6" opacity="0.3" />
 			</svg>
 
 		</div>
 
 		<UContainer class="relative z-10 text-center">
 
-			<h1 ref="title" class="text-4xl md:text-6xl font-extrabold text-[#0F1729] mb-4 uppercase tracking-tight">
+			<h1 ref="title" class="text-4xl md:text-6xl font-extrabold text-vp-dark mb-4 uppercase tracking-tight">
 				{{ blok.title || 'ACTUALITÉS' }}
 			</h1>
 
@@ -103,7 +103,7 @@
 				{{ blok.subtitle || 'Suivez toute l\'actualité du club' }}
 			</p>
 
-			<div ref="line" class="h-1.5 bg-[#7FD857] rounded-full mx-auto" style="width: 64px"></div>
+			<div ref="line" class="h-1.5 bg-vp-green rounded-full mx-auto" style="width: 64px"></div>
 
 		</UContainer>
 	</section>

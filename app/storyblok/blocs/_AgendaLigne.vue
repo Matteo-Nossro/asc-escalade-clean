@@ -6,10 +6,10 @@
   >
     <!-- Pastille date -->
     <div
-      class="flex-shrink-0 w-16 h-16 rounded-2xl bg-[#7FD857]/15 flex flex-col items-center justify-center"
+      class="flex-shrink-0 w-16 h-16 rounded-2xl bg-vp-green/15 flex flex-col items-center justify-center"
     >
-      <span class="text-lg font-black leading-none text-[#0F1729]">{{ jour }}</span>
-      <span class="text-xs font-bold uppercase text-[#0F1729]/70">{{ mois }}</span>
+      <span class="text-lg font-black leading-none text-vp-dark">{{ jour }}</span>
+      <span class="text-xs font-bold uppercase text-vp-dark/70">{{ mois }}</span>
     </div>
 
     <div class="flex-grow min-w-0">
@@ -38,7 +38,7 @@
       :target="lien.external ? '_blank' : undefined"
       :rel="lien.external ? 'noopener' : undefined"
       size="sm"
-      class="flex-shrink-0 bg-[#0F1729] hover:bg-[#1a2740] text-white font-bold"
+      class="flex-shrink-0 bg-vp-dark hover:bg-vp-dark-hover text-white font-bold"
     >
       {{ evenement.lien_label }}
     </UButton>

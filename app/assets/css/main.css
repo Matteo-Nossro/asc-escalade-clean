@@ -20,19 +20,47 @@
     --color-green-900: #0A5331;
     --color-green-950: #052E16;
 
+    /* ── Charte du club : SOURCE UNIQUE des couleurs (hors catégories → app/utils/categoryColors.ts,
+       hors e-mails → server/utils/email-theme.ts). Aucun hex ailleurs dans app/.
+       Les --vp-* portent les valeurs (utilisables en var() dans <style>, style="" et attributs SVG) ;
+       les alias --color-vp-* en dessous génèrent les classes Tailwind (bg-vp-green, text-vp-dark,
+       border-vp-green/50, hover:bg-vp-green-hover, from-vp-dark, fill-vp-green…). */
     --vp-green: #7FD857;
-    --vp-green-hover: #6bc745;
+    --vp-green-hover: #6bc546;
     --vp-green-light: #9fe57f;
     /* Vert accessible pour le TEXTE sur fond clair (contraste AA ≈ 5:1 sur blanc).
        Garder --vp-green pour les fonds, icônes et accents ; utiliser celui-ci
        dès que le vert sert de couleur de texte sur blanc/gris clair. */
     --vp-green-text: #3B7D0E;
+    /* Texte d'un critère de mot de passe validé (register, profil). */
+    --vp-green-check: #5ab43a;
     --vp-dark: #0F1729;
     --vp-dark-hover: #1a2740;
     --vp-dark-light: #2d3f5f;
     --vp-gray: #F5F7FA;
     --vp-gray-dark: #e1e5ea;
+    /* Fond de repli quand une étape de la frise n'a pas d'image (Timeline). */
+    --vp-placeholder: #F0F0EE;
+    /* Guillemet décoratif de l'annotation (Timeline). */
+    --vp-quote-mark: #ccc;
+
+    --color-vp-green: var(--vp-green);
+    --color-vp-green-hover: var(--vp-green-hover);
+    --color-vp-green-light: var(--vp-green-light);
+    --color-vp-green-text: var(--vp-green-text);
+    --color-vp-green-check: var(--vp-green-check);
+    --color-vp-dark: var(--vp-dark);
+    --color-vp-dark-hover: var(--vp-dark-hover);
+    --color-vp-dark-light: var(--vp-dark-light);
+    --color-vp-gray: var(--vp-gray);
+    --color-vp-gray-dark: var(--vp-gray-dark);
+    --color-vp-placeholder: var(--vp-placeholder);
+    --color-vp-quote-mark: var(--vp-quote-mark);
 }
+
+/* Garantit l'émission des variables de palette lues en var(--color-…) depuis des <style> de
+   composants (non traités par Tailwind) : gray-200 et gray-700 (Header, posts/[slug]). */
+@source inline("bg-gray-200 text-gray-700");
 
 :root {
      --ui-container: 110rem;

@@ -60,7 +60,7 @@
             </p>
 
             <div class="flex items-center gap-2 mt-2">
-              <div class="w-6 h-6 rounded-md bg-[#7FD857] flex items-center justify-center text-xs font-bold text-[#0F1729]">
+              <div class="w-6 h-6 rounded-md bg-vp-green flex items-center justify-center text-xs font-bold text-vp-dark">
                 {{ request.user_name.split(' ').map(w => w[0]).join('').slice(0, 2) }}
               </div>
               <span class="text-sm text-gray-700">{{ request.user_name }}</span>

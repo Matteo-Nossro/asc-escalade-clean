@@ -1,7 +1,7 @@
 <template>
 	<section v-editable="blok" id="equipe" class="py-20 bg-white">
 		<UContainer>
-			<h2 class="text-3xl font-bold text-center text-[#0F1729] mb-12">
+			<h2 class="text-3xl font-bold text-center text-vp-dark mb-12">
 				{{ blok.title || 'Le Bureau & Les Coachs' }}
 			</h2>
 
@@ -37,8 +37,8 @@
 						/>
 					</div>
 
-					<h3 class="text-lg font-bold text-[#0F1729]">{{ item.name }}</h3>
-					<span class="text-sm font-medium text-[#7FD857] uppercase">{{ item.role }}</span>
+					<h3 class="text-lg font-bold text-vp-dark">{{ item.name }}</h3>
+					<span class="text-sm font-medium text-vp-green uppercase">{{ item.role }}</span>
 				</div>
 			</UCarousel>
 

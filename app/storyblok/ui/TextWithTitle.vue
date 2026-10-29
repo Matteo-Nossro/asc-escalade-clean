@@ -4,7 +4,7 @@
       <!-- Ajout de text-center et mx-auto pour centrer le tout -->
       <div class="mx-auto flex flex-col items-center text-lg leading-relaxed text-gray-600 space-y-6">
         
-        <h2 v-if="blok.title" class="text-3xl font-bold text-[#0F1729] mb-2 w-full">
+        <h2 v-if="blok.title" class="text-3xl font-bold text-vp-dark mb-2 w-full">
           {{ blok.title }}
         </h2>
         

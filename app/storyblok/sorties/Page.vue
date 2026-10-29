@@ -3,8 +3,8 @@
 
 		<!-- Déco fond (triangles gris) -->
 		<svg class="absolute top-0 left-0 w-full h-full pointer-events-none opacity-40" viewBox="0 0 1440 800" fill="none" preserveAspectRatio="none">
-			<path d="M-100 0 L600 800 L1500 0 Z" fill="#F3F4F6"/>
-			<path d="M1200 800 L800 0 L1600 0 Z" fill="#E5E7EB" opacity="0.5"/>
+			<path d="M-100 0 L600 800 L1500 0 Z" class="fill-gray-100"/>
+			<path d="M1200 800 L800 0 L1600 0 Z" class="fill-gray-200" opacity="0.5"/>
 		</svg>
 
 		<UContainer class="relative z-10">
@@ -48,25 +48,25 @@
 
 						<div class="p-6 md:p-8 flex-grow flex flex-col justify-between">
 							<div>
-								<h3 class="text-xl font-bold text-[#0F1729] mb-6 line-clamp-2 min-h-[3.5rem]">
+								<h3 class="text-xl font-bold text-vp-dark mb-6 line-clamp-2 min-h-[3.5rem]">
 									{{ sortie.title }}
 								</h3>
 
 								<div class="space-y-3 mb-8">
 									<div class="flex items-center gap-3 text-sm text-gray-600">
-										<UIcon name="i-heroicons-calendar" class="w-5 h-5 text-[#7FD857] flex-shrink-0"/>
+										<UIcon name="i-heroicons-calendar" class="w-5 h-5 text-vp-green flex-shrink-0"/>
 										<span>{{ formatDate(sortie.date) }}</span>
 									</div>
 									<div v-if="sortie.location" class="flex items-center gap-3 text-sm text-gray-600">
-										<UIcon name="i-heroicons-map-pin" class="w-5 h-5 text-[#7FD857] flex-shrink-0"/>
+										<UIcon name="i-heroicons-map-pin" class="w-5 h-5 text-vp-green flex-shrink-0"/>
 										<span>{{ sortie.location }}</span>
 									</div>
 									<div v-if="sortie.difficulty" class="flex items-center gap-3 text-sm text-gray-600">
-										<UIcon name="i-heroicons-chart-bar" class="w-5 h-5 text-[#7FD857] flex-shrink-0"/>
+										<UIcon name="i-heroicons-chart-bar" class="w-5 h-5 text-vp-green flex-shrink-0"/>
 										<span>{{ sortie.difficulty }}</span>
 									</div>
 									<div v-if="sortie.price" class="flex items-center gap-3 text-sm text-gray-600">
-										<UIcon name="i-heroicons-currency-euro" class="w-5 h-5 text-[#7FD857] flex-shrink-0"/>
+										<UIcon name="i-heroicons-currency-euro" class="w-5 h-5 text-vp-green flex-shrink-0"/>
 										<span class="font-bold">{{ sortie.price }}€</span>
 									</div>
 								</div>
@@ -107,7 +107,7 @@
 				<a
 					target="_blank"
 					href="https://www.ffme.fr/"
-					class="text-gray-400 hover:text-gray-600 text-m flex items-center justify-center gap-1 transition-colors hover:text-[#7FD857]"
+					class="text-gray-400 hover:text-gray-600 text-m flex items-center justify-center gap-1 transition-colors hover:text-vp-green"
 				>
 					Consulter les infos falaises sur le site FFME
 					<UIcon name="i-heroicons-arrow-top-right-on-square" class="w-4 h-4" />
@@ -120,6 +120,7 @@
 
 <script setup lang="ts">
 import Tag from '~/components/ui/Tag.vue'
+import { getCategoryColor } from '~/utils/categoryColors'
 import { useSeo } from '../../composables/useSeo'
 
 const props = defineProps({
@@ -134,17 +135,6 @@ const sorties = await getPosts('sortie')
 
 const formatDate = (date: string) =>
 	new Date(date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
-
-const getCategoryColor = (category: string) => {
-	const colors: Record<string, string> = {
-		'Falaise': '#7FD857',
-		'Bloc': '#4ECDC4',
-		'Stage': '#9333EA',
-		'Climb Up': '#F97316',
-		'Cime Altitude': '#2563EB'
-	}
-	return colors[category] || '#7FD857'
-}
 
 const getRemainingPlaces = (sortie: any) => {
 	if (sortie.maxParticipants == null) return 0

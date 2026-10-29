@@ -12,7 +12,7 @@
 					v-for="i in 4"
 					:key="`circle-${i}`"
 					:ref="el => { if (el) circles[i] = el }"
-					class="absolute w-3 h-3 rounded-full bg-[#7FD857] opacity-0"
+					class="absolute w-3 h-3 rounded-full bg-vp-green opacity-0"
 					:style="{
           left: `${15 + i * 22}%`,
           top: `${20 + (i % 2) * 40}%`
@@ -30,15 +30,15 @@
 						class="flex flex-col items-center gap-2"
 				>
 					<div class="relative">
-						<UIcon :name="stat.icon || 'i-heroicons-chart-bar'" class="w-8 h-8 text-[#7FD857] transition-transform hover:scale-110 duration-300" />
+						<UIcon :name="stat.icon || 'i-heroicons-chart-bar'" class="w-8 h-8 text-vp-green transition-transform hover:scale-110 duration-300" />
 						<div
 								:ref="el => { if (el) pulseRefs[index] = el }"
-								class="absolute inset-0 w-8 h-8 rounded-full bg-[#7FD857] opacity-20 -z-10"
+								class="absolute inset-0 w-8 h-8 rounded-full bg-vp-green opacity-20 -z-10"
 						></div>
 					</div>
 					<span
 							:ref="el => { if (el) countRefs[index] = el }"
-							class="text-4xl font-extrabold text-[#0F1729]"
+							class="text-4xl font-extrabold text-vp-dark"
 					>{{ formatStat(stat) }}</span>
 					<span class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ stat.label }}</span>
 				</div>

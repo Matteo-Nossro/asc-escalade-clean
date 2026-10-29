@@ -14,16 +14,16 @@
 
       <!-- Loader -->
       <div v-if="!ready" class="flex justify-center py-20">
-        <div class="w-8 h-8 border-3 border-gray-200 border-t-[#7FD857] rounded-full animate-spin" />
+        <div class="w-8 h-8 border-3 border-gray-200 border-t-vp-green rounded-full animate-spin" />
       </div>
 
       <!-- Contenu -->
       <div v-else class="space-y-6">
 
         <!-- Réinitialisation mot de passe -->
-        <div v-if="showResetPassword" class="bg-white rounded-3xl shadow-2xl p-8 border-2 border-[#7FD857]">
+        <div v-if="showResetPassword" class="bg-white rounded-3xl shadow-2xl p-8 border-2 border-vp-green">
           <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <UIcon name="i-lucide-key" class="w-5 h-5 text-[#7FD857]" />
+            <UIcon name="i-lucide-key" class="w-5 h-5 text-vp-green" />
             Définir un nouveau mot de passe
           </h3>
 
@@ -77,7 +77,7 @@
                 v-for="check in resetPasswordChecks"
                 :key="check.label"
                 class="flex items-center gap-2 text-xs transition-colors"
-                :class="check.ok ? 'text-[#5ab43a]' : 'text-gray-400'"
+                :class="check.ok ? 'text-vp-green-check' : 'text-gray-400'"
               >
                 <UIcon
                   :name="check.ok ? 'i-lucide-check-circle-2' : 'i-lucide-circle'"
@@ -93,7 +93,7 @@
               block
               :loading="resetLoading"
               :disabled="resetLoading"
-              class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold"
+              class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold"
             >
               <template #leading>
                 <UIcon name="i-lucide-shield-check" class="w-5 h-5" />
@@ -106,18 +106,18 @@
         <!-- Card famille (sélecteur + ajout enfant) -->
         <div v-if="children.length > 0 || userRoles.includes('parent')" class="bg-white rounded-3xl shadow-2xl p-6 border border-gray-100">
           <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-4 flex items-center gap-2">
-            <UIcon name="i-lucide-users" class="w-4 h-4 text-[#7FD857]" />
+            <UIcon name="i-lucide-users" class="w-4 h-4 text-vp-green" />
             Profils famille
           </h3>
           <div class="flex flex-wrap gap-2">
             <UButton
               :variant="!isEditingChild ? 'solid' : 'soft'"
-              :class="!isEditingChild ? 'bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546]' : ''"
+              :class="!isEditingChild ? 'bg-vp-green text-vp-dark hover:bg-vp-green-hover' : ''"
               size="sm"
               @click="switchToOwnProfile"
             >
               <template #leading>
-                <div class="w-6 h-6 rounded-md bg-[#0F1729]/10 flex items-center justify-center text-xs font-bold">
+                <div class="w-6 h-6 rounded-md bg-vp-dark/10 flex items-center justify-center text-xs font-bold">
                   {{ ownInitials }}
                 </div>
               </template>
@@ -128,12 +128,12 @@
               v-for="child in children"
               :key="child.child_id"
               :variant="editingChildId === child.child_id ? 'solid' : 'soft'"
-              :class="editingChildId === child.child_id ? 'bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546]' : ''"
+              :class="editingChildId === child.child_id ? 'bg-vp-green text-vp-dark hover:bg-vp-green-hover' : ''"
               size="sm"
               @click="switchToChildProfile(child.child_id)"
             >
               <template #leading>
-                <div class="w-6 h-6 rounded-md bg-[#0F1729]/10 flex items-center justify-center text-xs font-bold">
+                <div class="w-6 h-6 rounded-md bg-vp-dark/10 flex items-center justify-center text-xs font-bold">
                   {{ getChildInitials(child) }}
                 </div>
               </template>
@@ -178,7 +178,7 @@
               <UFormField label="Sexe" required :error="addChildErrors.gender">
                 <select
                   v-model="addChildForm.gender"
-                  class="w-full h-[38px] px-3 rounded-lg border text-sm text-gray-900 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#7FD857] focus:border-transparent transition-all"
+                  class="w-full h-[38px] px-3 rounded-lg border text-sm text-gray-900 cursor-pointer focus:outline-none focus:ring-2 focus:ring-vp-green focus:border-transparent transition-all"
                   :class="addChildErrors.gender ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-white'"
                 >
                   <option value="">Sélectionner…</option>
@@ -193,7 +193,7 @@
               <UButton
                 size="sm"
                 :loading="addingChild"
-                class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546]"
+                class="bg-vp-green text-vp-dark hover:bg-vp-green-hover"
                 @click="submitAddChild"
               >
                 Ajouter
@@ -209,8 +209,8 @@
               <div v-if="form.avatar_url" class="w-24 h-24 rounded-2xl overflow-hidden shadow-lg">
                 <img :src="form.avatar_url" alt="Avatar" class="w-full h-full object-cover" />
               </div>
-              <div v-else class="w-24 h-24 rounded-2xl bg-[#7FD857] flex items-center justify-center shadow-lg">
-                <span class="text-3xl font-bold text-[#0F1729]">{{ initials }}</span>
+              <div v-else class="w-24 h-24 rounded-2xl bg-vp-green flex items-center justify-center shadow-lg">
+                <span class="text-3xl font-bold text-vp-dark">{{ initials }}</span>
               </div>
             </div>
 
@@ -249,7 +249,7 @@
         <!-- Card Informations personnelles -->
         <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
           <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <UIcon name="i-lucide-user" class="w-5 h-5 text-[#7FD857]" />
+            <UIcon name="i-lucide-user" class="w-5 h-5 text-vp-green" />
             Informations personnelles
           </h3>
 
@@ -332,7 +332,7 @@
         <!-- Card Adresse -->
         <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
           <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <UIcon name="i-lucide-map-pin" class="w-5 h-5 text-[#7FD857]" />
+            <UIcon name="i-lucide-map-pin" class="w-5 h-5 text-vp-green" />
             Adresse
           </h3>
 
@@ -372,7 +372,7 @@
                       class="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-start gap-3 border-b border-gray-100 last:border-0 transition-colors cursor-pointer"
                       @mousedown.prevent="selectAddress(suggestion)"
                     >
-                      <UIcon name="i-lucide-map-pin" class="w-4 h-4 text-[#7FD857] mt-0.5 shrink-0" />
+                      <UIcon name="i-lucide-map-pin" class="w-4 h-4 text-vp-green mt-0.5 shrink-0" />
                       <div class="min-w-0">
                         <p class="text-sm font-medium text-gray-900 truncate">{{ suggestion.name }}</p>
                         <p class="text-xs text-gray-500">{{ suggestion.postcode }} {{ suggestion.city }}</p>
@@ -422,7 +422,7 @@
         <!-- Card Photo de profil -->
         <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
           <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <UIcon name="i-lucide-camera" class="w-5 h-5 text-[#7FD857]" />
+            <UIcon name="i-lucide-camera" class="w-5 h-5 text-vp-green" />
             Photo de profil
           </h3>
 
@@ -448,7 +448,7 @@
           class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100"
         >
           <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <UIcon name="i-lucide-mountain" class="w-5 h-5 text-[#7FD857]" />
+            <UIcon name="i-lucide-mountain" class="w-5 h-5 text-vp-green" />
             Informations club
             <UBadge color="neutral" variant="soft" size="xs">Lecture seule</UBadge>
           </h3>
@@ -480,7 +480,7 @@
             size="xl"
             :loading="saving"
             :disabled="saving || !hasChanges"
-            class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold shadow-lg hover:shadow-xl transition-all"
+            class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold shadow-lg hover:shadow-xl transition-all"
             @click="saveProfile"
           >
             <template #leading>

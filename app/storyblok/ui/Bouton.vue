@@ -5,7 +5,7 @@
       v-if="primary"
       :to="resolveLink(primary.link)"
       size="xl"
-      class="group relative bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold px-8 py-4 justify-center overflow-hidden shadow-lg hover:shadow-xl transition-all"
+      class="group relative bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold px-8 py-4 justify-center overflow-hidden shadow-lg hover:shadow-xl transition-all"
       :ui="{ rounded: 'rounded-full' }"
     >
       <span class="relative z-10 flex items-center gap-2">

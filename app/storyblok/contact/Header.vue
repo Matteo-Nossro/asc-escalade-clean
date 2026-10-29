@@ -37,7 +37,7 @@
 					<path
 							ref="connectionLine1"
 							d="M100 50 L 300 80 L 500 60 L 700 90 L 900 70 L 1100 100 L 1340 80"
-							stroke="#7FD857"
+							class="stroke-vp-green"
 							stroke-width="2"
 							fill="none"
 							stroke-dasharray="2000"
@@ -46,7 +46,7 @@
 					<path
 							ref="connectionLine2"
 							d="M150 100 L 350 130 L 550 110 L 750 140 L 950 120 L 1150 150 L 1340 130"
-							stroke="#7FD857"
+							class="stroke-vp-green"
 							stroke-width="1.5"
 							fill="none"
 							opacity="0.6"
@@ -56,7 +56,7 @@
 					<path
 							ref="connectionLine3"
 							d="M200 150 L 400 170 L 600 160 L 800 180 L 1000 170 L 1200 190 L 1340 175"
-							stroke="#0F1729"
+							class="stroke-vp-dark"
 							stroke-width="1"
 							fill="none"
 							opacity="0.3"
@@ -65,11 +65,11 @@
 					/>
 
 					<!-- Nœuds de connexion -->
-					<circle ref="node1" cx="300" cy="80" r="4" fill="#7FD857" opacity="0" />
-					<circle ref="node2" cx="500" cy="60" r="4" fill="#7FD857" opacity="0" />
-					<circle ref="node3" cx="700" cy="90" r="4" fill="#7FD857" opacity="0" />
-					<circle ref="node4" cx="900" cy="70" r="4" fill="#7FD857" opacity="0" />
-					<circle ref="node5" cx="1100" cy="100" r="4" fill="#7FD857" opacity="0" />
+					<circle ref="node1" cx="300" cy="80" r="4" class="fill-vp-green" opacity="0" />
+					<circle ref="node2" cx="500" cy="60" r="4" class="fill-vp-green" opacity="0" />
+					<circle ref="node3" cx="700" cy="90" r="4" class="fill-vp-green" opacity="0" />
+					<circle ref="node4" cx="900" cy="70" r="4" class="fill-vp-green" opacity="0" />
+					<circle ref="node5" cx="1100" cy="100" r="4" class="fill-vp-green" opacity="0" />
 				</svg>
 			</div>
 
@@ -84,23 +84,23 @@
           top: `${22 + (i % 3) * 20}%`
         }"
 			>
-				<UIcon :name="icon" class="w-6 h-6 text-[#7FD857]" />
+				<UIcon :name="icon" class="w-6 h-6 text-vp-green" />
 			</div>
 
 			<!-- Enveloppe stylisée -->
 			<svg class="absolute top-16 right-12 w-32 h-32 opacity-8" viewBox="0 0 100 100">
-				<rect ref="envelope" x="15" y="30" width="70" height="45" rx="3" stroke="#7FD857" stroke-width="1.5" fill="none" />
-				<path ref="envelopeFlap" d="M15 30 L50 55 L85 30" stroke="#7FD857" stroke-width="1.5" fill="none" />
-				<line x1="15" y1="75" x2="40" y2="55" stroke="#7FD857" stroke-width="1" opacity="0.5" />
-				<line x1="85" y1="75" x2="60" y2="55" stroke="#7FD857" stroke-width="1" opacity="0.5" />
+				<rect ref="envelope" x="15" y="30" width="70" height="45" rx="3" class="stroke-vp-green" stroke-width="1.5" fill="none" />
+				<path ref="envelopeFlap" d="M15 30 L50 55 L85 30" class="stroke-vp-green" stroke-width="1.5" fill="none" />
+				<line x1="15" y1="75" x2="40" y2="55" class="stroke-vp-green" stroke-width="1" opacity="0.5" />
+				<line x1="85" y1="75" x2="60" y2="55" class="stroke-vp-green" stroke-width="1" opacity="0.5" />
 			</svg>
 
 			<!-- Bulles de message -->
 			<svg class="absolute bottom-32 left-16 w-28 h-28 opacity-8" viewBox="0 0 100 100">
-				<rect ref="bubble1" x="20" y="20" width="50" height="30" rx="8" stroke="#7FD857" stroke-width="1.5" fill="none" />
-				<path d="M35 50 L40 60 L45 50" stroke="#7FD857" stroke-width="1.5" fill="none" />
-				<line x1="28" y1="30" x2="55" y2="30" stroke="#7FD857" stroke-width="1" opacity="0.5" />
-				<line x1="28" y1="38" x2="45" y2="38" stroke="#7FD857" stroke-width="1" opacity="0.5" />
+				<rect ref="bubble1" x="20" y="20" width="50" height="30" rx="8" class="stroke-vp-green" stroke-width="1.5" fill="none" />
+				<path d="M35 50 L40 60 L45 50" class="stroke-vp-green" stroke-width="1.5" fill="none" />
+				<line x1="28" y1="30" x2="55" y2="30" class="stroke-vp-green" stroke-width="1" opacity="0.5" />
+				<line x1="28" y1="38" x2="45" y2="38" class="stroke-vp-green" stroke-width="1" opacity="0.5" />
 			</svg>
 
 			<!-- Points de connexion décoratifs -->
@@ -108,7 +108,7 @@
 					v-for="i in 8"
 					:key="`dot-${i}`"
 					:ref="el => connectionDots[i] = el"
-					class="absolute w-2 h-2 bg-[#7FD857] rounded-full opacity-0"
+					class="absolute w-2 h-2 bg-vp-green rounded-full opacity-0"
 					:style="{
           left: `${8 + i * 12}%`,
           top: `${18 + (i % 4) * 18}%`
@@ -119,7 +119,7 @@
 
 		<UContainer class="relative z-10 text-center">
 			<!-- Titre Principal -->
-			<h1 ref="title" class="text-4xl md:text-6xl font-extrabold text-[#0F1729] mb-4 uppercase tracking-tight">
+			<h1 ref="title" class="text-4xl md:text-6xl font-extrabold text-vp-dark mb-4 uppercase tracking-tight">
 				{{ blok.title || 'CONTACTEZ-NOUS' }}
 			</h1>
 
@@ -129,7 +129,7 @@
 			</p>
 
 			<!-- Trait décoratif -->
-			<div ref="line" class="h-1.5 bg-[#7FD857] rounded-full mx-auto" style="width: 64px"></div>
+			<div ref="line" class="h-1.5 bg-vp-green rounded-full mx-auto" style="width: 64px"></div>
 
 		</UContainer>
 	</section>

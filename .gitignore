@@ -58,3 +58,5 @@ docs/images/
 supabase/.temp/
 # Dump du schéma de prod (référence locale, jamais versionné)
 /prod_schema.sql
+# Captures Playwright de référence (gardées en local, 36 Mo)
+docs/features/harmonisation-couleurs/captures/

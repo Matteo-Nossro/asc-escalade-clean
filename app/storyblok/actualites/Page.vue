@@ -20,7 +20,7 @@
 					size="sm"
 					:label="cat.label"
 					@click="selectedCategory = cat.value; currentPage = 1"
-					:class="selectedCategory === cat.value ? 'bg-[#7FD857] text-[#0F1729]' : ''"
+					:class="selectedCategory === cat.value ? 'bg-vp-green text-vp-dark' : ''"
 				/>
 			</div>
 		</UContainer>
@@ -53,8 +53,8 @@
 							/>
 							<!-- Badge date d'événement -->
 							<div v-if="post.eventDate" class="absolute bottom-4 left-4">
-								<div class="bg-[#0F1729] text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5">
-									<UIcon name="i-heroicons-calendar-days" class="w-3.5 h-3.5 text-[#7FD857]" />
+								<div class="bg-vp-dark text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+									<UIcon name="i-heroicons-calendar-days" class="w-3.5 h-3.5 text-vp-green" />
 									{{ formatDate(post.eventDate.split(' ')[0]) }}
 								</div>
 							</div>
@@ -75,22 +75,22 @@
 								</div>
 							</div>
 
-							<h2 class="text-xl font-bold text-[#0F1729] mb-3 line-clamp-2 group-hover:text-[#7FD857] transition-colors">
+							<h2 class="text-xl font-bold text-vp-dark mb-3 line-clamp-2 group-hover:text-vp-green transition-colors">
 								{{ post.title }}
 							</h2>
 
 							<!-- Infos spécifiques aux sorties -->
 							<div v-if="post.type === 'sortie'" class="space-y-2 mb-4 flex-grow">
 								<div v-if="post.location" class="flex items-center gap-2 text-sm text-gray-600">
-									<UIcon name="i-heroicons-map-pin" class="w-4 h-4 text-[#7FD857] flex-shrink-0" />
+									<UIcon name="i-heroicons-map-pin" class="w-4 h-4 text-vp-green flex-shrink-0" />
 									<span>{{ post.location }}</span>
 								</div>
 								<div v-if="post.difficulty" class="flex items-center gap-2 text-sm text-gray-600">
-									<UIcon name="i-heroicons-chart-bar" class="w-4 h-4 text-[#7FD857] flex-shrink-0" />
+									<UIcon name="i-heroicons-chart-bar" class="w-4 h-4 text-vp-green flex-shrink-0" />
 									<span>{{ post.difficulty }}</span>
 								</div>
 								<div v-if="post.price" class="flex items-center gap-2 text-sm text-gray-600">
-									<UIcon name="i-heroicons-currency-euro" class="w-4 h-4 text-[#7FD857] flex-shrink-0" />
+									<UIcon name="i-heroicons-currency-euro" class="w-4 h-4 text-vp-green flex-shrink-0" />
 									<span class="font-bold">{{ post.price }}€</span>
 								</div>
 							</div>
@@ -103,7 +103,7 @@
 										v-for="tag in post.tags.slice(0, 3)"
 										:key="tag"
 										:label="tag"
-										color="#6B7280"
+										:color="NEUTRAL_TAG_COLOR"
 										size="xs"
 										variant="soft"
 									/>
@@ -118,13 +118,13 @@
 									</span>
 									<span
 										class="px-4 py-2 rounded-lg text-sm font-bold"
-										:class="isFullyBooked(post) ? 'bg-gray-200 text-gray-500' : 'bg-[#0F1729] text-white'"
+										:class="isFullyBooked(post) ? 'bg-gray-200 text-gray-500' : 'bg-vp-dark text-white'"
 									>
 										{{ isFullyBooked(post) ? 'Complet' : 'S\'inscrire' }}
 									</span>
 								</template>
 								<template v-else>
-									<div class="flex items-center gap-2 text-[#7FD857] font-bold text-sm group-hover:gap-3 transition-all">
+									<div class="flex items-center gap-2 text-vp-green font-bold text-sm group-hover:gap-3 transition-all">
 										<span>Lire la suite</span>
 										<UIcon name="i-heroicons-arrow-right" class="w-4 h-4" />
 									</div>
@@ -158,6 +158,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import Tag from '~/components/ui/Tag.vue'
+import { getCategoryColor, NEUTRAL_TAG_COLOR } from '~/utils/categoryColors'
 import { useSeo } from '../../composables/useSeo'
 
 const props = defineProps({
@@ -198,23 +199,6 @@ const paginatedPosts = computed(() => {
 
 const formatDate = (date) =>
 	new Date(date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
-
-const getCategoryColor = (category) => {
-	const colors = {
-		'Infrastructure': '#7FD857',
-		'Compétition': '#EF4444',
-		'Événement': '#F59E0B',
-		'Club': '#3B82F6',
-		'Formation': '#8B5CF6',
-		'Falaise': '#7FD857',
-		'Sortie Falaise': '#7FD857',
-		'Bloc': '#4ECDC4',
-		'Stage': '#9333EA',
-		'Climb Up': '#F97316',
-		'Cime Altitude': '#2563EB'
-	}
-	return colors[category] || '#7FD857'
-}
 
 const getRemainingPlaces = (post) => {
 	if (!post.maxParticipants) return '?'

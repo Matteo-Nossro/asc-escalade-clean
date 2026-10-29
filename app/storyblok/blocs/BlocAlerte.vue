@@ -66,17 +66,17 @@ const styles = computed(() => {
       }
     case 'info':
       return {
-        fond: 'bg-[#0F1729]',
+        fond: 'bg-vp-dark',
         texte: 'text-white',
         icon: 'i-heroicons-information-circle',
-        iconColor: 'text-[#7FD857]',
+        iconColor: 'text-vp-green',
       }
     default:
       return {
-        fond: 'bg-[#7FD857]',
-        texte: 'text-[#0F1729]',
+        fond: 'bg-vp-green',
+        texte: 'text-vp-dark',
         icon: 'i-heroicons-megaphone',
-        iconColor: 'text-[#0F1729]',
+        iconColor: 'text-vp-dark',
       }
   }
 })

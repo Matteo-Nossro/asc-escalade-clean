@@ -28,7 +28,7 @@
         v-for="dir in ['prev', 'next']"
         :key="dir"
         type="button"
-        class="hidden md:flex absolute top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white shadow-lg border border-gray-100 items-center justify-center hover:bg-[#7FD857] hover:text-[#0F1729] transition-colors z-10"
+        class="hidden md:flex absolute top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white shadow-lg border border-gray-100 items-center justify-center hover:bg-vp-green hover:text-vp-dark transition-colors z-10"
         :class="dir === 'prev' ? '-left-4' : '-right-4'"
         :aria-label="dir === 'prev' ? 'Précédent' : 'Suivant'"
         @click="defiler(dir)"
@@ -48,7 +48,7 @@
       <div v-if="reste > 0" class="mt-8 text-center">
         <UButton
           size="lg"
-          class="bg-[#0F1729] hover:bg-[#1a2740] text-white font-bold"
+          class="bg-vp-dark hover:bg-vp-dark-hover text-white font-bold"
           trailing-icon="i-heroicons-chevron-down"
           @click="tout = true"
         >

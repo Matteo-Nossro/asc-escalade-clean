@@ -48,28 +48,28 @@
 				<div class="p-6 md:p-8 flex-grow flex flex-col justify-between">
 
 					<div>
-						<h3 class="text-xl font-bold text-[#0F1729] mb-6 line-clamp-2 min-h-[3.5rem]">
+						<h3 class="text-xl font-bold text-vp-dark mb-6 line-clamp-2 min-h-[3.5rem]">
 							{{ sortie.title }}
 						</h3>
 
 						<div class="space-y-3 mb-8">
 							<div class="flex items-center gap-3 text-sm text-gray-600">
-								<UIcon name="i-heroicons-calendar" class="w-5 h-5 text-[#7FD857] flex-shrink-0"/>
+								<UIcon name="i-heroicons-calendar" class="w-5 h-5 text-vp-green flex-shrink-0"/>
 								<span>{{ formatDate(sortie.date) }}</span>
 							</div>
 
 							<div v-if="sortie.location" class="flex items-center gap-3 text-sm text-gray-600">
-								<UIcon name="i-heroicons-map-pin" class="w-5 h-5 text-[#7FD857] flex-shrink-0 font-bold"/>
+								<UIcon name="i-heroicons-map-pin" class="w-5 h-5 text-vp-green flex-shrink-0 font-bold"/>
 								<span>{{ sortie.location }}</span>
 							</div>
 
 							<div v-if="sortie.difficulty" class="flex items-center gap-3 text-sm text-gray-600">
-								<UIcon name="i-heroicons-chart-bar" class="w-5 h-5 text-[#7FD857] flex-shrink-0"/>
+								<UIcon name="i-heroicons-chart-bar" class="w-5 h-5 text-vp-green flex-shrink-0"/>
 								<span>{{ sortie.difficulty }}</span>
 							</div>
 
 							<div v-if="sortie.price" class="flex items-center gap-3 text-sm text-gray-600">
-								<UIcon name="i-heroicons-currency-euro" class="w-5 h-5 text-[#7FD857] flex-shrink-0"/>
+								<UIcon name="i-heroicons-currency-euro" class="w-5 h-5 text-vp-green flex-shrink-0"/>
 								<span class="font-bold">{{ sortie.price }}€</span>
 							</div>
 						</div>
@@ -105,6 +105,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import Tag from '~/components/ui/Tag.vue'
+import { getCategoryColor } from '~/utils/categoryColors'
 
 const props = defineProps({
 	blok: {
@@ -167,17 +168,6 @@ const formatDate = (date: string) => {
 		month: 'long',
 		year: 'numeric'
 	})
-}
-
-const getCategoryColor = (category: string) => {
-	const colors: Record<string, string> = {
-		'Falaise': '#7FD857',
-		'Bloc': '#4ECDC4',
-		'Stage': '#9333EA',
-		'Climb Up': '#F97316',
-		'Cime Altitude': '#2563EB'
-	}
-	return colors[category] || '#7FD857'
 }
 
 const getRemainingPlaces = (sortie: any) => {

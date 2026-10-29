@@ -6,9 +6,9 @@
       <div class="text-center mb-8">
         <NuxtLink
           to="/"
-          class="inline-flex items-center justify-center w-16 h-16 bg-[#7FD857] rounded-2xl mb-4 shadow-lg transition-transform hover:scale-105"
+          class="inline-flex items-center justify-center w-16 h-16 bg-vp-green rounded-2xl mb-4 shadow-lg transition-transform hover:scale-105"
         >
-          <UIcon name="i-lucide-mountain" class="w-8 h-8 text-[#0F1729]" />
+          <UIcon name="i-lucide-mountain" class="w-8 h-8 text-vp-dark" />
         </NuxtLink>
         <h1 class="text-3xl font-bold text-gray-900 mb-2">ASC Escalade</h1>
         <p class="text-gray-600">Compléter votre profil</p>
@@ -17,8 +17,8 @@
       <!-- ── Formulaire ── -->
       <form v-if="!done" class="space-y-6" data-testid="form-complete-profile" @submit.prevent="handleSubmit">
         <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100 text-center">
-          <div class="w-14 h-14 rounded-2xl bg-[#7FD857]/10 flex items-center justify-center mx-auto mb-4">
-            <UIcon name="i-lucide-clipboard-list" class="w-7 h-7 text-[#7FD857]" />
+          <div class="w-14 h-14 rounded-2xl bg-vp-green/10 flex items-center justify-center mx-auto mb-4">
+            <UIcon name="i-lucide-clipboard-list" class="w-7 h-7 text-vp-green" />
           </div>
           <h2 class="text-lg font-bold text-gray-900 mb-2">Plus que quelques informations</h2>
           <p class="text-sm text-gray-500">
@@ -41,7 +41,7 @@
         <!-- Enfants (facultatif) -->
         <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
           <h3 class="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
-            <UIcon name="i-lucide-users" class="w-5 h-5 text-[#7FD857]" />
+            <UIcon name="i-lucide-users" class="w-5 h-5 text-vp-green" />
             Vos enfants (facultatif)
           </h3>
           <p class="text-sm text-gray-500">
@@ -63,7 +63,7 @@
           data-testid="btn-complete-submit"
           :loading="submitting"
           :disabled="submitting"
-          class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold shadow-lg hover:shadow-xl transition-all"
+          class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold shadow-lg hover:shadow-xl transition-all"
         >
           <template v-if="!submitting" #leading>
             <UIcon name="i-lucide-check" class="w-5 h-5" />
@@ -75,8 +75,8 @@
       <!-- ── Succès ── -->
       <div v-else class="text-center" data-testid="complete-profile-done">
         <div class="bg-white rounded-3xl shadow-2xl p-10 border border-gray-100">
-          <div class="w-20 h-20 rounded-full bg-[#7FD857]/10 flex items-center justify-center mx-auto mb-6">
-            <UIcon name="i-lucide-check-circle-2" class="w-10 h-10 text-[#7FD857]" />
+          <div class="w-20 h-20 rounded-full bg-vp-green/10 flex items-center justify-center mx-auto mb-6">
+            <UIcon name="i-lucide-check-circle-2" class="w-10 h-10 text-vp-green" />
           </div>
           <h2 class="text-2xl font-bold text-gray-900 mb-3">Profil envoyé !</h2>
           <p class="text-sm text-gray-500 mb-8" data-testid="msg-complete-pending">
@@ -86,7 +86,7 @@
             block
             size="xl"
             to="/profil"
-            class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold shadow-lg"
+            class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold shadow-lg"
           >
             <template #leading>
               <UIcon name="i-lucide-user-circle" class="w-5 h-5" />
@@ -101,7 +101,7 @@
         Ce n'est pas votre compte ?
         <button
           type="button"
-          class="text-[#7FD857] hover:text-[#6bc546] font-bold ml-1 cursor-pointer"
+          class="text-vp-green hover:text-vp-green-hover font-bold ml-1 cursor-pointer"
           data-testid="btn-complete-logout"
           @click="logout"
         >

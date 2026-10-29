@@ -33,10 +33,10 @@ const cible = computed(() => resolveFileOrLink(props.blok.fichier, props.blok.li
 const classes = computed(
   () =>
     ({
-      vert: 'bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729]',
-      sombre: 'bg-[#0F1729] hover:bg-[#1a2740] text-white',
-      clair: 'bg-white hover:bg-gray-100 text-[#0F1729]',
-      outline: 'border border-current bg-transparent hover:bg-[#0F1729] hover:text-white text-[#0F1729]',
-    })[props.blok.style] || 'bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729]',
+      vert: 'bg-vp-green hover:bg-vp-green-hover text-vp-dark',
+      sombre: 'bg-vp-dark hover:bg-vp-dark-hover text-white',
+      clair: 'bg-white hover:bg-gray-100 text-vp-dark',
+      outline: 'border border-current bg-transparent hover:bg-vp-dark hover:text-white text-vp-dark',
+    })[props.blok.style] || 'bg-vp-green hover:bg-vp-green-hover text-vp-dark',
 )
 </script>

@@ -6,7 +6,7 @@
       type="button"
       size="lg"
       :icon="blok.declencheur_icon || undefined"
-      class="font-bold bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729]"
+      class="font-bold bg-vp-green hover:bg-vp-green-hover text-vp-dark"
       :class="blok.pleine_largeur ? 'w-full justify-center' : ''"
       @click="ouvrir"
     >
@@ -15,7 +15,7 @@
     <button
       v-else
       type="button"
-      class="inline-flex items-center gap-1.5 font-semibold text-[#0F1729] underline decoration-[#7FD857] decoration-2 underline-offset-2 hover:text-[#7FD857] transition-colors"
+      class="inline-flex items-center gap-1.5 font-semibold text-vp-dark underline decoration-vp-green decoration-2 underline-offset-2 hover:text-vp-green transition-colors"
       @click="ouvrir"
     >
       <UIcon v-if="blok.declencheur_icon" :name="blok.declencheur_icon" class="w-4 h-4" />
@@ -31,7 +31,7 @@
         class="fixed inset-0 z-[120] flex items-end sm:items-center justify-center p-0 sm:p-6"
         @click.self="fermer"
       >
-        <div class="absolute inset-0 bg-[#0F1729]/70 backdrop-blur-sm" @click="fermer" />
+        <div class="absolute inset-0 bg-vp-dark/70 backdrop-blur-sm" @click="fermer" />
 
         <div
           ref="panneau"
@@ -44,12 +44,12 @@
           @keydown.tab="piegerFocus"
         >
           <div class="flex items-start justify-between gap-4 p-5 sm:p-6 border-b border-gray-100 flex-shrink-0">
-            <h2 v-if="blok.titre" class="text-lg sm:text-xl font-bold text-[#0F1729]">{{ blok.titre }}</h2>
+            <h2 v-if="blok.titre" class="text-lg sm:text-xl font-bold text-vp-dark">{{ blok.titre }}</h2>
             <span v-else />
             <button
               ref="btnFermer"
               type="button"
-              class="flex-shrink-0 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-[#0F1729]"
+              class="flex-shrink-0 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-vp-dark"
               aria-label="Fermer"
               @click="fermer"
             >

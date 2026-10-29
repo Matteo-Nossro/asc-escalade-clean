@@ -6,15 +6,15 @@
 				<!-- Colonne Texte -->
 				<div class="flex flex-col gap-6">
 					<div class="flex items-center gap-3 mb-2">
-						<UIcon name="i-heroicons-clock" class="w-8 h-8 text-[#7FD857]" />
-						<h2 class="text-3xl font-bold text-[#0F1729]">
+						<UIcon name="i-heroicons-clock" class="w-8 h-8 text-vp-green" />
+						<h2 class="text-3xl font-bold text-vp-dark">
 							{{ blok.title || 'Notre Histoire' }}
 						</h2>
 					</div>
 
 					<div
 						v-if="blok.content"
-						class="space-y-4 text-gray-600 leading-relaxed text-justify prose prose-p:text-gray-600 prose-strong:text-[#0F1729] max-w-none"
+						class="space-y-4 text-gray-600 leading-relaxed text-justify prose prose-p:text-gray-600 prose-strong:text-vp-dark max-w-none"
 						v-html="renderedContent"
 					/>
 					<div v-else class="space-y-6 text-gray-600 leading-relaxed text-justify">
@@ -60,8 +60,8 @@
 								class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-11 h-11 rounded-full bg-white shadow-xl flex items-center justify-center gap-0.5 pointer-events-none z-20"
 								:style="`left: ${position}%`"
 							>
-								<UIcon name="i-heroicons-chevron-left" class="w-4 h-4 text-[#0F1729]" />
-								<UIcon name="i-heroicons-chevron-right" class="w-4 h-4 text-[#0F1729]" />
+								<UIcon name="i-heroicons-chevron-left" class="w-4 h-4 text-vp-dark" />
+								<UIcon name="i-heroicons-chevron-right" class="w-4 h-4 text-vp-dark" />
 							</div>
 							<!-- Label AVANT -->
 							<div

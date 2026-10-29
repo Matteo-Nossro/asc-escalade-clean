@@ -54,7 +54,7 @@
         <!-- Surtitre -->
         <span
           ref="surtitleRef"
-          class="text-[#7FD857] font-bold tracking-[0.2em] uppercase text-xl md:text-2xl"
+          class="text-vp-green font-bold tracking-[0.2em] uppercase text-xl md:text-2xl"
         >
           {{ blok.surtitle }}
         </span>
@@ -78,7 +78,7 @@
             v-if="blok.primaryButton?.[0]"
             :to="blok.primaryButton[0].link?.cached_url"
             size="xl"
-            class="group relative bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold px-8 py-4 justify-center overflow-hidden shadow-lg hover:shadow-xl transition-all"
+            class="group relative bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold px-8 py-4 justify-center overflow-hidden shadow-lg hover:shadow-xl transition-all"
             :ui="{ rounded: 'rounded-full' }"
           >
             <span class="relative z-10 flex items-center gap-2">
@@ -109,19 +109,19 @@
     <!-- SVG décoratifs -->
     <svg class="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20 z-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="none">
       <path ref="mountain1Ref" d="M0 800 L200 600 L400 700 L600 500 L800 650 L1000 550 L1200 700 L1400 600 L1600 750 L1800 650 L1920 800" stroke="white" stroke-width="2" fill="none" stroke-dasharray="3500" stroke-dashoffset="3500"/>
-      <path ref="mountain2Ref" d="M0 900 L150 750 L300 820 L500 680 L700 800 L900 700 L1100 820 L1300 740 L1500 850 L1700 780 L1920 900" stroke="#7FD857" stroke-width="2.5" fill="none" stroke-dasharray="3500" stroke-dashoffset="3500"/>
+      <path ref="mountain2Ref" d="M0 900 L150 750 L300 820 L500 680 L700 800 L900 700 L1100 820 L1300 740 L1500 850 L1700 780 L1920 900" class="stroke-vp-green" stroke-width="2.5" fill="none" stroke-dasharray="3500" stroke-dashoffset="3500"/>
       <line ref="altLine1Ref" x1="0" y1="300" x2="1920" y2="300" stroke="white" stroke-width="1" opacity="0.3" stroke-dasharray="3000" stroke-dashoffset="3000"/>
       <line ref="altLine2Ref" x1="0" y1="450" x2="1920" y2="450" stroke="white" stroke-width="1" opacity="0.3" stroke-dasharray="3000" stroke-dashoffset="3000"/>
-      <line ref="altLine3Ref" x1="0" y1="600" x2="1920" y2="600" stroke="#7FD857" stroke-width="1" opacity="0.3" stroke-dasharray="3000" stroke-dashoffset="3000"/>
+      <line ref="altLine3Ref" x1="0" y1="600" x2="1920" y2="600" class="stroke-vp-green" stroke-width="1" opacity="0.3" stroke-dasharray="3000" stroke-dashoffset="3000"/>
       <line ref="ridge1Ref" x1="200" y1="600" x2="600" y2="200" stroke="white" stroke-width="1.5" opacity="0.4" stroke-dasharray="600" stroke-dashoffset="600"/>
-      <line ref="ridge2Ref" x1="1400" y1="600" x2="1700" y2="150" stroke="#7FD857" stroke-width="1.5" opacity="0.4" stroke-dasharray="700" stroke-dashoffset="700"/>
+      <line ref="ridge2Ref" x1="1400" y1="600" x2="1700" y2="150" class="stroke-vp-green" stroke-width="1.5" opacity="0.4" stroke-dasharray="700" stroke-dashoffset="700"/>
       <line ref="ridge3Ref" x1="800" y1="700" x2="1000" y2="250" stroke="white" stroke-width="1" opacity="0.3" stroke-dasharray="650" stroke-dashoffset="650"/>
       <path ref="trail1Ref" d="M0 850 Q 300 800, 500 830 T 900 820 T 1920 850" stroke="white" stroke-width="1.5" fill="none" opacity="0.3" stroke-dasharray="8 4" stroke-dashoffset="4000"/>
-      <path ref="trail2Ref" d="M0 920 Q 400 870, 700 890 T 1200 910 T 1920 920" stroke="#7FD857" stroke-width="1.5" fill="none" opacity="0.3" stroke-dasharray="8 4" stroke-dashoffset="4000"/>
+      <path ref="trail2Ref" d="M0 920 Q 400 870, 700 890 T 1200 910 T 1920 920" class="stroke-vp-green" stroke-width="1.5" fill="none" opacity="0.3" stroke-dasharray="8 4" stroke-dashoffset="4000"/>
       <circle ref="summit1Ref" cx="600" cy="500" r="0" stroke="white" stroke-width="2" fill="white" opacity="0.6"/>
-      <circle ref="summit2Ref" cx="1400" cy="600" r="0" stroke="#7FD857" stroke-width="2" fill="#7FD857" opacity="0.6"/>
+      <circle ref="summit2Ref" cx="1400" cy="600" r="0" class="stroke-vp-green fill-vp-green" stroke-width="2" opacity="0.6"/>
       <circle ref="summit3Ref" cx="1000" cy="550" r="0" stroke="white" stroke-width="1.5" fill="white" opacity="0.4"/>
-      <path ref="zigzagRef" d="M1500 950 L1550 900 L1500 850 L1550 800 L1600 750 L1650 700 L1700 650" stroke="#7FD857" stroke-width="2" fill="none" opacity="0.3" stroke-dasharray="800" stroke-dashoffset="800"/>
+      <path ref="zigzagRef" d="M1500 950 L1550 900 L1500 850 L1550 800 L1600 750 L1650 700 L1700 650" class="stroke-vp-green" stroke-width="2" fill="none" opacity="0.3" stroke-dasharray="800" stroke-dashoffset="800"/>
     </svg>
 
     <!-- Indicateur de scroll -->

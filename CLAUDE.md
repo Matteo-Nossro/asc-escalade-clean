@@ -33,12 +33,13 @@ Site Nuxt 4 + Storyblok pour le club d'escalade ASC Escalade (Chevigny-Saint-Sau
 - Multi-asset / galerie : URL directe `${photo.filename}/m/800x0/filters:quality(75):format(webp)`
 
 ## Couleurs du projet
-| Usage | Valeur |
-|---|---|
-| Bleu nuit (fond, textes) | `#0F1729` |
-| Vert (accent, icônes, CTA) | `#7FD857` |
-| Vert survol (hover) | `#6bc546` |
-| Bleu nuit variante | `#1a2740` |
+| Usage | Valeur | Token / classe |
+|---|---|---|
+| Bleu nuit (fond, textes) | `#0F1729` | `vp-dark` (`text-vp-dark`) |
+| Vert (accent, icônes, CTA) | `#7FD857` | `vp-green` (`bg-vp-green`) |
+| Vert survol (hover) | `#6bc546` | `vp-green-hover` (`hover:bg-vp-green-hover`) |
+| Bleu nuit variante | `#1a2740` | `vp-dark-hover` (`bg-vp-dark-hover`) |
+| Catégories de posts | `app/utils/categoryColors.ts` (une ligne par catégorie) | — |
 
 ## Docs détaillées — lire à la demande selon le contexte
 

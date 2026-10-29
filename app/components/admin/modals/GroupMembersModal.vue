@@ -7,7 +7,7 @@
   >
     <template #body>
       <div v-if="loading" class="flex justify-center py-8">
-        <div class="w-6 h-6 border-2 border-gray-200 border-t-[#7FD857] rounded-full animate-spin" />
+        <div class="w-6 h-6 border-2 border-gray-200 border-t-vp-green rounded-full animate-spin" />
       </div>
 
       <div v-else>
@@ -27,7 +27,7 @@
             class="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
           >
             <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-lg bg-[#7FD857] flex items-center justify-center text-xs font-bold text-[#0F1729]">
+              <div class="w-8 h-8 rounded-lg bg-vp-green flex items-center justify-center text-xs font-bold text-vp-dark">
                 {{ getInitials(member.profile?.full_name || '') }}
               </div>
               <div>

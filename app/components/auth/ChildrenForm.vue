@@ -9,7 +9,7 @@
         class="bg-white rounded-2xl shadow p-4 border border-gray-100 flex items-center justify-between gap-4"
       >
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-[#7FD857]/10 flex items-center justify-center font-bold text-[#7FD857] text-sm shrink-0">
+          <div class="w-10 h-10 rounded-xl bg-vp-green/10 flex items-center justify-center font-bold text-vp-green text-sm shrink-0">
             {{ getChildInitials(child) }}
           </div>
           <div>
@@ -24,7 +24,7 @@
     <!-- Formulaire ajout enfant -->
     <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
       <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-        <UIcon name="i-lucide-user-plus" class="w-5 h-5 text-[#7FD857]" />
+        <UIcon name="i-lucide-user-plus" class="w-5 h-5 text-vp-green" />
         Ajouter un enfant
       </h3>
       <div class="space-y-5">
@@ -53,7 +53,7 @@
             <select
               v-model="childForm.gender"
               data-testid="select-child-gender"
-              class="w-full h-[46px] px-3 rounded-lg border text-sm text-gray-900 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#7FD857] focus:border-transparent transition-all"
+              class="w-full h-[46px] px-3 rounded-lg border text-sm text-gray-900 cursor-pointer focus:outline-none focus:ring-2 focus:ring-vp-green focus:border-transparent transition-all"
               :class="childErrors.gender ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-white'"
             >
               <option value="">Sélectionner…</option>

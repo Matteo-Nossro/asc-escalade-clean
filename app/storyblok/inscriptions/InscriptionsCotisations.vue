@@ -23,7 +23,7 @@
       <div data-reveal class="max-w-5xl mx-auto overflow-x-auto rounded-3xl shadow-lg bg-white">
         <table class="w-full min-w-[720px] text-sm">
           <thead>
-            <tr class="bg-[#0F1729] text-white text-left">
+            <tr class="bg-vp-dark text-white text-left">
               <th class="px-5 py-4 font-bold">Catégorie</th>
               <th class="px-4 py-4 font-semibold text-center">
                 Licence FFME<br><span class="font-normal text-white/60 text-xs">+ assurance</span>
@@ -37,7 +37,7 @@
               <th class="px-4 py-4 font-semibold text-center">
                 Cotisation<br><span class="font-normal text-white/60 text-xs">club</span>
               </th>
-              <th class="px-5 py-4 font-bold text-center bg-[#7FD857] text-[#0F1729]">
+              <th class="px-5 py-4 font-bold text-center bg-vp-green text-vp-dark">
                 Total<br>adhérent
               </th>
             </tr>
@@ -49,14 +49,14 @@
               :class="i % 2 ? 'bg-gray-50/60' : 'bg-white'"
             >
               <td class="px-5 py-4">
-                <div class="font-bold text-[#0F1729]">{{ row.categorie }}</div>
+                <div class="font-bold text-vp-dark">{{ row.categorie }}</div>
                 <div v-if="row.hint" class="text-xs text-gray-500 mt-0.5">{{ row.hint }}</div>
               </td>
               <td class="px-4 py-4 text-center text-gray-700">{{ row.licence }}</td>
               <td class="px-4 py-4 text-center text-gray-700">{{ row.ct21 }}</td>
               <td class="px-4 py-4 text-center text-gray-700">{{ row.ligue }}</td>
               <td class="px-4 py-4 text-center text-gray-700">{{ row.club }}</td>
-              <td class="px-5 py-4 text-center font-black text-[#0F1729] bg-[#7FD857]/10">
+              <td class="px-5 py-4 text-center font-black text-vp-dark bg-vp-green/10">
                 {{ row.total }}
               </td>
             </tr>

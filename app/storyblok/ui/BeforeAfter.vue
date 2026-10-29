@@ -4,7 +4,7 @@
 
 			<!-- Titre optionnel -->
 			<div v-if="blok.title" class="text-center mb-8">
-				<h2 class="text-3xl font-extrabold text-[#0F1729] tracking-tight">{{ blok.title }}</h2>
+				<h2 class="text-3xl font-extrabold text-vp-dark tracking-tight">{{ blok.title }}</h2>
 				<p v-if="blok.subtitle" class="text-gray-400 mt-2">{{ blok.subtitle }}</p>
 			</div>
 
@@ -56,8 +56,8 @@
 					class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-11 h-11 rounded-full bg-white shadow-xl flex items-center justify-center gap-0.5 pointer-events-none z-20"
 					:style="`left: ${position}%`"
 				>
-					<UIcon name="i-heroicons-chevron-left" class="w-4 h-4 text-[#0F1729]" />
-					<UIcon name="i-heroicons-chevron-right" class="w-4 h-4 text-[#0F1729]" />
+					<UIcon name="i-heroicons-chevron-left" class="w-4 h-4 text-vp-dark" />
+					<UIcon name="i-heroicons-chevron-right" class="w-4 h-4 text-vp-dark" />
 				</div>
 
 				<!-- Label AVANT -->

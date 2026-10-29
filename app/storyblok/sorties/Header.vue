@@ -37,7 +37,7 @@
 					<path
 							ref="path1"
 							d="M-50 100 Q 200 20, 400 80 T 800 100 Q 1000 120, 1200 60 T 1490 100"
-							stroke="#7FD857"
+							class="stroke-vp-green"
 							stroke-width="2.5"
 							fill="none"
 							stroke-dasharray="2200"
@@ -46,7 +46,7 @@
 					<path
 							ref="path2"
 							d="M-50 150 Q 250 70, 450 130 T 850 150 Q 1050 170, 1250 110 T 1490 150"
-							stroke="#0F1729"
+							class="stroke-vp-dark"
 							stroke-width="1.5"
 							fill="none"
 							opacity="0.3"
@@ -61,7 +61,7 @@
 					v-for="i in 10"
 					:key="`peak-${i}`"
 					:ref="el => { if (el) peaks[i] = el }"
-					class="absolute w-2 h-2 bg-[#7FD857] rounded-full opacity-0"
+					class="absolute w-2 h-2 bg-vp-green rounded-full opacity-0"
 					:style="{
           left: `${8 + i * 10}%`,
           top: `${15 + (i % 4) * 18}%`
@@ -70,15 +70,15 @@
 
 			<!-- Polygones géométriques (rappel de rochers) -->
 			<svg class="absolute top-16 right-12 w-28 h-28 opacity-8" viewBox="0 0 100 100">
-				<polygon ref="rock1" points="50,10 90,40 70,90 30,90 10,40" stroke="#7FD857" stroke-width="1.5" fill="none" />
-				<polygon ref="rock2" points="50,25 75,50 60,80 40,80 25,50" stroke="#7FD857" stroke-width="1" fill="none" opacity="0.5" />
+				<polygon ref="rock1" points="50,10 90,40 70,90 30,90 10,40" class="stroke-vp-green" stroke-width="1.5" fill="none" />
+				<polygon ref="rock2" points="50,25 75,50 60,80 40,80 25,50" class="stroke-vp-green" stroke-width="1" fill="none" opacity="0.5" />
 			</svg>
 
 		</div>
 
 		<UContainer class="relative z-10 text-center">
 
-			<h1 ref="title" class="text-4xl md:text-6xl font-extrabold text-[#0F1729] mb-4 uppercase tracking-tight">
+			<h1 ref="title" class="text-4xl md:text-6xl font-extrabold text-vp-dark mb-4 uppercase tracking-tight">
 				{{ blok.title || 'SORTIES & STAGES' }}
 			</h1>
 
@@ -86,7 +86,7 @@
 				{{ blok.subtitle || 'Vivez l\'escalade grandeur nature en falaise' }}
 			</p>
 
-			<div ref="line" class="h-1.5 bg-[#7FD857] rounded-full mx-auto" style="width: 64px"></div>
+			<div ref="line" class="h-1.5 bg-vp-green rounded-full mx-auto" style="width: 64px"></div>
 
 		</UContainer>
 	</section>

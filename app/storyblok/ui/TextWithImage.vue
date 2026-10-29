@@ -9,8 +9,8 @@
         <!-- Colonne Texte -->
         <div class="flex flex-col gap-6 self-start justify-self-start w-full" :class="{ 'lg:order-2': blok.reverse_layout }">
           <div class="flex items-center gap-3 mb-2">
-            <UIcon v-if="blok.icon" :name="blok.icon" class="w-8 h-8 text-[#7FD857]" />
-            <h2 class="text-3xl font-bold text-[#0F1729]">{{ blok.title }}</h2>
+            <UIcon v-if="blok.icon" :name="blok.icon" class="w-8 h-8 text-vp-green" />
+            <h2 class="text-3xl font-bold text-vp-dark">{{ blok.title }}</h2>
           </div>
           <!-- StoryblokRichText ne transmet pas d'attribut `class` : on enveloppe
                le rendu dans un conteneur `prose` pour retrouver titres, listes, etc. -->

@@ -95,7 +95,7 @@
               :key="group.value ?? '__none__'"
               class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-colors"
               :class="group.value !== null && form.groupIds.includes(group.value)
-                ? 'border-[#7FD857] bg-[#7FD857]/10'
+                ? 'border-vp-green bg-vp-green/10'
                 : 'border-gray-200 hover:border-gray-300'"
             >
               <input
@@ -121,7 +121,7 @@
               :key="role.code"
               class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-colors"
               :class="form.roles.includes(role.code)
-                ? 'border-[#7FD857] bg-[#7FD857]/10'
+                ? 'border-vp-green bg-vp-green/10'
                 : 'border-gray-200 hover:border-gray-300'"
             >
               <input type="checkbox" :value="role.code" v-model="form.roles" class="sr-only" />
@@ -257,7 +257,7 @@
         </UButton>
         <UButton
           color="primary"
-          class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546]"
+          class="bg-vp-green text-vp-dark hover:bg-vp-green-hover"
           :loading="saving"
           data-testid="btn-member-submit"
           @click="handleSave"

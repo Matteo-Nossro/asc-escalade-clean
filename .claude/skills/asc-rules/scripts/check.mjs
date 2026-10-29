@@ -16,16 +16,9 @@ const ROOT = (() => {
 })()
 const PLUGIN = 'app/plugins/storyblok.ts'
 const STORYBLOK_DIR = 'app/storyblok/'
-// Couleurs autorisées : source unique ../colors.json (charte + neutres + catégories)
-const COLORS = JSON.parse(fs.readFileSync(new URL('../colors.json', import.meta.url), 'utf8'))
-const normHex = (h) => {
-  let x = h.replace('#', '').toLowerCase()
-  if (x.length <= 4) x = x.slice(0, 3).split('').map((c) => c + c).join('')
-  return '#' + x.slice(0, 6)
-}
-const ALLOWED = new Set(
-  [...Object.keys(COLORS.charte || {}), ...Object.keys(COLORS.neutres || {}), ...Object.values(COLORS.categories || {})].map(normHex),
-)
+// Seuls endroits où un hex est permis : fichiers de thème (main.css n'est pas scanné) + tests/e2e
+const THEME_FILES = new Set(['app/utils/categoryColors.ts', 'server/utils/email-theme.ts'])
+const HEX_FREE_DIR = /^(tests|e2e)\//
 const VUE_API = [
   'ref', 'shallowRef', 'computed', 'reactive', 'shallowReactive', 'readonly', 'watch', 'watchEffect',
   'onMounted', 'onBeforeMount', 'onUnmounted', 'onBeforeUnmount', 'onUpdated', 'onBeforeUpdate',
@@ -134,11 +127,19 @@ function resolveImport(spec) {
 
 // ---------- règles ----------
 function checkColors(file, src) {
-  for (const m of src.matchAll(/(?<![\w&#/\-])#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![\w-])/g)) {
+  if (THEME_FILES.has(file) || HEX_FREE_DIR.test(file)) return
+  const fix = '→ token de app/assets/css/main.css (classe vp-*/palette ou var()), catégories : app/utils/categoryColors.ts'
+  // `_` autorisé avant le # : valeurs arbitraires Tailwind (shadow-[0_0_20px_#7FD857])
+  for (const m of src.matchAll(/(?<![A-Za-z0-9&#/\-])#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![\w-])/g)) {
     const before = src.slice(Math.max(0, m.index - 12), m.index)
-    if (/(href|to|id)\s*=\s*["'`]?$/.test(before)) continue
-    if (ALLOWED.has(normHex(m[1]))) continue
-    report(file, lineOf(src, m.index), 'AVERT', 'couleur-hors-charte', `${m[0]} (autorisées : .claude/skills/asc-rules/colors.json)`)
+    if (/(?<![\w-])(href|to|id)\s*=\s*["'`]?$/.test(before)) continue
+    report(file, lineOf(src, m.index), 'ERREUR', 'couleur-hors-theme', `${m[0]} ${fix}`)
+  }
+  // hex encodé dans un data-URI SVG (fill='%23fff')
+  for (const m of src.matchAll(/%23([0-9a-fA-F]{6}|[0-9a-fA-F]{3})(?![0-9a-fA-F])/g)) {
+    const lineStart = src.lastIndexOf('\n', m.index) + 1
+    if (!src.slice(lineStart, m.index).includes('data:')) continue
+    report(file, lineOf(src, m.index), 'ERREUR', 'couleur-hors-theme', `%23${m[1]} (data-URI) ${fix}`)
   }
 }
 function checkGsap(file, code, offset, full) {

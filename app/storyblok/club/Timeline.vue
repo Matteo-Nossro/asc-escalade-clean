@@ -6,8 +6,8 @@
 		<!-- ============================================================ -->
 		<section
 			ref="sectionRef"
-			class="hidden lg:flex flex-col relative"
-			style="height: calc(100vh - 96px); overflow: hidden; background: #FAFAF9"
+			class="hidden lg:flex flex-col relative bg-stone-50"
+			style="height: calc(100vh - 96px); overflow: hidden"
 		>
 
 			<!-- Décors -->
@@ -18,15 +18,15 @@
 
 			<!-- En-tête fixe -->
 			<div ref="headerRef" class="shrink-0 pt-26 pb-2 text-center px-8 relative z-10">
-				<p class="text-[#7FD857] text-[11px] tracking-[0.35em] uppercase font-semibold mb-0.5">
+				<p class="text-vp-green text-[11px] tracking-[0.35em] uppercase font-semibold mb-0.5">
 					{{ blok.eyebrow || 'Depuis le début' }}
 				</p>
-				<h2 class="text-4xl xl:text-5xl font-extrabold text-[#0F1729] tracking-tight">
+				<h2 class="text-4xl xl:text-5xl font-extrabold text-vp-dark tracking-tight">
 					{{ blok.title || 'Notre Histoire' }}
 				</h2>
 				<p class="flex items-center justify-center gap-2 mt-1 text-gray-300 text-[10px] tracking-[0.2em] uppercase">
 					Parcourez notre histoire
-					<UIcon name="i-heroicons-arrow-right" class="w-3 h-3 text-[#7FD857]" />
+					<UIcon name="i-heroicons-arrow-right" class="w-3 h-3 text-vp-green" />
 				</p>
 			</div>
 
@@ -47,7 +47,7 @@
 					<!-- Ligne verte de progression -->
 					<div
 						ref="lineRef"
-						class="absolute top-1/2 -translate-y-1/2 h-px bg-[#7FD857] pointer-events-none z-0"
+						class="absolute top-1/2 -translate-y-1/2 h-px bg-vp-green pointer-events-none z-0"
 						:style="`left: ${PADDING}px; width: 0`"
 					/>
 
@@ -75,7 +75,7 @@
 											:alt="step.image.alt || step.title"
 											class="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
 										/>
-										<div v-else class="w-full h-full flex items-center justify-center" style="background: #F0F0EE">
+										<div v-else class="w-full h-full flex items-center justify-center bg-vp-placeholder">
 											<UIcon name="i-heroicons-photo" class="w-10 h-10 text-gray-300" />
 										</div>
 									</div>
@@ -91,10 +91,10 @@
 										style="font-family: Georgia, 'Times New Roman', serif; font-size: 16px"
 									>{{ step.annotation }}</p>
 									<p
-										class="text-[#7FD857] font-black tracking-tighter"
+										class="text-vp-green font-black tracking-tighter"
 										style="font-size: 60px; line-height: 0.85"
 									>{{ step.date }}</p>
-									<h3 class="text-[#0F1729] font-bold text-sm mt-3 mb-1.5 leading-snug">{{ step.title }}</h3>
+									<h3 class="text-vp-dark font-bold text-sm mt-3 mb-1.5 leading-snug">{{ step.title }}</h3>
 									<p class="text-gray-400 text-[13px] leading-relaxed">{{ step.description }}</p>
 								</div>
 							</template>
@@ -106,7 +106,7 @@
 							:ref="el => { if (el) nodeRefs[index] = el }"
 							class="relative z-10 shrink-0"
 						>
-							<div class="w-3.5 h-3.5 rounded-full bg-[#7FD857] shadow-md" style="outline: 3px solid rgba(127,216,87,0.2); outline-offset: 3px" />
+							<div class="w-3.5 h-3.5 rounded-full bg-vp-green shadow-md" style="outline: 3px solid rgba(127,216,87,0.2); outline-offset: 3px" />
 							<div
 								:ref="el => { if (el) haloRefs[index] = el }"
 								class="absolute inset-0 rounded-full"
@@ -126,10 +126,10 @@
 										style="font-family: Georgia, 'Times New Roman', serif; font-size: 16px"
 									>{{ step.annotation }}</p>
 									<p
-										class="text-[#7FD857] font-black tracking-tighter"
+										class="text-vp-green font-black tracking-tighter"
 										style="font-size: 60px; line-height: 0.85"
 									>{{ step.date }}</p>
-									<h3 class="text-[#0F1729] font-bold text-sm mt-3 mb-1.5 leading-snug">{{ step.title }}</h3>
+									<h3 class="text-vp-dark font-bold text-sm mt-3 mb-1.5 leading-snug">{{ step.title }}</h3>
 									<p class="text-gray-400 text-[13px] leading-relaxed">{{ step.description }}</p>
 								</div>
 							</template>
@@ -144,7 +144,7 @@
 											:alt="step.image.alt || step.title"
 											class="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
 										/>
-										<div v-else class="w-full h-full flex items-center justify-center" style="background: #F0F0EE">
+										<div v-else class="w-full h-full flex items-center justify-center bg-vp-placeholder">
 											<UIcon name="i-heroicons-photo" class="w-10 h-10 text-gray-300" />
 										</div>
 									</div>
@@ -167,7 +167,7 @@
 		<!-- ====================================== -->
 		<!-- MOBILE — timeline verticale éditoriale -->
 		<!-- ====================================== -->
-		<section class="lg:hidden py-20 relative overflow-hidden" style="background: #FAFAF9">
+		<section class="lg:hidden py-20 relative overflow-hidden bg-stone-50">
 
 			<div aria-hidden="true" class="absolute inset-0 pointer-events-none">
 				<div class="absolute top-0 right-0 w-60 h-60 rounded-full blur-3xl" style="background: rgba(127,216,87,0.06)" />
@@ -176,17 +176,17 @@
 			<UContainer class="relative z-10">
 
 				<div class="text-center mb-16">
-					<p class="text-[#7FD857] text-[11px] tracking-[0.35em] uppercase font-semibold mb-1">
+					<p class="text-vp-green text-[11px] tracking-[0.35em] uppercase font-semibold mb-1">
 						{{ blok.eyebrow || 'Depuis le début' }}
 					</p>
-					<h2 class="text-4xl font-extrabold text-[#0F1729] tracking-tight">
+					<h2 class="text-4xl font-extrabold text-vp-dark tracking-tight">
 						{{ blok.title || 'Notre Histoire' }}
 					</h2>
 				</div>
 
 				<div class="relative">
 					<div class="absolute left-0 top-0 bottom-0 w-px bg-gray-200" />
-					<div ref="mobileLineRef" class="absolute left-0 top-0 w-px bg-[#7FD857] h-0" />
+					<div ref="mobileLineRef" class="absolute left-0 top-0 w-px bg-vp-green h-0" />
 
 					<div class="flex flex-col gap-14 pl-8">
 						<div
@@ -196,20 +196,20 @@
 							class="relative"
 						>
 							<!-- Nœud -->
-							<div class="absolute -left-8 top-1 w-3 h-3 rounded-full bg-[#7FD857] shadow" style="outline: 3px solid rgba(127,216,87,0.2); outline-offset: 2px" />
+							<div class="absolute -left-8 top-1 w-3 h-3 rounded-full bg-vp-green shadow" style="outline: 3px solid rgba(127,216,87,0.2); outline-offset: 2px" />
 
 							<!-- Annotation -->
 							<p
 								v-if="step.annotation"
-								class="italic mb-2 leading-tight"
-								style="font-family: Georgia, serif; font-size: 20px; color: #ccc"
+								class="italic mb-2 leading-tight text-vp-quote-mark"
+								style="font-family: Georgia, serif; font-size: 20px"
 							>{{ step.annotation }}</p>
 
 							<!-- Année -->
-							<p class="text-[#7FD857] font-black tracking-tighter" style="font-size: 60px; line-height: 0.85">{{ step.date }}</p>
+							<p class="text-vp-green font-black tracking-tighter" style="font-size: 60px; line-height: 0.85">{{ step.date }}</p>
 
 							<!-- Titre + texte -->
-							<h3 class="text-[#0F1729] font-bold mt-2.5 mb-1 text-base leading-snug">{{ step.title }}</h3>
+							<h3 class="text-vp-dark font-bold mt-2.5 mb-1 text-base leading-snug">{{ step.title }}</h3>
 							<p v-if="step.description" class="text-gray-400 text-sm leading-relaxed mb-4">{{ step.description }}</p>
 
 							<!-- Image -->

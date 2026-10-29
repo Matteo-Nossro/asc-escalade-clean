@@ -29,19 +29,19 @@
 
       <!-- Infos pratiques -->
       <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 flex flex-col">
-        <h3 v-if="blok.nom_lieu" class="text-xl font-bold text-[#0F1729] mb-4">{{ blok.nom_lieu }}</h3>
+        <h3 v-if="blok.nom_lieu" class="text-xl font-bold text-vp-dark mb-4">{{ blok.nom_lieu }}</h3>
 
         <dl class="space-y-4 text-sm flex-grow">
           <div v-if="blok.adresse" class="flex gap-3">
-            <UIcon name="i-heroicons-map-pin" class="w-5 h-5 text-[#7FD857] flex-shrink-0 mt-0.5" />
+            <UIcon name="i-heroicons-map-pin" class="w-5 h-5 text-vp-green flex-shrink-0 mt-0.5" />
             <dd class="text-gray-700 whitespace-pre-line">{{ blok.adresse }}</dd>
           </div>
           <div v-if="blok.acces" class="flex gap-3">
-            <UIcon name="i-heroicons-map" class="w-5 h-5 text-[#7FD857] flex-shrink-0 mt-0.5" />
+            <UIcon name="i-heroicons-map" class="w-5 h-5 text-vp-green flex-shrink-0 mt-0.5" />
             <dd class="text-gray-700 whitespace-pre-line">{{ blok.acces }}</dd>
           </div>
           <div v-if="blok.parking" class="flex gap-3">
-            <UIcon name="i-heroicons-truck" class="w-5 h-5 text-[#7FD857] flex-shrink-0 mt-0.5" />
+            <UIcon name="i-heroicons-truck" class="w-5 h-5 text-vp-green flex-shrink-0 mt-0.5" />
             <dd class="text-gray-700 whitespace-pre-line">{{ blok.parking }}</dd>
           </div>
         </dl>
@@ -53,7 +53,7 @@
           rel="noopener"
           trailing-icon="i-heroicons-arrow-top-right-on-square"
           size="lg"
-          class="mt-6 self-start bg-[#0F1729] hover:bg-[#1a2740] text-white font-bold"
+          class="mt-6 self-start bg-vp-dark hover:bg-vp-dark-hover text-white font-bold"
         >
           {{ blok.lien_itineraire_label || 'Itinéraire' }}
         </UButton>

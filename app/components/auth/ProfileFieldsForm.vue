@@ -3,7 +3,7 @@
     <!-- Identité -->
     <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
       <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-        <UIcon name="i-lucide-user" class="w-5 h-5 text-[#7FD857]" />
+        <UIcon name="i-lucide-user" class="w-5 h-5 text-vp-green" />
         Identité
       </h3>
       <div class="space-y-5">
@@ -32,7 +32,7 @@
             <select
               :value="genderDisplay"
               data-testid="select-gender"
-              class="w-full h-[46px] px-3 rounded-lg border text-sm text-gray-900 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#7FD857] focus:border-transparent transition-all"
+              class="w-full h-[46px] px-3 rounded-lg border text-sm text-gray-900 cursor-pointer focus:outline-none focus:ring-2 focus:ring-vp-green focus:border-transparent transition-all"
               :class="errors.gender ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-white'"
               @change="onGenderChange"
             >
@@ -63,7 +63,7 @@
     <!-- Adresse -->
     <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
       <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-        <UIcon name="i-lucide-map-pin" class="w-5 h-5 text-[#7FD857]" />
+        <UIcon name="i-lucide-map-pin" class="w-5 h-5 text-vp-green" />
         Adresse
       </h3>
       <div class="space-y-5">
@@ -101,7 +101,7 @@
                   class="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-start gap-3 border-b border-gray-100 last:border-0 transition-colors cursor-pointer"
                   @mousedown.prevent="selectAddress(s)"
                 >
-                  <UIcon name="i-lucide-map-pin" class="w-4 h-4 text-[#7FD857] mt-0.5 shrink-0" />
+                  <UIcon name="i-lucide-map-pin" class="w-4 h-4 text-vp-green mt-0.5 shrink-0" />
                   <div class="min-w-0">
                     <p class="text-sm font-medium text-gray-900 truncate">{{ s.name }}</p>
                     <p class="text-xs text-gray-500">{{ s.postcode }} {{ s.city }}</p>

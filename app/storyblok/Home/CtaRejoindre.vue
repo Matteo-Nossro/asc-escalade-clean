@@ -29,8 +29,8 @@
         loading="lazy"
         class="w-full h-full object-cover"
       />
-      <div class="absolute inset-0 bg-[#0F1729]/90 mix-blend-multiply"></div>
-      <div class="absolute inset-0 bg-gradient-to-t from-[#0F1729] via-transparent to-[#0F1729]/50"></div>
+      <div class="absolute inset-0 bg-vp-dark/90 mix-blend-multiply"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-vp-dark via-transparent to-vp-dark/50"></div>
     </div>
 
     <UContainer class="relative z-10 text-center">
@@ -50,7 +50,7 @@
         <UButton
           :to="blok.ctaButton[0].link.cached_url"
           size="xl"
-          class="font-bold px-8 py-4 transition-transform hover:scale-105 bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729]"
+          class="font-bold px-8 py-4 transition-transform hover:scale-105 bg-vp-green hover:bg-vp-green-hover text-vp-dark"
           :ui="{ rounded: 'rounded-md' }"
         >
           {{ blok.ctaButton[0].text }}
@@ -60,7 +60,7 @@
     </UContainer>
 
     <!-- Éléments décoratifs -->
-    <div class="absolute top-1/2 left-10 w-64 h-64 bg-[#7FD857] rounded-full mix-blend-overlay filter blur-[100px] opacity-20 animate-pulse"></div>
+    <div class="absolute top-1/2 left-10 w-64 h-64 bg-vp-green rounded-full mix-blend-overlay filter blur-[100px] opacity-20 animate-pulse"></div>
     <div class="absolute bottom-0 right-10 w-96 h-96 bg-blue-500 rounded-full mix-blend-overlay filter blur-[120px] opacity-20"></div>
 
   </section>

@@ -2,7 +2,7 @@
 	<section v-editable="blok" class="py-24 bg-gray-50 border-t border-gray-200 overflow-x-hidden">
 
 		<div class="text-center max-w-2xl mx-auto mb-12 px-4">
-			<h2 class="text-3xl font-black text-[#0F1729] mb-4">
+			<h2 class="text-3xl font-black text-vp-dark mb-4">
 				{{ blok.title || 'Nos initiateurs' }}
 			</h2>
 			<p class="text-gray-600 text-lg">

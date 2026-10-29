@@ -38,19 +38,19 @@
           <line
             ref="gridLine1"
             x1="0" y1="60" x2="1440" y2="60"
-            stroke="#7FD857" stroke-width="1.5" opacity="0.4"
+            class="stroke-vp-green" stroke-width="1.5" opacity="0.4"
             stroke-dasharray="15 10" stroke-dashoffset="1440"
           />
           <line
             ref="gridLine2"
             x1="0" y1="100" x2="1440" y2="100"
-            stroke="#7FD857" stroke-width="1.5" opacity="0.3"
+            class="stroke-vp-green" stroke-width="1.5" opacity="0.3"
             stroke-dasharray="15 10" stroke-dashoffset="1440"
           />
           <line
             ref="gridLine3"
             x1="0" y1="140" x2="1440" y2="140"
-            stroke="#0F1729" stroke-width="1" opacity="0.2"
+            class="stroke-vp-dark" stroke-width="1" opacity="0.2"
             stroke-dasharray="15 10" stroke-dashoffset="1440"
           />
         </svg>
@@ -61,7 +61,7 @@
         v-for="i in 6"
         :key="`euro-${i}`"
         :ref="el => euros[i] = el"
-        class="absolute text-[#7FD857] opacity-0 font-bold text-2xl"
+        class="absolute text-vp-green opacity-0 font-bold text-2xl"
         :style="{
           left: `${12 + i * 16}%`,
           top: `${25 + (i % 2) * 30}%`
@@ -72,10 +72,10 @@
 
       <!-- Tickets -->
       <svg class="absolute bottom-20 right-16 w-32 h-32 opacity-8" viewBox="0 0 100 100">
-        <rect ref="ticket1" x="10" y="10" width="80" height="30" rx="3" stroke="#7FD857" stroke-width="1.5" fill="none" />
-        <rect ref="ticket2" x="15" y="50" width="70" height="25" rx="3" stroke="#7FD857" stroke-width="1" fill="none" opacity="0.6" />
-        <line x1="25" y1="20" x2="75" y2="20" stroke="#7FD857" stroke-width="0.5" opacity="0.4" />
-        <line x1="25" y1="30" x2="60" y2="30" stroke="#7FD857" stroke-width="0.5" opacity="0.4" />
+        <rect ref="ticket1" x="10" y="10" width="80" height="30" rx="3" class="stroke-vp-green" stroke-width="1.5" fill="none" />
+        <rect ref="ticket2" x="15" y="50" width="70" height="25" rx="3" class="stroke-vp-green" stroke-width="1" fill="none" opacity="0.6" />
+        <line x1="25" y1="20" x2="75" y2="20" class="stroke-vp-green" stroke-width="0.5" opacity="0.4" />
+        <line x1="25" y1="30" x2="60" y2="30" class="stroke-vp-green" stroke-width="0.5" opacity="0.4" />
       </svg>
     </div>
 
@@ -84,7 +84,7 @@
       <div
         v-if="blok.badge"
         ref="badge"
-        class="inline-flex items-center px-6 py-3 rounded-full bg-[#7FD857]/10 text-[#7FD857] font-bold text-lg mb-6"
+        class="inline-flex items-center px-6 py-3 rounded-full bg-vp-green/10 text-vp-green font-bold text-lg mb-6"
       >
         {{ blok.badge }}
       </div>
@@ -92,7 +92,7 @@
       <!-- Titre principal -->
       <h1
         ref="title"
-        class="text-4xl md:text-6xl font-extrabold text-[#0F1729] mb-4 uppercase tracking-tight"
+        class="text-4xl md:text-6xl font-extrabold text-vp-dark mb-4 uppercase tracking-tight"
       >
         {{ blok.title || 'TARIFS & COURS' }}
       </h1>
@@ -108,7 +108,7 @@
       <!-- Trait -->
       <div
         ref="line"
-        class="h-1.5 bg-[#7FD857] rounded-full mx-auto"
+        class="h-1.5 bg-vp-green rounded-full mx-auto"
         style="width: 64px"
       ></div>
     </UContainer>

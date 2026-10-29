@@ -15,7 +15,7 @@
           v-if="!readonly"
           icon="i-lucide-plus"
           size="sm"
-          class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546] font-bold"
+          class="bg-vp-green text-vp-dark hover:bg-vp-green-hover font-bold"
           @click="emit('open-modal', null)"
         >
           Nouveau groupe
@@ -24,7 +24,7 @@
     </div>
 
     <div v-if="loading" class="p-8 flex justify-center">
-      <div class="w-6 h-6 border-2 border-gray-200 border-t-[#7FD857] rounded-full animate-spin" />
+      <div class="w-6 h-6 border-2 border-gray-200 border-t-vp-green rounded-full animate-spin" />
     </div>
 
     <div v-else class="divide-y divide-gray-100 max-h-[70vh] overflow-y-auto" data-testid="groups-list">

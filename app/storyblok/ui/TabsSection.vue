@@ -2,7 +2,7 @@
   <section v-editable="blok" class="py-12 bg-white gsap-reveal">
     <UContainer>
       <div class="max-w-3xl mx-auto">
-        <h3 class="text-2xl font-bold text-[#0F1729] mb-8 text-center">{{ blok.title }}</h3>
+        <h3 class="text-2xl font-bold text-vp-dark mb-8 text-center">{{ blok.title }}</h3>
         
         <UTabs :items="tabItems" class="w-full">
           <template #item="{ item }">

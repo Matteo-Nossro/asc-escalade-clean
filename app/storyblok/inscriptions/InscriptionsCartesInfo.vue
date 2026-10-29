@@ -30,24 +30,24 @@
           data-reveal
           class="rounded-3xl p-8 flex flex-col"
           :class="carte.theme === 'fonce'
-            ? 'bg-[#0F1729] text-white shadow-lg'
+            ? 'bg-vp-dark text-white shadow-lg'
             : 'bg-white border border-gray-100 shadow-sm'"
         >
           <div
             v-if="carte.icon"
             class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5"
-            :class="carte.theme === 'fonce' ? 'bg-white/10' : 'bg-[#7FD857]/15'"
+            :class="carte.theme === 'fonce' ? 'bg-white/10' : 'bg-vp-green/15'"
           >
             <UIcon
               :name="carte.icon"
               class="w-6 h-6"
-              :class="carte.theme === 'fonce' ? 'text-[#7FD857]' : 'text-[#0F1729]'"
+              :class="carte.theme === 'fonce' ? 'text-vp-green' : 'text-vp-dark'"
             />
           </div>
 
           <h3
             class="text-xl font-bold mb-3"
-            :class="carte.theme === 'fonce' ? 'text-white' : 'text-[#0F1729]'"
+            :class="carte.theme === 'fonce' ? 'text-white' : 'text-vp-dark'"
           >
             {{ carte.titre }}
           </h3>
@@ -57,7 +57,7 @@
             class="text-sm flex-grow [&_p]:mb-4 [&_p:last-child]:mb-0"
             :class="carte.theme === 'fonce'
               ? 'text-white/80 [&_strong]:text-white'
-              : 'text-gray-600 [&_strong]:text-[#0F1729]'"
+              : 'text-gray-600 [&_strong]:text-vp-dark'"
             v-html="renderedTexte(carte)"
           />
 
@@ -67,8 +67,8 @@
                 v-bind="linkAttrs(lien)"
                 class="inline-flex items-center gap-1.5 text-sm font-semibold transition-colors"
                 :class="carte.theme === 'fonce'
-                  ? 'text-[#7FD857] hover:underline'
-                  : 'text-[#0F1729] hover:text-[#7FD857]'"
+                  ? 'text-vp-green hover:underline'
+                  : 'text-vp-dark hover:text-vp-green'"
               >
                 <UIcon :name="lien.icon || 'i-heroicons-arrow-top-right-on-square'" class="w-4 h-4" />
                 {{ lien.label }}
@@ -132,11 +132,11 @@ const linkAttrs = (lien) => {
 const buttonClass = (style) => {
   switch (style) {
     case 'sombre':
-      return 'bg-[#0F1729] hover:bg-[#1a2740] text-white'
+      return 'bg-vp-dark hover:bg-vp-dark-hover text-white'
     case 'outline':
-      return 'border border-[#0F1729] text-[#0F1729] bg-transparent hover:bg-[#0F1729] hover:text-white'
+      return 'border border-vp-dark text-vp-dark bg-transparent hover:bg-vp-dark hover:text-white'
     default:
-      return 'bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729]'
+      return 'bg-vp-green hover:bg-vp-green-hover text-vp-dark'
   }
 }
 </script>

@@ -22,7 +22,7 @@ Un hook `PostToolUse` le lance aussi automatiquement après chaque Edit/Write d'
 | `ref-sans-as` | ERREUR | `:ref="el => { if (el) refs[i] = el }"`, pas de `as HTMLElement` |
 | `enregistrement-plugin` | ERREUR | `vueApp.component('nom', lazy(() => import(…)))` dans `app/plugins/storyblok.ts` (via la skill `blok`) |
 | `nom-tirets` | ERREUR | technical name en minuscules et tirets (`tarifs-hero`, jamais `tarifs_hero`) |
-| `couleur-hors-charte` | AVERT | couleurs autorisées : [colors.json](colors.json), source unique (charte, variantes, neutres, catégories de posts) |
+| `couleur-hors-theme` | ERREUR | hex interdit dans `.vue`/`.ts`, sauf `app/utils/categoryColors.ts` et `server/utils/email-theme.ts` (`main.css` non scanné ; `tests/` et `e2e/` exclus ; `%23…` en data-URI détecté) : classe `bg-vp-*`/`text-vp-*`, palette Tailwind (`text-gray-500`), `var(--vp-…)` en `<style>`, catégories via `~/utils/categoryColors` |
 
 Non couvert par le script, à vérifier à la main :
 - **Images** : `<NuxtImg provider="storyblok" :src="blok.image.filename" />` pour un asset unique ; URL `${photo.filename}/m/800x0/filters:quality(75):format(webp)` pour une galerie ou un multi-asset. Voir la skill `storyblok-images`.

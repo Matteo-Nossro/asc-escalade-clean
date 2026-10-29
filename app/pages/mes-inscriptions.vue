@@ -10,7 +10,7 @@
 
       <!-- Loader -->
       <div v-if="!ready" class="flex justify-center py-20">
-        <div class="w-8 h-8 border-3 border-gray-200 border-t-[#7FD857] rounded-full animate-spin" />
+        <div class="w-8 h-8 border-3 border-gray-200 border-t-vp-green rounded-full animate-spin" />
       </div>
 
       <div v-else class="space-y-8">
@@ -18,7 +18,7 @@
         <!-- ═══ SECTION GROUPES ═══ -->
         <div>
           <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <UIcon name="i-lucide-users" class="w-5 h-5 text-[#7FD857]" />
+            <UIcon name="i-lucide-users" class="w-5 h-5 text-vp-green" />
             Mes groupes
           </h2>
 
@@ -30,7 +30,7 @@
             <UIcon name="i-lucide-user-plus" class="w-10 h-10 text-gray-300 mx-auto mb-3" />
             <p class="text-gray-500">Vous n'êtes inscrit à aucun groupe.</p>
             <UButton
-              class="mt-4 bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold"
+              class="mt-4 bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold"
               @click="showGroupPicker = true"
             >
               Rejoindre un groupe
@@ -109,7 +109,7 @@
         <!-- ═══ SECTION ÉVÉNEMENTS ═══ -->
         <div>
           <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <UIcon name="i-lucide-calendar" class="w-5 h-5 text-[#7FD857]" />
+            <UIcon name="i-lucide-calendar" class="w-5 h-5 text-vp-green" />
             Mes événements
           </h2>
 
@@ -161,7 +161,7 @@
         <!-- ═══ SECTION ENFANTS (si parent) ═══ -->
         <div v-if="childrenEnrollments.length > 0">
           <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <UIcon name="i-lucide-baby" class="w-5 h-5 text-[#7FD857]" />
+            <UIcon name="i-lucide-baby" class="w-5 h-5 text-vp-green" />
             Inscriptions de mes enfants
           </h2>
 
@@ -218,7 +218,7 @@
           <div class="flex flex-wrap gap-2">
             <UButton
               :variant="enrollForUserId === ownUid ? 'solid' : 'soft'"
-              :class="enrollForUserId === ownUid ? 'bg-[#7FD857] text-[#0F1729]' : ''"
+              :class="enrollForUserId === ownUid ? 'bg-vp-green text-vp-dark' : ''"
               size="md"
               @click="enrollForUserId = ownUid"
             >
@@ -228,7 +228,7 @@
               v-for="child in familyProfiles"
               :key="child.child_id"
               :variant="enrollForUserId === child.child_id ? 'solid' : 'soft'"
-              :class="enrollForUserId === child.child_id ? 'bg-[#7FD857] text-[#0F1729]' : ''"
+              :class="enrollForUserId === child.child_id ? 'bg-vp-green text-vp-dark' : ''"
               size="md"
               @click="enrollForUserId = child.child_id"
             >
@@ -242,7 +242,7 @@
           <div
             v-for="group in availableGroups"
             :key="group.id"
-            class="border border-gray-200 rounded-xl p-4 hover:border-[#7FD857] transition-colors"
+            class="border border-gray-200 rounded-xl p-4 hover:border-vp-green transition-colors"
           >
             <div class="flex justify-between items-start mb-2">
               <div>
@@ -279,7 +279,7 @@
               size="md"
               :disabled="(group._members_count || 0) >= group.max_members || enrollingGroup === group.id"
               :loading="enrollingGroup === group.id"
-              class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold"
+              class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold"
               @click="handleEnrollGroup(group.id)"
             >
               {{ (group._members_count || 0) >= group.max_members ? 'Complet' : 'Demandez à rejoindre' }}

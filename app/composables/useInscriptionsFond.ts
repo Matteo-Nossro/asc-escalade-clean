@@ -32,10 +32,10 @@ export interface FondClasses {
 }
 
 const MAP: Record<string, FondClasses> = {
-  blanc: { section: 'bg-white', titre: 'text-[#0F1729]', texte: 'text-gray-500', sombre: false },
-  gris: { section: 'bg-gray-50', titre: 'text-[#0F1729]', texte: 'text-gray-500', sombre: false },
-  vert: { section: 'bg-[#7FD857]/10', titre: 'text-[#0F1729]', texte: 'text-gray-600', sombre: false },
-  'bleu-nuit': { section: 'bg-[#0F1729]', titre: 'text-white', texte: 'text-white/70', sombre: true },
+  blanc: { section: 'bg-white', titre: 'text-vp-dark', texte: 'text-gray-500', sombre: false },
+  gris: { section: 'bg-gray-50', titre: 'text-vp-dark', texte: 'text-gray-500', sombre: false },
+  vert: { section: 'bg-vp-green/10', titre: 'text-vp-dark', texte: 'text-gray-600', sombre: false },
+  'bleu-nuit': { section: 'bg-vp-dark', titre: 'text-white', texte: 'text-white/70', sombre: true },
 }
 
 export const useInscriptionsFond = (

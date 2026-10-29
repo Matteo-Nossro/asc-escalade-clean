@@ -1,9 +1,9 @@
 <template>
   <div class="max-w-5xl mx-auto px-4">
-    <h2 v-if="title" class="text-3xl font-bold text-center text-[#0F1729] mb-10">{{ title }}</h2>
+    <h2 v-if="title" class="text-3xl font-bold text-center text-vp-dark mb-10">{{ title }}</h2>
 
     <div v-if="loading" class="flex justify-center py-12">
-      <UIcon name="i-lucide-loader-circle" class="w-8 h-8 animate-spin text-[#7FD857]" />
+      <UIcon name="i-lucide-loader-circle" class="w-8 h-8 animate-spin text-vp-green" />
     </div>
 
     <div v-else-if="groups.length === 0" class="text-center py-12 text-gray-400">
@@ -23,7 +23,7 @@
           @click="toggle(section.key)"
         >
           <div class="flex items-center gap-3">
-            <span class="font-bold text-[#0F1729] text-lg">{{ section.label }}</span>
+            <span class="font-bold text-vp-dark text-lg">{{ section.label }}</span>
             <span class="text-xs bg-gray-100 text-gray-500 px-2.5 py-0.5 rounded-full font-medium">
               {{ section.items.length }} groupe{{ section.items.length > 1 ? 's' : '' }}
             </span>
@@ -53,9 +53,9 @@
                     >
                       {{ item.level || 'Tous niveaux' }}
                     </span>
-                    <span class="font-bold text-[#0F1729] truncate">{{ item.label }}</span>
+                    <span class="font-bold text-vp-dark truncate">{{ item.label }}</span>
                   </div>
-                  <span v-if="item.price != null" class="font-black text-[#0F1729] text-base shrink-0">
+                  <span v-if="item.price != null" class="font-black text-vp-dark text-base shrink-0">
                     {{ item.price }} €
                   </span>
                 </div>
@@ -64,50 +64,50 @@
                 <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
 
                   <div class="flex items-start gap-3">
-                    <UIcon name="i-lucide-users" class="w-4 h-4 text-[#7FD857] mt-0.5 shrink-0" />
+                    <UIcon name="i-lucide-users" class="w-4 h-4 text-vp-green mt-0.5 shrink-0" />
                     <div>
                       <dt class="text-xs font-semibold uppercase tracking-wide text-gray-400">Effectif</dt>
-                      <dd class="text-sm font-medium text-[#0F1729] mt-0.5">
+                      <dd class="text-sm font-medium text-vp-dark mt-0.5">
                         {{ item.members_count }} / {{ item.max_members }} place{{ item.max_members > 1 ? 's' : '' }}
                       </dd>
                     </div>
                   </div>
 
                   <div class="flex items-start gap-3">
-                    <UIcon name="i-lucide-user-check" class="w-4 h-4 text-[#7FD857] mt-0.5 shrink-0" />
+                    <UIcon name="i-lucide-user-check" class="w-4 h-4 text-vp-green mt-0.5 shrink-0" />
                     <div>
                       <dt class="text-xs font-semibold uppercase tracking-wide text-gray-400">Référent</dt>
-                      <dd class="text-sm font-medium text-[#0F1729] mt-0.5">{{ item.referent || '—' }}</dd>
+                      <dd class="text-sm font-medium text-vp-dark mt-0.5">{{ item.referent || '—' }}</dd>
                     </div>
                   </div>
 
                   <div class="flex items-start gap-3">
-                    <UIcon name="i-lucide-clock" class="w-4 h-4 text-[#7FD857] mt-0.5 shrink-0" />
+                    <UIcon name="i-lucide-clock" class="w-4 h-4 text-vp-green mt-0.5 shrink-0" />
                     <div>
                       <dt class="text-xs font-semibold uppercase tracking-wide text-gray-400">Horaires</dt>
                       <dd class="mt-0.5 space-y-0.5">
-                        <div v-for="(s, si) in item.schedules" :key="si" class="text-sm font-medium text-[#0F1729]">{{ s }}</div>
+                        <div v-for="(s, si) in item.schedules" :key="si" class="text-sm font-medium text-vp-dark">{{ s }}</div>
                         <span v-if="!item.schedules.length" class="text-sm text-gray-400">—</span>
                       </dd>
                     </div>
                   </div>
 
                   <div class="flex items-start gap-3">
-                    <UIcon name="i-lucide-graduation-cap" class="w-4 h-4 text-[#7FD857] mt-0.5 shrink-0" />
+                    <UIcon name="i-lucide-graduation-cap" class="w-4 h-4 text-vp-green mt-0.5 shrink-0" />
                     <div>
                       <dt class="text-xs font-semibold uppercase tracking-wide text-gray-400">Initiateurs</dt>
                       <dd class="mt-0.5 space-y-0.5">
-                        <div v-for="(name, ni) in item.instructors" :key="ni" class="text-sm font-medium text-[#0F1729]">{{ name }}</div>
+                        <div v-for="(name, ni) in item.instructors" :key="ni" class="text-sm font-medium text-vp-dark">{{ name }}</div>
                         <span v-if="!item.instructors.length" class="text-sm text-gray-400">—</span>
                       </dd>
                     </div>
                   </div>
 
                   <div v-if="item.birthRange" class="flex items-start gap-3">
-                    <UIcon name="i-lucide-cake" class="w-4 h-4 text-[#7FD857] mt-0.5 shrink-0" />
+                    <UIcon name="i-lucide-cake" class="w-4 h-4 text-vp-green mt-0.5 shrink-0" />
                     <div>
                       <dt class="text-xs font-semibold uppercase tracking-wide text-gray-400">Années de référence</dt>
-                      <dd class="text-sm font-medium text-[#0F1729] mt-0.5">{{ item.birthRange }}</dd>
+                      <dd class="text-sm font-medium text-vp-dark mt-0.5">{{ item.birthRange }}</dd>
                     </div>
                   </div>
 

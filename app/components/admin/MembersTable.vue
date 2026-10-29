@@ -53,7 +53,7 @@
         <UButton
           v-if="!readonly"
           icon="i-heroicons-user-plus"
-          class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546] font-bold"
+          class="bg-vp-green text-vp-dark hover:bg-vp-green-hover font-bold"
           data-testid="btn-add-member"
           @click="emit('add-member')"
         >

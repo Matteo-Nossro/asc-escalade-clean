@@ -4,14 +4,14 @@
     <!-- R2-c : lien d'e-mail invalide, expiré ou déjà utilisé -->
     <div v-if="view === 'link-error'" class="w-full max-w-md">
       <div class="text-center mb-6">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-[#7FD857] rounded-2xl mb-4 shadow-lg">
-          <UIcon name="i-lucide-mail-warning" class="w-8 h-8 text-[#0F1729]" />
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-vp-green rounded-2xl mb-4 shadow-lg">
+          <UIcon name="i-lucide-mail-warning" class="w-8 h-8 text-vp-dark" />
         </div>
       </div>
 
       <div class="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border border-gray-100">
         <div data-testid="callback-link-error" role="alert" class="text-center">
-          <h1 class="text-xl font-bold text-[#0F1729] mb-3">Ce lien n'est plus valide</h1>
+          <h1 class="text-xl font-bold text-vp-dark mb-3">Ce lien n'est plus valide</h1>
           <p class="text-sm text-gray-600">
             Il a peut-être déjà servi (votre adresse est alors confirmée), il a expiré,
             ou un e-mail plus récent l'a remplacé.
@@ -22,7 +22,7 @@
           to="/login"
           size="xl"
           block
-          class="mt-6 bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold"
+          class="mt-6 bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold"
           data-testid="btn-callback-login"
         >
           Se connecter
@@ -67,7 +67,7 @@
           <p
             v-if="resendStatus === 'sent'"
             role="status"
-            class="text-sm text-[#0F1729] bg-[#7FD857]/15 rounded-xl p-3"
+            class="text-sm text-vp-dark bg-vp-green/15 rounded-xl p-3"
             data-testid="msg-resend-sent"
           >
             Si une inscription non confirmée existe pour cette adresse, un nouvel e-mail vient d'être envoyé.
@@ -90,14 +90,14 @@
     <!-- R2b-3 : échec autre qu'un lien expiré (refus OAuth, erreur serveur…) -->
     <div v-else-if="view === 'auth-error'" class="w-full max-w-md">
       <div class="text-center mb-6">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-[#7FD857] rounded-2xl mb-4 shadow-lg">
-          <UIcon name="i-lucide-circle-alert" class="w-8 h-8 text-[#0F1729]" />
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-vp-green rounded-2xl mb-4 shadow-lg">
+          <UIcon name="i-lucide-circle-alert" class="w-8 h-8 text-vp-dark" />
         </div>
       </div>
 
       <div class="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border border-gray-100">
         <div data-testid="callback-auth-error" role="alert" class="text-center">
-          <h1 class="text-xl font-bold text-[#0F1729] mb-3">La connexion n'a pas abouti</h1>
+          <h1 class="text-xl font-bold text-vp-dark mb-3">La connexion n'a pas abouti</h1>
           <p class="text-sm text-gray-600">
             Un problème est survenu pendant la connexion. Réessayez depuis la page de connexion.
           </p>
@@ -107,7 +107,7 @@
           to="/login"
           size="xl"
           block
-          class="mt-6 bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold"
+          class="mt-6 bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold"
           data-testid="btn-callback-login"
         >
           Se connecter
@@ -118,14 +118,14 @@
     <!-- R2-d : adresse confirmée, mais pas de session ouverte -->
     <div v-else-if="view === 'confirmed'" class="w-full max-w-md">
       <div class="text-center mb-6">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-[#7FD857] rounded-2xl mb-4 shadow-lg">
-          <UIcon name="i-lucide-mail-check" class="w-8 h-8 text-[#0F1729]" />
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-vp-green rounded-2xl mb-4 shadow-lg">
+          <UIcon name="i-lucide-mail-check" class="w-8 h-8 text-vp-dark" />
         </div>
       </div>
 
       <div class="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border border-gray-100">
         <div data-testid="callback-email-confirmed" class="text-center">
-          <h1 class="text-xl font-bold text-[#0F1729] mb-3">Adresse e-mail confirmée</h1>
+          <h1 class="text-xl font-bold text-vp-dark mb-3">Adresse e-mail confirmée</h1>
           <p class="text-sm text-gray-600">
             Merci ! Connectez-vous avec votre adresse et votre mot de passe.
             Votre inscription reste en attente de validation par le bureau.
@@ -136,7 +136,7 @@
           to="/login"
           size="xl"
           block
-          class="mt-6 bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold"
+          class="mt-6 bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold"
           data-testid="btn-callback-login"
         >
           Se connecter
@@ -146,8 +146,8 @@
 
     <!-- Attente / redirection -->
     <div v-else class="text-center">
-      <div class="inline-flex items-center justify-center w-16 h-16 bg-[#7FD857] rounded-2xl mb-4 shadow-lg animate-pulse">
-        <UIcon name="i-lucide-mountain" class="w-8 h-8 text-[#0F1729]" />
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-vp-green rounded-2xl mb-4 shadow-lg animate-pulse">
+        <UIcon name="i-lucide-mountain" class="w-8 h-8 text-vp-dark" />
       </div>
       <p class="text-gray-600 mt-4">Connexion en cours…</p>
     </div>

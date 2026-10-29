@@ -173,7 +173,7 @@
                 <UButton
                   to="/login" color="neutral" variant="solid" size="xl"
                   label="Connexion" icon="i-heroicons-user" block
-                  class="bg-[#0F1729] text-white hover:bg-[#1a2740]"
+                  class="bg-vp-dark text-white hover:bg-vp-dark-hover"
                   @click="handleMenuClick"
                 />
               </template>
@@ -341,7 +341,7 @@ const handleLogout = async () => {
 
   &__logo-icon {
     width: 45px; height: 45px;
-    background: #7FD857;
+    background: var(--vp-green);
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -358,7 +358,7 @@ const handleLogout = async () => {
   &__logo-vertical {
     font-size: 1.05rem;
     font-weight: 700;
-    color: #0F1729;
+    color: var(--vp-dark);
     letter-spacing: 0.5px;
   }
 
@@ -377,7 +377,7 @@ const handleLogout = async () => {
   }
 
   &__nav-link {
-    color: #0F1729;
+    color: var(--vp-dark);
     text-decoration: none;
     font-size: 0.95rem;
     font-weight: 500;
@@ -394,7 +394,7 @@ const handleLogout = async () => {
         position: absolute;
         bottom: 0; left: 0; right: 0;
         height: 2px;
-        background: #7FD857;
+        background: var(--vp-green);
         border-radius: 2px;
       }
     }
@@ -407,9 +407,9 @@ const handleLogout = async () => {
   }
 
   &__btn-login {
-    background-color: #0F1729;
+    background-color: var(--vp-dark);
     color: white;
-    &:hover { background-color: #1a2740; }
+    &:hover { background-color: var(--vp-dark-hover); }
     @media (max-width: 1024px) { display: none; }
   }
 
@@ -430,8 +430,8 @@ const handleLogout = async () => {
     width: 32px;
     height: 32px;
     border-radius: 8px;
-    background: #7FD857;
-    color: #0F1729;
+    background: var(--vp-green);
+    color: var(--vp-dark);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -443,7 +443,7 @@ const handleLogout = async () => {
   &__user-name {
     font-size: 0.9rem;
     font-weight: 500;
-    color: #0F1729;
+    color: var(--vp-dark);
     max-width: 120px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -460,13 +460,13 @@ const handleLogout = async () => {
   text-decoration: none;
   transition: all 0.2s ease;
   background: white;
-  color: #0F1729;
+  color: var(--vp-dark);
 
-  &:hover { background: #F5F7FA; }
-  &:active { background: #E5E7EB; transform: scale(0.98); }
+  &:hover { background: var(--vp-gray); }
+  &:active { background: var(--color-gray-200); transform: scale(0.98); }
 
   &--active {
-    background: #F0FDF4;
+    background: var(--color-green-50);
     span { color: var(--vp-green-text); font-weight: 600; }
     svg { color: var(--vp-green-text); }
   }

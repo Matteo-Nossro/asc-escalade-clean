@@ -6,9 +6,9 @@
       <div class="text-center mb-8">
         <NuxtLink
           to="/"
-          class="inline-flex items-center justify-center w-16 h-16 bg-[#7FD857] rounded-2xl mb-4 shadow-lg transition-transform hover:scale-105"
+          class="inline-flex items-center justify-center w-16 h-16 bg-vp-green rounded-2xl mb-4 shadow-lg transition-transform hover:scale-105"
         >
-          <UIcon name="i-lucide-mountain" class="w-8 h-8 text-[#0F1729]" />
+          <UIcon name="i-lucide-mountain" class="w-8 h-8 text-vp-dark" />
         </NuxtLink>
         <h1 class="text-3xl font-bold text-gray-900 mb-2">ASC Escalade</h1>
         <p class="text-gray-600">Créer votre compte</p>
@@ -26,19 +26,19 @@
         <button
           type="button"
           class="w-full bg-white rounded-3xl shadow-xl border-2 p-6 text-left transition-all hover:shadow-2xl"
-          :class="typeChoice === 'adult' ? 'border-[#7FD857]' : 'border-transparent hover:border-[#7FD857]'"
+          :class="typeChoice === 'adult' ? 'border-vp-green' : 'border-transparent hover:border-vp-green'"
           data-testid="btn-type-adult"
           @click="typeChoice = 'adult'"
         >
           <div class="flex items-start gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-[#7FD857]/10 flex items-center justify-center shrink-0">
-              <UIcon name="i-lucide-user" class="w-6 h-6 text-[#7FD857]" />
+            <div class="w-12 h-12 rounded-2xl bg-vp-green/10 flex items-center justify-center shrink-0">
+              <UIcon name="i-lucide-user" class="w-6 h-6 text-vp-green" />
             </div>
             <div class="flex-1">
               <p class="font-bold text-gray-900 text-lg">Je suis majeur et je souhaite m'inscrire</p>
               <p class="text-sm text-gray-500 mt-1">Créer mon compte personnel.</p>
             </div>
-            <UIcon v-if="typeChoice === 'adult'" name="i-lucide-check-circle-2" class="w-5 h-5 text-[#7FD857] shrink-0 mt-1" />
+            <UIcon v-if="typeChoice === 'adult'" name="i-lucide-check-circle-2" class="w-5 h-5 text-vp-green shrink-0 mt-1" />
           </div>
         </button>
 
@@ -74,7 +74,7 @@
           block
           size="xl"
           :disabled="!typeChoice"
-          class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold shadow-lg hover:shadow-xl transition-all"
+          class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold shadow-lg hover:shadow-xl transition-all"
           data-testid="btn-register-continue"
           @click="currentStep = 2"
         >
@@ -86,7 +86,7 @@
 
         <p class="text-center text-sm text-gray-500">
           Déjà un compte ?
-          <NuxtLink to="/login" class="text-[#7FD857] hover:text-[#6bc546] font-bold ml-1">Se connecter</NuxtLink>
+          <NuxtLink to="/login" class="text-vp-green hover:text-vp-green-hover font-bold ml-1">Se connecter</NuxtLink>
         </p>
       </div>
 
@@ -116,7 +116,7 @@
             <!-- Connexion -->
             <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
               <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <UIcon name="i-lucide-lock" class="w-5 h-5 text-[#7FD857]" />
+                <UIcon name="i-lucide-lock" class="w-5 h-5 text-vp-green" />
                 Connexion
               </h3>
               <div class="space-y-5">
@@ -160,7 +160,7 @@
                     v-for="check in passwordChecks"
                     :key="check.label"
                     class="flex items-center gap-2 text-xs transition-colors"
-                    :class="check.ok ? 'text-[#5ab43a]' : 'text-gray-400'"
+                    :class="check.ok ? 'text-vp-green-check' : 'text-gray-400'"
                   >
                     <UIcon
                       :name="check.ok ? 'i-lucide-check-circle-2' : 'i-lucide-circle'"
@@ -213,7 +213,7 @@
             size="xl"
             :loading="submitting"
             :disabled="submitting"
-            class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold shadow-lg hover:shadow-xl transition-all"
+            class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold shadow-lg hover:shadow-xl transition-all"
           >
             <template v-if="!submitting" #leading>
               <UIcon :name="typeChoice === 'minor' ? 'i-lucide-arrow-right' : 'i-lucide-check'" class="w-5 h-5" />
@@ -240,8 +240,8 @@
 
         <!-- Introduction -->
         <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100 text-center">
-          <div class="w-14 h-14 rounded-2xl bg-[#7FD857]/10 flex items-center justify-center mx-auto mb-4">
-            <UIcon name="i-lucide-users" class="w-7 h-7 text-[#7FD857]" />
+          <div class="w-14 h-14 rounded-2xl bg-vp-green/10 flex items-center justify-center mx-auto mb-4">
+            <UIcon name="i-lucide-users" class="w-7 h-7 text-vp-green" />
           </div>
           <h3 class="text-lg font-bold text-gray-900 mb-2">Inscrire un enfant</h3>
           <p class="text-sm text-gray-500">
@@ -272,7 +272,7 @@
             size="xl"
             :loading="submitting"
             :disabled="submitting"
-            class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold shadow-lg hover:shadow-xl transition-all"
+            class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold shadow-lg hover:shadow-xl transition-all"
             data-testid="btn-register-finish"
             @click="submitRegistration"
           >
@@ -289,8 +289,8 @@
       ══════════════════════════════════════════════════════ -->
       <div v-if="currentStep === 4" class="text-center">
         <div class="bg-white rounded-3xl shadow-2xl p-10 border border-gray-100">
-          <div class="w-20 h-20 rounded-full bg-[#7FD857]/10 flex items-center justify-center mx-auto mb-6">
-            <UIcon name="i-lucide-check-circle-2" class="w-10 h-10 text-[#7FD857]" />
+          <div class="w-20 h-20 rounded-full bg-vp-green/10 flex items-center justify-center mx-auto mb-6">
+            <UIcon name="i-lucide-check-circle-2" class="w-10 h-10 text-vp-green" />
           </div>
           <h2 class="text-2xl font-bold text-gray-900 mb-3">Inscription envoyée !</h2>
           <p class="text-sm text-gray-500 mb-8">
@@ -301,7 +301,7 @@
               block
               size="xl"
               to="/login?redirect=/profil"
-              class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold shadow-lg"
+              class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold shadow-lg"
             >
               <template #leading>
                 <UIcon name="i-lucide-user-circle" class="w-5 h-5" />
@@ -313,7 +313,7 @@
               size="xl"
               variant="outline"
               to="/login?redirect=/mes-inscriptions"
-              class="border-[#7FD857] text-[#7FD857] hover:bg-[#7FD857]/10 font-bold"
+              class="border-vp-green text-vp-green hover:bg-vp-green/10 font-bold"
             >
               <template #leading>
                 <UIcon name="i-lucide-calendar-check" class="w-5 h-5" />

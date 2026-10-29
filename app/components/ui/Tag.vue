@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { DEFAULT_TAG_COLOR, TAG_TEXT_DARK, TAG_TEXT_LIGHT } from '~/utils/categoryColors'
+
 interface Props {
 	label?: string
 	color?: string  // Accepte hex, rgb, ou nom Tailwind
@@ -14,7 +16,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
 	variant: 'solid',
 	size: 'md',
-	color: '#7FD857'  // Votre vert par défaut
+	color: DEFAULT_TAG_COLOR  // Vert de la charte
 })
 
 // Calcul des styles inline selon la variante
@@ -79,7 +81,7 @@ const iconSizeClasses = computed(() => {
 
 // Fonction pour déterminer si le texte doit être clair ou foncé
 function getContrastColor(hexColor: string): string {
-	if (!hexColor) return '#000000'
+	if (!hexColor) return TAG_TEXT_DARK
 
 	// Retirer le # si présent
 	const hex = hexColor.replace('#', '')
@@ -93,7 +95,7 @@ function getContrastColor(hexColor: string): string {
 	const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
 
 	// Retourner blanc ou noir selon la luminosité
-	return luminance > 0.5 ? '#000000' : '#FFFFFF'
+	return luminance > 0.5 ? TAG_TEXT_DARK : TAG_TEXT_LIGHT
 }
 </script>
 

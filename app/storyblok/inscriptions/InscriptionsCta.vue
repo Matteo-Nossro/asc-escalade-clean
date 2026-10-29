@@ -9,7 +9,7 @@
     <UContainer>
       <div
         data-reveal
-        class="max-w-5xl mx-auto bg-[#0F1729] rounded-3xl p-10 md:p-14 text-center"
+        class="max-w-5xl mx-auto bg-vp-dark rounded-3xl p-10 md:p-14 text-center"
       >
         <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">
           {{ blok.title || 'Une question sur l\'inscription ?' }}
@@ -24,7 +24,7 @@
           :rel="lien.external ? 'noopener' : undefined"
           size="xl"
           :icon="blok.icon || 'i-heroicons-envelope'"
-          class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold"
+          class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold"
         >
           {{ blok.bouton_label }}
         </UButton>

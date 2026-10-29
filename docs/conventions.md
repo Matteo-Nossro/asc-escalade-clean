@@ -131,29 +131,16 @@ const uid = user.value?.id ?? (user.value as any)?.sub
 
 ## Couleurs & design tokens
 
-```
-#0F1729   Bleu nuit — fond hero, textes titres
-#7FD857   Vert escalade — accents, icônes, CTA, barres déco
-```
-
-Tailwind classes custom fréquentes :
-- `text-[#0F1729]`, `text-[#7FD857]`
-- `bg-[#0F1729]`, `bg-[#7FD857]`
-- `border-[#7FD857]`
+Aucun hex dans un `.vue` ou un `.ts` (règle `couleur-hors-theme`, ERREUR). Source unique : `app/assets/css/main.css` (`@theme static`), couleurs de la charte et de composant :
+- Classes `bg-vp-green`, `text-vp-dark`, `hover:bg-vp-green-hover` pour les tokens `vp-dark`, `vp-green`, `vp-green-hover`, `vp-dark-hover`, `vp-gray`, `vp-green-check`, `vp-placeholder`, `vp-quote-mark` (ils remplacent les `[#…]`).
+- Dans les `<style>` : `var(--vp-…)`.
+- Couleur présente dans la palette Tailwind (`gray-200`, `gray-500`…) : sa classe ou `var(--color-gray-500)`. Seules les couleurs absentes de la palette deviennent des tokens `--vp-*` dans `@theme`.
+- SVG : classes `fill-…` / `stroke-…`, pas d'attribut de couleur.
+- E-mails HTML : `server/utils/email-theme.ts`.
 
 ## Catégories de posts (couleurs)
 
-> Liste blanche des couleurs (charte, variantes `#6bc546` / `#1a2740`, neutres, catégories) : source unique `.claude/skills/asc-rules/colors.json`, lue par `check.mjs`. Toute nouvelle couleur ou catégorie s'ajoute là.
-
-```ts
-const colors: Record<string, string> = {
-  'Falaise':       '#7FD857',
-  'Bloc':          '#4ECDC4',
-  'Stage':         '#9333EA',
-  'Climb Up':      '#F97316',
-  'Cime Altitude': '#2563EB'
-}
-```
+Couleurs des catégories de posts et des difficultés : `app/utils/categoryColors.ts`, avec `getCategoryColor` et `getDifficultyColor`, importés explicitement via `~/utils/categoryColors`. Ajouter une catégorie revient à ajouter une ligne dans ce module.
 
 ---
 

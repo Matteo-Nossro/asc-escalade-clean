@@ -2,7 +2,7 @@
 	<div v-editable="blok" class="relative max-w-6xl mx-auto mb-20 px-4">
 		<div class="bg-white rounded-2xl shadow-xl p-8 md:p-12 text-center relative z-10 border border-gray-100">
 
-			<h2 class="text-2xl font-bold text-[#0F1729] mb-4">
+			<h2 class="text-2xl font-bold text-vp-dark mb-4">
 				{{ blok.title || 'Le Concept' }}
 			</h2>
 

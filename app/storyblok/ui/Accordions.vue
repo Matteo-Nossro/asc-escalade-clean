@@ -2,7 +2,7 @@
   <section v-editable="blok" class="py-12 bg-white gsap-reveal">
     <UContainer>
       <div class="max-w-3xl mx-auto">
-        <h3 class="text-3xl font-bold text-[#0F1729] mb-8">{{ blok.title || 'Foire Aux Questions' }}</h3>
+        <h3 class="text-3xl font-bold text-vp-dark mb-8">{{ blok.title || 'Foire Aux Questions' }}</h3>
         <UAccordion :items="accordionItems" size="xl" variant="ghost" color="primary" />
       </div>
     </UContainer>

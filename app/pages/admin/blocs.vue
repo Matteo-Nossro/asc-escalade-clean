@@ -273,7 +273,7 @@ const blocs = [
 
 <template>
   <div>
-    <div class="bg-[#0F1729] text-white py-4 px-4 sticky top-0 z-50">
+    <div class="bg-vp-dark text-white py-4 px-4 sticky top-0 z-50">
       <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-2">
         <span class="text-sm font-bold">Blocs réutilisables — {{ blocs.length }} exemples</span>
         <span class="text-xs text-white/50">Page interne (staff) · données factices</span>
@@ -281,7 +281,7 @@ const blocs = [
     </div>
 
     <template v-for="([nom, comp, blok]) in blocs" :key="nom">
-      <div class="border-t-4 border-dashed border-[#7FD857]/40 bg-[#7FD857]/5 px-4 py-1.5 text-xs font-mono font-bold text-[#0F1729]">
+      <div class="border-t-4 border-dashed border-vp-green/40 bg-vp-green/5 px-4 py-1.5 text-xs font-mono font-bold text-vp-dark">
         {{ nom }}
       </div>
       <div :class="nom.startsWith('bloc-popup') ? 'p-8 text-center' : ''">

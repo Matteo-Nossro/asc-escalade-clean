@@ -8,7 +8,7 @@
 
     <UContainer>
       <div class="mb-16 text-center max-w-2xl mx-auto">
-        <h2 class="text-4xl font-black text-[#0F1729] mb-4 tracking-tight">
+        <h2 class="text-4xl font-black text-vp-dark mb-4 tracking-tight">
           {{ blok.title || 'Instants Verticaux' }}
         </h2>
         <p class="text-gray-500 text-lg font-medium">
@@ -46,7 +46,7 @@
       <div v-if="hasMore" class="mt-12 flex justify-center">
         <button
           @click="loadMore"
-          class="px-8 py-3 bg-[#0F1729] text-white font-bold rounded-full hover:bg-[#7FD857] hover:text-[#0F1729] transition-all duration-300 cursor-pointer"
+          class="px-8 py-3 bg-vp-dark text-white font-bold rounded-full hover:bg-vp-green hover:text-vp-dark transition-all duration-300 cursor-pointer"
         >
           Voir plus de photos
         </button>

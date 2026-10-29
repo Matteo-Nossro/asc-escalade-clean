@@ -5,6 +5,7 @@
  */
 import { Resend } from 'resend'
 import { escapeHtml } from '../utils/escapeHtml'
+import { EMAIL_COLORS } from '../utils/email-theme'
 
 // Rate limit en mémoire : max 3 envois / heure / IP
 const ipLog = new Map<string, number[]>()
@@ -58,7 +59,7 @@ export default defineEventHandler(async (event) => {
       <p><strong>Nom :</strong> ${escapeHtml(cleanName)}</p>
       <p><strong>Email :</strong> ${escapeHtml(cleanEmail)}</p>
       ${cleanSubject ? `<p><strong>Sujet :</strong> ${escapeHtml(cleanSubject)}</p>` : ''}
-      <hr style="border:none;border-top:1px solid #e2e8f0;margin:16px 0;">
+      <hr style="border:none;border-top:1px solid ${EMAIL_COLORS.border};margin:16px 0;">
       <p style="white-space:pre-wrap;line-height:1.6;">${escapeHtml(message.trim()).replace(/\n/g, '<br>')}</p>
     `,
   })

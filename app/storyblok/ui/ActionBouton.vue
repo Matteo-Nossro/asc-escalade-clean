@@ -7,7 +7,7 @@
       :target="isAsset ? '_blank' : undefined"
       :rel="isAsset ? 'noopener noreferrer' : undefined"
       size="xl"
-      class="font-bold px-8 py-4 transition-transform hover:scale-105 bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729]"
+      class="font-bold px-8 py-4 transition-transform hover:scale-105 bg-vp-green hover:bg-vp-green-hover text-vp-dark"
       :ui="{ rounded: 'rounded-md' }"
     >
       {{ blok.text }}

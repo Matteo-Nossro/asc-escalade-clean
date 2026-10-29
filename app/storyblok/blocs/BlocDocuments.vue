@@ -17,10 +17,10 @@
         class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 md:p-8"
       >
         <div v-if="groupe.titre" class="flex items-center gap-3 mb-5">
-          <div class="w-11 h-11 rounded-2xl bg-[#7FD857]/15 flex items-center justify-center flex-shrink-0">
-            <UIcon :name="groupe.icon || 'i-heroicons-folder'" class="w-6 h-6 text-[#0F1729]" />
+          <div class="w-11 h-11 rounded-2xl bg-vp-green/15 flex items-center justify-center flex-shrink-0">
+            <UIcon :name="groupe.icon || 'i-heroicons-folder'" class="w-6 h-6 text-vp-dark" />
           </div>
-          <h3 class="text-lg font-bold text-[#0F1729]">{{ groupe.titre }}</h3>
+          <h3 class="text-lg font-bold text-vp-dark">{{ groupe.titre }}</h3>
         </div>
         <ul class="space-y-3">
           <li v-for="(doc, di) in groupe.documents || []" :key="doc._uid || di">

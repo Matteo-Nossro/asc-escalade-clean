@@ -16,9 +16,9 @@
       >
         <div
           v-if="info.icon"
-          class="w-12 h-12 rounded-2xl bg-[#7FD857]/15 flex items-center justify-center mb-3"
+          class="w-12 h-12 rounded-2xl bg-vp-green/15 flex items-center justify-center mb-3"
         >
-          <UIcon :name="info.icon" class="w-6 h-6 text-[#7FD857]" />
+          <UIcon :name="info.icon" class="w-6 h-6 text-vp-green" />
         </div>
         <p class="text-2xl md:text-3xl font-black" :class="fond.titre">{{ info.valeur }}</p>
         <p class="mt-1 text-sm font-medium" :class="fond.texte">{{ info.libelle }}</p>

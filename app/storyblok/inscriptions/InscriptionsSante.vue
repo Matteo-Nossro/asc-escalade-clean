@@ -29,22 +29,22 @@
           <div class="flex items-center gap-3 mb-4">
             <span
               v-if="etape.numero"
-              class="w-8 h-8 rounded-full bg-[#0F1729] text-white text-sm font-bold flex items-center justify-center flex-shrink-0"
+              class="w-8 h-8 rounded-full bg-vp-dark text-white text-sm font-bold flex items-center justify-center flex-shrink-0"
             >
               {{ etape.numero }}
             </span>
-            <h3 class="text-lg font-bold text-[#0F1729]">{{ etape.titre }}</h3>
+            <h3 class="text-lg font-bold text-vp-dark">{{ etape.titre }}</h3>
           </div>
 
           <div
             v-if="renderedTexte(etape).length"
-            class="text-sm text-gray-600 [&_p]:mb-4 [&_strong]:text-[#0F1729] flex-grow"
+            class="text-sm text-gray-600 [&_p]:mb-4 [&_strong]:text-vp-dark flex-grow"
             v-html="renderedTexte(etape)"
           />
 
           <p
             v-if="etape.encadre"
-            class="text-sm rounded-xl bg-[#7FD857]/10 text-[#0F1729] p-3 mt-1"
+            class="text-sm rounded-xl bg-vp-green/10 text-vp-dark p-3 mt-1"
           >
             {{ etape.encadre }}
           </p>
@@ -58,7 +58,7 @@
               <span class="text-xs font-bold uppercase tracking-wider text-[var(--vp-green-text)]">
                 {{ cas.numero }}
               </span>
-              <p class="font-semibold text-[#0F1729] text-sm mt-1">{{ cas.titre }}</p>
+              <p class="font-semibold text-vp-dark text-sm mt-1">{{ cas.titre }}</p>
               <p v-if="cas.detail" class="text-xs text-gray-500 mt-1">{{ cas.detail }}</p>
             </div>
           </div>
@@ -71,7 +71,7 @@
             :rel="btn(etape).external ? 'noopener' : undefined"
             trailing-icon="i-heroicons-arrow-top-right-on-square"
             size="lg"
-            class="mt-6 self-start bg-[#0F1729] hover:bg-[#1a2740] text-white font-bold"
+            class="mt-6 self-start bg-vp-dark hover:bg-vp-dark-hover text-white font-bold"
           >
             {{ etape.bouton_label }}
           </UButton>

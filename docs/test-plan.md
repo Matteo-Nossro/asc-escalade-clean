@@ -274,6 +274,13 @@
 | RS05 | Tablette (768px) | `/admin/dashboard` | Mise en page correcte | | |
 | RS06 | Desktop (1280px) | Toutes pages | Navigation desktop, pas de régression | | |
 
+### 12a. Captures visuelles avant / après (`e2e/visual/captures.spec.ts`)
+11 pages (accueil, actualités, un post, club, tarifs, sorties, contact, register, login, profil adhérent, dashboard admin) × 1440 et 390 px, animations neutralisées, comptes de test pour profil et admin, aucune écriture en base. Sans `CAPTURES_OUT`, le spec est ignoré.
+- Capturer : `CAPTURES_OUT=<dossier> E2E_SKIP_BUILD=1 npx playwright test e2e/visual/captures.spec.ts` (après un `npm run build` à jour) ; `CAPTURES_OVERWRITE=1` pour écraser des PNG existants.
+- Comparer : ajouter `CAPTURES_COMPARE=<dossier de référence>` → `<dossier>/diff/*.png` et `rapport-comparaison.json` (seuil 0.1, ≤ 0,1 % de pixels).
+- Limite : le seuil est aveugle aux nuances proches (`#7FD857` → `#6bc546` passe) ; il détecte la mise en page, pas l'identité des couleurs. Le calendrier de l'accueil surligne le jour courant : comparer le même jour.
+- Référence conservée : `docs/features/harmonisation-couleurs/captures/avant/` (2026-10-29), point de départ du cadrage du design ordinateur.
+
 ---
 
 ## 13. Persistance des données

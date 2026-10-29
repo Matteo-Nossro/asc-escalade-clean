@@ -2,10 +2,10 @@
   <!-- Loading auth -->
   <div v-if="!authReady" class="min-h-screen flex items-center justify-center bg-gray-50">
     <div class="flex flex-col items-center gap-6">
-      <div class="inline-flex items-center justify-center w-16 h-16 bg-[#7FD857] rounded-2xl shadow-lg">
-        <UIcon name="i-lucide-mountain" class="w-8 h-8 text-[#0F1729]" />
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-vp-green rounded-2xl shadow-lg">
+        <UIcon name="i-lucide-mountain" class="w-8 h-8 text-vp-dark" />
       </div>
-      <div class="w-8 h-8 border-3 border-gray-200 border-t-[#7FD857] rounded-full animate-spin" />
+      <div class="w-8 h-8 border-3 border-gray-200 border-t-vp-green rounded-full animate-spin" />
       <p class="text-gray-500 text-sm font-medium">Chargement de l'espace admin…</p>
     </div>
   </div>

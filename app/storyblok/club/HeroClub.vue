@@ -35,7 +35,7 @@
 					<path
 							ref="curve1"
 							d="M-100 50 Q 600 250 1540 50"
-							stroke="#7FD857"
+							class="stroke-vp-green"
 							stroke-width="2"
 							fill="none"
 							stroke-dasharray="2000"
@@ -44,7 +44,7 @@
 					<path
 							ref="curve2"
 							d="M-100 100 Q 600 300 1540 100"
-							stroke="#0F1729"
+							class="stroke-vp-dark"
 							stroke-width="1"
 							fill="none"
 							opacity="0.3"
@@ -58,7 +58,7 @@
 					v-for="i in 8"
 					:key="`dot-${i}`"
 					:ref="el => dots[i] = el"
-					class="absolute w-2 h-2 bg-[#7FD857] rounded-full opacity-0"
+					class="absolute w-2 h-2 bg-vp-green rounded-full opacity-0"
 					:style="{
           left: `${10 + i * 12}%`,
           top: `${20 + (i % 3) * 20}%`
@@ -66,16 +66,16 @@
 			></div>
 
 			<svg class="absolute top-10 right-10 w-32 h-32 opacity-10" viewBox="0 0 100 100">
-				<circle ref="circle1" cx="50" cy="50" r="20" stroke="#7FD857" stroke-width="1" fill="none" />
-				<circle ref="circle2" cx="50" cy="50" r="30" stroke="#7FD857" stroke-width="1" fill="none" />
-				<circle ref="circle3" cx="50" cy="50" r="40" stroke="#7FD857" stroke-width="1" fill="none" />
+				<circle ref="circle1" cx="50" cy="50" r="20" class="stroke-vp-green" stroke-width="1" fill="none" />
+				<circle ref="circle2" cx="50" cy="50" r="30" class="stroke-vp-green" stroke-width="1" fill="none" />
+				<circle ref="circle3" cx="50" cy="50" r="40" class="stroke-vp-green" stroke-width="1" fill="none" />
 			</svg>
 
 		</div>
 
 		<UContainer class="relative z-10 text-center">
 
-			<h1 ref="title" class="text-4xl md:text-6xl font-extrabold text-[#0F1729] mb-4 uppercase tracking-tight">
+			<h1 ref="title" class="text-4xl md:text-6xl font-extrabold text-vp-dark mb-4 uppercase tracking-tight">
 				{{ blok.title || 'LE CLUB' }}
 			</h1>
 
@@ -83,7 +83,7 @@
 				{{ blok.subtitle || 'Plus qu\'une association, une famille de grimpeurs.' }}
 			</p>
 
-			<div ref="line" class="h-1.5 bg-[#7FD857] rounded-full mx-auto" style="width: 64px"></div>
+			<div ref="line" class="h-1.5 bg-vp-green rounded-full mx-auto" style="width: 64px"></div>
 
 		</UContainer>
 	</section>

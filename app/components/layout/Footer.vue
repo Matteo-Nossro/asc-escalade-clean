@@ -1,5 +1,5 @@
 <template>
-  <footer class="w-screen bg-[#0F1729] text-white pt-16 pb-8 border-t border-gray-800 -ml-[calc((100vw-100%)/2)]">
+  <footer class="w-screen bg-vp-dark text-white pt-16 pb-8 border-t border-gray-800 -ml-[calc((100vw-100%)/2)]">
     <UContainer>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
 
@@ -10,12 +10,12 @@
               <img :src="config.logo_image.filename" :alt="config.logo_text_top || 'Logo'" width="154" height="44" class="h-11 w-auto object-contain" />
             </template>
             <template v-else>
-              <div class="w-10 h-10 bg-[#7FD857] rounded-lg flex items-center justify-center">
+              <div class="w-10 h-10 bg-vp-green rounded-lg flex items-center justify-center">
                 <UIcon name="i-heroicons-arrow-trending-up" class="text-white text-2xl" />
               </div>
               <div class="flex flex-col leading-none">
                 <span class="font-bold text-lg tracking-wide text-white">{{ config?.logo_text_top || 'ASC' }}</span>
-                <span class="font-light text-lg tracking-wide text-[#7FD857]">{{ config?.logo_text_bottom || 'ESCALADE' }}</span>
+                <span class="font-light text-lg tracking-wide text-vp-green">{{ config?.logo_text_bottom || 'ESCALADE' }}</span>
               </div>
             </template>
           </NuxtLink>
@@ -25,7 +25,7 @@
           </p>
 
           <div v-if="labels.length > 0" class="flex flex-col gap-4">
-            <span class="text-sm font-semibold text-[#7FD857] uppercase tracking-wider">Nos labels et certifications</span>
+            <span class="text-sm font-semibold text-vp-green uppercase tracking-wider">Nos labels et certifications</span>
             <div class="flex flex-wrap gap-5 items-center">
               <component
                 :is="label.link ? 'a' : 'div'"
@@ -53,7 +53,7 @@
               target="_blank"
               rel="noopener"
               :aria-label="socialLabel(social)"
-              class="w-10 h-10 rounded-lg bg-white/5 hover:bg-[#7FD857] flex items-center justify-center transition-colors"
+              class="w-10 h-10 rounded-lg bg-white/5 hover:bg-vp-green flex items-center justify-center transition-colors"
             >
               <img
                 v-if="social.image?.filename"
@@ -72,20 +72,20 @@
 
         <!-- Colonne 2 : Contact -->
         <div class="flex flex-col gap-6">
-          <h3 class="text-[#7FD857] font-bold text-lg">Contact</h3>
+          <h3 class="text-vp-green font-bold text-lg">Contact</h3>
           <ul class="flex flex-col gap-4">
             <li v-if="config?.address" class="flex items-start gap-3 text-gray-400">
-              <UIcon name="i-heroicons-map-pin" class="w-5 h-5 text-[#7FD857] mt-1 shrink-0" />
+              <UIcon name="i-heroicons-map-pin" class="w-5 h-5 text-vp-green mt-1 shrink-0" />
               <span class="text-sm whitespace-pre-line">{{ config.address }}</span>
             </li>
             <li v-if="config?.phone" class="flex items-center gap-3 text-gray-400">
-              <UIcon name="i-heroicons-phone" class="w-5 h-5 text-[#7FD857] shrink-0" />
+              <UIcon name="i-heroicons-phone" class="w-5 h-5 text-vp-green shrink-0" />
               <a :href="`tel:${config.phone.replace(/\s/g, '')}`" class="text-sm hover:text-white transition-colors">
                 {{ config.phone }}
               </a>
             </li>
             <li v-if="config?.email" class="flex items-center gap-3 text-gray-400">
-              <UIcon name="i-heroicons-envelope" class="w-5 h-5 text-[#7FD857] shrink-0" />
+              <UIcon name="i-heroicons-envelope" class="w-5 h-5 text-vp-green shrink-0" />
               <a :href="`mailto:${config.email}`" class="text-sm hover:text-white transition-colors">
                 {{ config.email }}
               </a>
@@ -95,13 +95,13 @@
 
         <!-- Colonne 3 : Navigation -->
         <div class="flex flex-col gap-6">
-          <h3 class="text-[#7FD857] font-bold text-lg">Navigation</h3>
+          <h3 class="text-vp-green font-bold text-lg">Navigation</h3>
           <div class="grid grid-cols-2 gap-x-4 gap-y-3">
             <NuxtLink
               v-for="link in navigationLinks"
               :key="link._uid"
               :to="resolveLink(link.link)"
-              class="text-gray-400 text-sm hover:text-[#7FD857] transition-colors"
+              class="text-gray-400 text-sm hover:text-vp-green transition-colors"
             >
               {{ link.label }}
             </NuxtLink>
@@ -110,7 +110,7 @@
 
         <!-- Colonne 4 : Partenaires -->
         <div class="flex flex-col gap-6">
-          <h3 class="text-[#7FD857] font-bold text-lg">Partenaires</h3>
+          <h3 class="text-vp-green font-bold text-lg">Partenaires</h3>
           <div class="grid grid-cols-2 gap-4">
             <a
               v-for="partner in partners"

@@ -26,7 +26,7 @@
           {{ item.question }}
           <UIcon
             name="i-heroicons-chevron-down"
-            class="w-5 h-5 flex-shrink-0 transition-transform duration-300 text-[#7FD857]"
+            class="w-5 h-5 flex-shrink-0 transition-transform duration-300 text-vp-green"
             :class="{ 'rotate-180': ouvert === i }"
           />
         </button>

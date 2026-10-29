@@ -34,10 +34,10 @@ const styles = computed(() => {
   switch (props.blok.type) {
     case 'succes':
       return {
-        conteneur: 'bg-[#7FD857]/10 border-[#7FD857]/30',
+        conteneur: 'bg-vp-green/10 border-vp-green/30',
         icon: 'i-heroicons-check-circle',
-        iconColor: 'text-[#7FD857]',
-        titre: 'text-[#0F1729]',
+        iconColor: 'text-vp-green',
+        titre: 'text-vp-dark',
         texte: 'text-gray-700',
       }
     case 'attention':
@@ -50,9 +50,9 @@ const styles = computed(() => {
       }
     case 'sombre':
       return {
-        conteneur: 'bg-[#0F1729] border-transparent',
+        conteneur: 'bg-vp-dark border-transparent',
         icon: 'i-heroicons-information-circle',
-        iconColor: 'text-[#7FD857]',
+        iconColor: 'text-vp-green',
         titre: 'text-white',
         texte: 'text-white/80',
       }
@@ -60,8 +60,8 @@ const styles = computed(() => {
       return {
         conteneur: 'bg-gray-50 border-gray-200',
         icon: 'i-heroicons-information-circle',
-        iconColor: 'text-[#0F1729]',
-        titre: 'text-[#0F1729]',
+        iconColor: 'text-vp-dark',
+        titre: 'text-vp-dark',
         texte: 'text-gray-600',
       }
   }

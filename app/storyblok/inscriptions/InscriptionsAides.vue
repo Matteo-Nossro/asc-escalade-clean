@@ -9,8 +9,8 @@
     <UContainer>
       <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
         <div data-reveal class="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
-          <h3 class="flex items-center gap-2 text-lg font-bold text-[#0F1729] mb-4">
-            <UIcon name="i-heroicons-tag" class="w-5 h-5 text-[#7FD857]" />
+          <h3 class="flex items-center gap-2 text-lg font-bold text-vp-dark mb-4">
+            <UIcon name="i-heroicons-tag" class="w-5 h-5 text-vp-green" />
             {{ blok.titre_reductions || 'Réductions' }}
           </h3>
           <ul class="space-y-3">
@@ -19,15 +19,15 @@
               :key="r._uid || i"
               class="flex items-start gap-3 text-sm text-gray-600"
             >
-              <UIcon name="i-heroicons-check" class="w-5 h-5 text-[#7FD857] flex-shrink-0" />
+              <UIcon name="i-heroicons-check" class="w-5 h-5 text-vp-green flex-shrink-0" />
               {{ r.texte }}
             </li>
           </ul>
         </div>
 
         <div data-reveal class="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
-          <h3 class="flex items-center gap-2 text-lg font-bold text-[#0F1729] mb-4">
-            <UIcon name="i-heroicons-credit-card" class="w-5 h-5 text-[#7FD857]" />
+          <h3 class="flex items-center gap-2 text-lg font-bold text-vp-dark mb-4">
+            <UIcon name="i-heroicons-credit-card" class="w-5 h-5 text-vp-green" />
             {{ blok.titre_paiement || 'Modalités de paiement' }}
           </h3>
           <p v-if="blok.paiement_texte" class="text-sm text-gray-600 mb-4">
@@ -37,7 +37,7 @@
             <span
               v-for="(m, i) in modes"
               :key="m._uid || i"
-              class="px-3 py-1.5 rounded-full bg-[#7FD857]/10 text-[#0F1729] text-xs font-semibold"
+              class="px-3 py-1.5 rounded-full bg-vp-green/10 text-vp-dark text-xs font-semibold"
             >
               {{ m.texte }}
             </span>

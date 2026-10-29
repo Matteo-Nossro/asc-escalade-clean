@@ -12,7 +12,7 @@
         :alt="blok.image_fond.alt || ''"
         class="w-full h-full object-cover"
       />
-      <div class="absolute inset-0 bg-[#0F1729]/60" />
+      <div class="absolute inset-0 bg-vp-dark/60" />
     </div>
 
     <!-- Colline décorative -->
@@ -35,16 +35,16 @@
         v-if="blok.badge"
         ref="badge"
         class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm md:text-base font-bold mb-6"
-        :class="hasImage ? 'bg-white/15 text-white' : 'bg-[#7FD857]/10 text-[#0F1729]'"
+        :class="hasImage ? 'bg-white/15 text-white' : 'bg-vp-green/10 text-vp-dark'"
       >
-        <UIcon v-if="blok.badge_icon" :name="blok.badge_icon" class="w-5 h-5 text-[#7FD857]" />
+        <UIcon v-if="blok.badge_icon" :name="blok.badge_icon" class="w-5 h-5 text-vp-green" />
         {{ blok.badge }}
       </div>
 
       <h1
         ref="titre"
         class="text-4xl md:text-6xl font-extrabold mb-4 uppercase tracking-tight"
-        :class="hasImage || fond.sombre ? 'text-white' : 'text-[#0F1729]'"
+        :class="hasImage || fond.sombre ? 'text-white' : 'text-vp-dark'"
       >
         {{ blok.titre || 'Titre de la page' }}
       </h1>
@@ -58,7 +58,7 @@
         {{ blok.sous_titre }}
       </p>
 
-      <div ref="ligne" class="h-1.5 bg-[#7FD857] rounded-full mx-auto mb-8" style="width: 64px" />
+      <div ref="ligne" class="h-1.5 bg-vp-green rounded-full mx-auto mb-8" style="width: 64px" />
 
       <div v-if="boutons.length" class="flex flex-wrap justify-center gap-3">
         <BlocBouton v-for="(b, i) in boutons" :key="b._uid || i" :blok="b" />

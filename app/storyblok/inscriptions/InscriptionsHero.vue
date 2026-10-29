@@ -22,9 +22,9 @@
       <div
         v-if="blok.badge"
         ref="badge"
-        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#7FD857]/10 text-[#0F1729] font-bold text-sm md:text-base mb-6"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-vp-green/10 text-vp-dark font-bold text-sm md:text-base mb-6"
       >
-        <UIcon name="i-heroicons-calendar-days" class="w-5 h-5 text-[#7FD857]" />
+        <UIcon name="i-heroicons-calendar-days" class="w-5 h-5 text-vp-green" />
         {{ blok.badge }}
       </div>
 
@@ -45,14 +45,14 @@
         {{ blok.subtitle }}
       </p>
 
-      <div ref="line" class="h-1.5 bg-[#7FD857] rounded-full mx-auto" style="width: 64px" />
+      <div ref="line" class="h-1.5 bg-vp-green rounded-full mx-auto" style="width: 64px" />
 
       <nav v-if="liens.length" class="mt-10 flex flex-wrap justify-center gap-3">
         <a
           v-for="(lien, i) in liens"
           :key="lien._uid || i"
           :href="lien.ancre"
-          class="px-4 py-2 rounded-full border border-gray-200 text-sm font-semibold text-gray-600 hover:border-[#7FD857] hover:text-[#0F1729] transition-colors"
+          class="px-4 py-2 rounded-full border border-gray-200 text-sm font-semibold text-gray-600 hover:border-vp-green hover:text-vp-dark transition-colors"
         >
           {{ lien.label }}
         </a>

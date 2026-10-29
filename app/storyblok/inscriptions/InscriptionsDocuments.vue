@@ -28,10 +28,10 @@
           class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 md:p-8"
         >
           <div class="flex items-center gap-3 mb-6">
-            <div class="w-11 h-11 rounded-2xl bg-[#7FD857]/15 flex items-center justify-center flex-shrink-0">
-              <UIcon :name="groupe.icon || 'i-heroicons-user'" class="w-6 h-6 text-[#0F1729]" />
+            <div class="w-11 h-11 rounded-2xl bg-vp-green/15 flex items-center justify-center flex-shrink-0">
+              <UIcon :name="groupe.icon || 'i-heroicons-user'" class="w-6 h-6 text-vp-dark" />
             </div>
-            <h3 class="text-lg font-bold text-[#0F1729]">
+            <h3 class="text-lg font-bold text-vp-dark">
               {{ groupe.titre }}
               <span v-if="groupe.sous_titre" class="font-medium text-gray-400 text-sm">
                 — {{ groupe.sous_titre }}
@@ -42,16 +42,16 @@
             <li v-for="(doc, di) in groupe.documents || []" :key="doc._uid || di">
               <a
                 v-bind="linkAttrs(doc)"
-                class="group flex items-center gap-3 rounded-xl border border-gray-100 p-3 hover:border-[#7FD857] hover:bg-[#7FD857]/5 transition-colors"
+                class="group flex items-center gap-3 rounded-xl border border-gray-100 p-3 hover:border-vp-green hover:bg-vp-green/5 transition-colors"
               >
-                <UIcon :name="doc.icon || 'i-heroicons-document-text'" class="w-5 h-5 text-[#0F1729] flex-shrink-0" />
+                <UIcon :name="doc.icon || 'i-heroicons-document-text'" class="w-5 h-5 text-vp-dark flex-shrink-0" />
                 <span class="flex-1 min-w-0">
-                  <span class="block text-sm font-bold text-[#0F1729]">{{ doc.titre }}</span>
+                  <span class="block text-sm font-bold text-vp-dark">{{ doc.titre }}</span>
                   <span v-if="doc.hint" class="block text-xs text-gray-500">{{ doc.hint }}</span>
                 </span>
                 <UIcon
                   name="i-heroicons-arrow-down-tray"
-                  class="w-4 h-4 text-gray-400 group-hover:text-[#7FD857] transition-colors flex-shrink-0"
+                  class="w-4 h-4 text-gray-400 group-hover:text-vp-green transition-colors flex-shrink-0"
                 />
               </a>
             </li>
@@ -62,16 +62,16 @@
       <div v-if="documentSeul" data-reveal class="max-w-5xl mx-auto mt-6">
         <a
           v-bind="linkAttrs(documentSeul)"
-          class="group flex items-center gap-4 rounded-3xl border border-gray-100 bg-white shadow-sm p-6 hover:border-[#7FD857] hover:shadow-lg transition-all"
+          class="group flex items-center gap-4 rounded-3xl border border-gray-100 bg-white shadow-sm p-6 hover:border-vp-green hover:shadow-lg transition-all"
         >
-          <div class="w-11 h-11 rounded-2xl bg-[#7FD857]/15 flex items-center justify-center flex-shrink-0">
-            <UIcon :name="documentSeul.icon || 'i-heroicons-heart'" class="w-6 h-6 text-[#0F1729]" />
+          <div class="w-11 h-11 rounded-2xl bg-vp-green/15 flex items-center justify-center flex-shrink-0">
+            <UIcon :name="documentSeul.icon || 'i-heroicons-heart'" class="w-6 h-6 text-vp-dark" />
           </div>
           <span class="flex-1 min-w-0">
-            <span class="block font-bold text-[#0F1729]">{{ documentSeul.titre }}</span>
+            <span class="block font-bold text-vp-dark">{{ documentSeul.titre }}</span>
             <span v-if="documentSeul.hint" class="block text-xs text-gray-500">{{ documentSeul.hint }}</span>
           </span>
-          <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0F1729] group-hover:text-[#7FD857] transition-colors flex-shrink-0">
+          <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-vp-dark group-hover:text-vp-green transition-colors flex-shrink-0">
             <UIcon name="i-heroicons-arrow-down-tray" class="w-4 h-4" />
             <span class="hidden sm:inline">Télécharger</span>
           </span>

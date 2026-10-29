@@ -1,6 +1,6 @@
 <template>
   <div id="creneaux" v-editable="blok" class="scroll-mt-28 max-w-5xl mx-auto px-4 mt-24 mb-20">
-    <h2 v-if="blok.title" class="text-3xl font-bold text-center text-[#0F1729] mb-12">
+    <h2 v-if="blok.title" class="text-3xl font-bold text-center text-vp-dark mb-12">
       {{ blok.title }}
     </h2>
 
@@ -18,7 +18,7 @@
           icon: 'text-gray-400 w-5 h-5'
         },
         default: {
-          class: 'p-6 w-full text-lg font-bold text-[#0F1729] hover:bg-gray-50 border border-gray-100 rounded-xl bg-white shadow-sm overflow-hidden mb-4'
+          class: 'p-6 w-full text-lg font-bold text-vp-dark hover:bg-gray-50 border border-gray-100 rounded-xl bg-white shadow-sm overflow-hidden mb-4'
         }
       }"
     >
@@ -37,7 +37,7 @@
             <!-- Jour & Heure -->
             <template #jour-data="{ row }">
               <div>
-                <div class="font-bold text-[#0F1729]">{{ row.jour }}</div>
+                <div class="font-bold text-vp-dark">{{ row.jour }}</div>
                 <div class="text-xs text-gray-500 mt-1">{{ row.horaire }}</div>
               </div>
             </template>
@@ -54,7 +54,7 @@
 
             <!-- Prix (droite) -->
             <template #prix-data="{ row }">
-              <div class="text-right font-black text-[#0F1729] text-base">
+              <div class="text-right font-black text-vp-dark text-base">
                 {{ row.prix }}€
               </div>
             </template>

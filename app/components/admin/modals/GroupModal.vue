@@ -160,7 +160,7 @@
       <div class="flex justify-end gap-3">
         <UButton color="neutral" variant="soft" @click="emit('update:open', false)">Annuler</UButton>
         <UButton
-          class="bg-[#7FD857] text-[#0F1729] hover:bg-[#6bc546]"
+          class="bg-vp-green text-vp-dark hover:bg-vp-green-hover"
           :loading="savingGroup"
           data-testid="btn-group-submit"
           @click="handleSave"

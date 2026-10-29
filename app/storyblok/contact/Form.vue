@@ -3,11 +3,11 @@
 
 		<!-- DÉCO (Montagne) -->
 		<svg class="absolute bottom-0 right-0 w-full h-auto pointer-events-none opacity-[0.03]" viewBox="0 0 400 300" preserveAspectRatio="none">
-			<path d="M200 50 L400 300 H0 Z" fill="#000" />
-			<path d="M280 150 L400 300 H160 Z" fill="#000" />
+			<path d="M200 50 L400 300 H0 Z" class="fill-black" />
+			<path d="M280 150 L400 300 H160 Z" class="fill-black" />
 		</svg>
 
-		<h3 class="text-2xl font-bold text-[#0F1729] mb-10 relative z-10">
+		<h3 class="text-2xl font-bold text-vp-dark mb-10 relative z-10">
 			{{ blok.form_title || 'Envoyer un message' }}
 		</h3>
 
@@ -28,7 +28,7 @@
 							wrapper: 'w-full',
 							base: 'w-full bg-gray-50 text-gray-900',
 							rounded: 'rounded-lg',
-							color: { gray: { outline: 'shadow-none bg-gray-50 ring-1 ring-gray-200 focus:ring-2 focus:ring-[#7FD857]' } }
+							color: { gray: { outline: 'shadow-none bg-gray-50 ring-1 ring-gray-200 focus:ring-2 focus:ring-vp-green' } }
 						}"
 					/>
 					<p v-if="formErrors.name" class="text-sm text-red-500 mt-1 ml-1">{{ formErrors.name }}</p>
@@ -46,7 +46,7 @@
 							wrapper: 'w-full',
 							base: 'w-full bg-gray-50 text-gray-900',
 							rounded: 'rounded-lg',
-							color: { gray: { outline: 'shadow-none bg-gray-50 ring-1 ring-gray-200 focus:ring-2 focus:ring-[#7FD857]' } }
+							color: { gray: { outline: 'shadow-none bg-gray-50 ring-1 ring-gray-200 focus:ring-2 focus:ring-vp-green' } }
 						}"
 					/>
 					<p v-if="formErrors.email" class="text-sm text-red-500 mt-1 ml-1">{{ formErrors.email }}</p>
@@ -65,7 +65,7 @@
 						wrapper: 'w-full',
 						base: 'w-full bg-gray-50 text-gray-900',
 						rounded: 'rounded-lg',
-						color: { gray: { outline: 'shadow-none bg-gray-50 ring-1 ring-gray-200 focus:ring-2 focus:ring-[#7FD857]' } }
+						color: { gray: { outline: 'shadow-none bg-gray-50 ring-1 ring-gray-200 focus:ring-2 focus:ring-vp-green' } }
 					}"
 				/>
 			</div>
@@ -84,7 +84,7 @@
 						wrapper: 'w-full',
 						base: 'w-full bg-gray-50 text-gray-900',
 						rounded: 'rounded-lg',
-						color: { gray: { outline: 'shadow-none bg-gray-50 ring-1 ring-gray-200 focus:ring-2 focus:ring-[#7FD857]' } }
+						color: { gray: { outline: 'shadow-none bg-gray-50 ring-1 ring-gray-200 focus:ring-2 focus:ring-vp-green' } }
 					}"
 				/>
 				<p v-if="formErrors.message" class="text-sm text-red-500 mt-1 ml-1">{{ formErrors.message }}</p>
@@ -99,7 +99,7 @@
 					:color="success ? 'success' : 'primary'"
 					class="font-bold transition-all duration-300"
 					:class="[
-						success ? 'bg-green-500 text-white' : 'bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729]'
+						success ? 'bg-green-500 text-white' : 'bg-vp-green hover:bg-vp-green-hover text-vp-dark'
 					]"
 					:ui="{ rounded: 'rounded-lg', padding: { xl: 'px-8 py-3' } }"
 				>

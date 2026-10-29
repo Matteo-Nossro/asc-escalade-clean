@@ -6,8 +6,8 @@
 
 			<!-- Logo et Titre -->
 			<div class="text-center mb-8">
-				<div class="inline-flex items-center justify-center w-16 h-16 bg-[#7FD857] rounded-2xl mb-4 shadow-lg">
-					<UIcon name="i-lucide-mountain" class="w-8 h-8 text-[#0F1729]" />
+				<div class="inline-flex items-center justify-center w-16 h-16 bg-vp-green rounded-2xl mb-4 shadow-lg">
+					<UIcon name="i-lucide-mountain" class="w-8 h-8 text-vp-dark" />
 				</div>
 				<h1 class="text-3xl font-bold text-gray-900 mb-2">ASC Escalade</h1>
 				<p class="text-gray-600">Connectez-vous à votre espace</p>
@@ -48,7 +48,7 @@
 						<p
 								v-if="resendStatus === 'sent'"
 								role="status"
-								class="text-sm text-[#0F1729] bg-[#7FD857]/15 rounded-xl p-3"
+								class="text-sm text-vp-dark bg-vp-green/15 rounded-xl p-3"
 								data-testid="msg-resend-sent"
 						>
 							Si une inscription non confirmée existe pour cette adresse, un nouvel e-mail vient d'être envoyé.
@@ -126,7 +126,7 @@
 							/>
 							<button
 									type="button"
-									class="text-sm text-[#7FD857] hover:text-[#6bc546] font-medium transition-colors"
+									class="text-sm text-vp-green hover:text-vp-green-hover font-medium transition-colors"
 									@click="forgotMode = true"
 							>
 								Mot de passe oublié ?
@@ -140,7 +140,7 @@
 								block
 								:loading="loading"
 								:disabled="loading"
-								class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold shadow-lg hover:shadow-xl transition-all"
+								class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold shadow-lg hover:shadow-xl transition-all"
 								data-testid="btn-login-submit"
 						>
 							<template #leading>
@@ -157,7 +157,7 @@
 							Pas encore de compte ?
 							<NuxtLink
 									to="/register"
-									class="text-[#7FD857] hover:text-[#6bc546] font-bold transition-colors ml-1"
+									class="text-vp-green hover:text-vp-green-hover font-bold transition-colors ml-1"
 							>
 								Créer un compte
 							</NuxtLink>
@@ -218,7 +218,7 @@
 								block
 								:loading="forgotLoading"
 								:disabled="forgotLoading"
-								class="bg-[#7FD857] hover:bg-[#6bc546] text-[#0F1729] font-bold shadow-lg hover:shadow-xl transition-all"
+								class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold shadow-lg hover:shadow-xl transition-all"
 						>
 							<template #leading>
 								<UIcon name="i-lucide-send" class="w-5 h-5" />
@@ -231,7 +231,7 @@
 					<div class="mt-6 text-center">
 						<button
 								type="button"
-								class="text-sm text-[#7FD857] hover:text-[#6bc546] font-medium transition-colors inline-flex items-center gap-1"
+								class="text-sm text-vp-green hover:text-vp-green-hover font-medium transition-colors inline-flex items-center gap-1"
 								@click="forgotMode = false; forgotSuccess = false; forgotError = ''"
 						>
 							<UIcon name="i-lucide-arrow-left" class="w-4 h-4" />

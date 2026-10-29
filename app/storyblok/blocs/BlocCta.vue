@@ -3,18 +3,18 @@
     <div
       data-reveal
       class="rounded-3xl p-10 md:p-14 text-center"
-      :class="blok.theme === 'vert' ? 'bg-[#7FD857]' : 'bg-[#0F1729]'"
+      :class="blok.theme === 'vert' ? 'bg-vp-green' : 'bg-vp-dark'"
     >
       <h2
         class="text-2xl md:text-3xl font-bold mb-3"
-        :class="blok.theme === 'vert' ? 'text-[#0F1729]' : 'text-white'"
+        :class="blok.theme === 'vert' ? 'text-vp-dark' : 'text-white'"
       >
         {{ blok.titre || 'Titre de l’appel à l’action' }}
       </h2>
       <p
         v-if="blok.texte"
         class="mb-8 max-w-xl mx-auto"
-        :class="blok.theme === 'vert' ? 'text-[#0F1729]/80' : 'text-white/70'"
+        :class="blok.theme === 'vert' ? 'text-vp-dark/80' : 'text-white/70'"
       >
         {{ blok.texte }}
       </p>
