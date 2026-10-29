@@ -1,0 +1,90 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm test)",
+      "Bash(npm test *)",
+      "Bash(npm run test:coverage)",
+      "Bash(npx vitest run *)",
+      "Bash(npm run typecheck)",
+      "Bash(npm run test:e2e)",
+      "Bash(npm run test:e2e *)",
+      "Bash(npx playwright test)",
+      "Bash(npx playwright test *)",
+      "Bash(E2E_SKIP_BUILD=1 npx playwright test)",
+      "Bash(E2E_SKIP_BUILD=1 npx playwright test *)",
+      "Bash(npx playwright show-report)",
+      "Bash(graphify query *)",
+      "Bash(graphify path *)",
+      "Bash(graphify explain *)",
+      "Bash(graphify update .)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(node .claude/skills/asc-rules/scripts/check.mjs)",
+      "Bash(node .claude/skills/asc-rules/scripts/check.mjs *)",
+      "Bash(node .claude/skills/blok/scripts/register-blok.mjs *)",
+      "Bash(node .claude/skills/supabase-db/scripts/split-tables.mjs)"
+    ],
+    "deny": [
+      "Read(./node_modules/**)",
+      "Read(./.nuxt/**)",
+      "Read(./.output/**)",
+      "Read(./.netlify/**)",
+      "Read(./dist/**)",
+      "Read(./coverage/**)",
+      "Read(./playwright-report/**)",
+      "Read(./test-results/**)",
+      "Read(./.claude/worktrees/**)",
+      "Read(./graphify-out/graph.json)",
+      "Read(./graphify-out/graph.html)",
+      "Read(./graphify-out/manifest.json)",
+      "Read(./graphify-out/cache/**)",
+      "Read(./graphify-out/2026-*/**)",
+      "Read(**/package-lock.json)",
+      "Read(**/.env)",
+      "Read(**/.env.*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/agent-guard.mjs\" session"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "graphify hook-guard search"
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "graphify hook-guard read"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/post-edit-check.mjs\""
+          }
+        ]
+      }
+    ]
+  }
+}

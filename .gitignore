@@ -23,9 +23,38 @@ logs
 .env.*
 !.env.example
 .storyblok/*
-.claude
+# Claude Code : config d'équipe versionnée, réglages locaux ignorés
+.claude/*
+!.claude/agents/
+!.claude/skills/
+.claude/skills/graphify/
+!.claude/hooks/
+!.claude/settings.json
+.claude/settings.local.json
+
+# Tests
+coverage/
 
 # Playwright
 .auth/
 playwright-report/
 test-results/
+
+# Netlify build output
+.netlify
+
+# graphify knowledge graph (généré, non source)
+graphify-out/
+
+# Docs de travail non versionnées (jamais commitées)
+docs/guide-exploitation.doc
+docs/guide-exploitation.md
+docs/guide-exploitation_fichiers/
+docs/~$*.doc
+docs/screen pour guide d'exploitation/
+mentions-legales.md
+docs/images/
+# Supabase CLI (lien local au projet)
+supabase/.temp/
+# Dump du schéma de prod (référence locale, jamais versionné)
+/prod_schema.sql

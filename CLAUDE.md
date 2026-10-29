@@ -22,6 +22,12 @@ Site Nuxt 4 + Storyblok pour le club d'escalade ASC Escalade (Chevigny-Saint-Sau
 - Utiliser `gsap.from()` plutôt que `gsap.set()` + `gsap.to()` pour les animations d'entrée (sinon les éléments restent invisibles si la timeline échoue)
 - Refs dans les templates Vue : `:ref="el => { if (el) refs[i] = el }"` (pas de `as HTMLElement`)
 
+### Supabase (base de données)
+- Projet de dev : `ybtnnogxukfldurozqwa`, le **seul** sur lequel Claude travaille ; la prod n'est **jamais** touchée par Claude (`db push`/`db reset` bloqués ailleurs par `.claude/hooks/agent-guard.mjs`).
+- Une migration déjà appliquée sur un projet n'est **jamais réécrite** : on crée une nouvelle migration.
+- Le MCP Supabase pointe sur le projet dev, en **lecture seule** ; les changements de schéma passent **uniquement** par `supabase/migrations/`.
+- Mise en prod (historique de migrations de la prod, ordre des opérations HelloAsso) : [docs/mise-en-prod.md](docs/mise-en-prod.md).
+
 ### Images Storyblok
 - Composant unique : `<NuxtImg provider="storyblok" :src="blok.image.filename" />`
 - Multi-asset / galerie : URL directe `${photo.filename}/m/800x0/filters:quality(75):format(webp)`
@@ -31,6 +37,8 @@ Site Nuxt 4 + Storyblok pour le club d'escalade ASC Escalade (Chevigny-Saint-Sau
 |---|---|
 | Bleu nuit (fond, textes) | `#0F1729` |
 | Vert (accent, icônes, CTA) | `#7FD857` |
+| Vert survol (hover) | `#6bc546` |
+| Bleu nuit variante | `#1a2740` |
 
 ## Docs détaillées — lire à la demande selon le contexte
 
@@ -41,6 +49,26 @@ Site Nuxt 4 + Storyblok pour le club d'escalade ASC Escalade (Chevigny-Saint-Sau
 | [docs/storyblok.md](docs/storyblok.md) | ajouter/modifier un blok Storyblok, champs disponibles, technical names |
 | [docs/database.md](docs/database.md) | schéma SQL Supabase, colonnes, contraintes, relations entre tables |
 | [docs/test-plan.md](docs/test-plan.md) | tests, bugs connus (BUG #1 saveMember, BUG #2 toggleStatus), scénarios QA |
+
+## Orchestration (sous-agents `.claude/agents/`)
+La session principale **délègue, lit des comptes rendus (≤ 15 lignes) et décide** ; elle ne parcourt pas le code. Le relais se fait par fichiers dans `docs/features/<slug>/` (`spec` · `plan` · `status` · `review`, template `_TEMPLATE/`).
+
+| Tâche | Agent (modèle) |
+|---|---|
+| Où est X / qui dépend de Y | `explorer` (haiku) |
+| Écrire `plan.md` | `planner` (sonnet ; `model: "opus"` si feature transverse : flux auth, table, refonte) |
+| Bloks Storyblok, pages `[...slug]` | `storyblok-dev` (sonnet) |
+| Composants non Storyblok, NuxtUI, GSAP, admin, composables front | `ui-dev` (sonnet) |
+| `server/api`, auth, Supabase | `api-dev` (sonnet) |
+| Tests Vitest / `docs/test-plan.md` · parcours Playwright (`e2e/`) | `qa` (sonnet) · `e2e` (sonnet, seul autorisé à lancer Playwright) |
+| Relecture du diff → `review.md` | `reviewer` (sonnet) |
+| Mise à jour `docs/` + `graphify update .` | `doc-writer` (haiku) |
+
+- **Ne pas déléguer** : moins de ~20 lignes dans un seul fichier → faire directement (`/quick`).
+- **Cycle** : spec → `explorer` → `planner` → **validation de l'utilisateur** → [**tests d'abord** si spec « oui » (argent, auth, données adhérents) : `qa`/`e2e` écrivent des tests rouges que les devs ne modifient pas] → implémentation (∥ si fichiers disjoints) → `qa` → **porte de qualité** (`npm test` + `typecheck` + `e2e` si parcours ; 2 échecs de suite ⇒ demander) → `reviewer` → `doc-writer`.
+- `graphify update .` **une seule fois par feature**, à la fin (doc-writer), jamais après chaque édition.
+- Skills de flux : `/cadrage <idée>` (options + décision → `spec.md`, sans code ; opus seulement pour les options) · `/feature <desc|slug>` · `/resume <slug>` · `/asc-review [slug]` · `/quick <desc>` · `/blok <nom>`.
+- Skills de référence (chargées à la demande) : `asc-rules` (+ `check.mjs`, aussi lancé par un hook après chaque édition `.vue`/`.ts`) · `gsap-patterns` · `storyblok-images` · `supabase-db` · `testing` (aucun appel réel à HelloAsso dans les tests : fixtures).
 
 ## graphify
 

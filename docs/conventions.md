@@ -1,5 +1,7 @@
 # Conventions de code & pièges récurrents
 
+> 🤖 Version agents : skills `asc-rules` (règles critiques + `check.mjs`), `gsap-patterns` (§ 2), `storyblok-images` (§ 4) et `blok` (création d'un blok) dans `.claude/skills/`. Ce fichier reste la source de vérité.
+
 ## Structure d'un composant Storyblok
 
 ```vue
@@ -140,6 +142,8 @@ Tailwind classes custom fréquentes :
 - `border-[#7FD857]`
 
 ## Catégories de posts (couleurs)
+
+> Liste blanche des couleurs (charte, variantes `#6bc546` / `#1a2740`, neutres, catégories) : source unique `.claude/skills/asc-rules/colors.json`, lue par `check.mjs`. Toute nouvelle couleur ou catégorie s'ajoute là.
 
 ```ts
 const colors: Record<string, string> = {
