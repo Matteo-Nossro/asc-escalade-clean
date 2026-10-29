@@ -1,10 +1,12 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { createSupabaseMock } from '../utils/supabase-mock'
 import type { EnrollmentRequest } from '~/composables/useEnrollmentRequests'
 
 // ─── Mock Supabase ────────────────────────────────────────────────────────────
 
-mockNuxtImport('useSupabaseClient', () => () => ({ from: vi.fn() }))
+const { client: mockClient } = createSupabaseMock()
+mockNuxtImport('useSupabaseClient', () => () => mockClient)
 
 const { useEnrollmentRequests } = await import('~/composables/useEnrollmentRequests')
 

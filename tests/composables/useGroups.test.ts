@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { ref } from 'vue'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { createSupabaseMock } from '../utils/supabase-mock'
 
 // ─── Mock Supabase ────────────────────────────────────────────────────────────
 
-const mockFrom = vi.fn()
-mockNuxtImport('useSupabaseClient', () => () => ({ from: mockFrom }))
-mockNuxtImport('useSupabaseUser', () => () => ref({ id: 'user-123' }))
+const { client: mockClient, from: mockFrom, user: mockUser } = createSupabaseMock({ user: { id: 'user-123' } })
+mockNuxtImport('useSupabaseClient', () => () => mockClient)
+mockNuxtImport('useSupabaseUser', () => () => mockUser)
 
 // ─── Import après les mocks ───────────────────────────────────────────────────
 

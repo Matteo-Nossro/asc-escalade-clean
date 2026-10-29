@@ -1,11 +1,11 @@
-import { describe, it, expect, vi } from 'vitest'
-import { ref } from 'vue'
+import { describe, it, expect } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { createSupabaseMock } from '../utils/supabase-mock'
 
 // ─── Mock Supabase ────────────────────────────────────────────────────────────
 
-const mockSupabaseUser = ref<any>(null)
-mockNuxtImport('useSupabaseClient', () => () => ({ from: vi.fn(), auth: { signOut: vi.fn() } }))
+const { client: mockClient, user: mockSupabaseUser } = createSupabaseMock({ withAuth: true })
+mockNuxtImport('useSupabaseClient', () => () => mockClient)
 mockNuxtImport('useSupabaseUser', () => () => mockSupabaseUser)
 
 const { useAuth } = await import('~/composables/useAuth')

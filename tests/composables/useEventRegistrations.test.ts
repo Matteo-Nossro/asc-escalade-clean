@@ -1,36 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { ref } from 'vue'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { createSupabaseMock, mockChain } from '../utils/supabase-mock'
 
 // ─── Mock Supabase ────────────────────────────────────────────────────────────
+// mockChain (chaîne Supabase factice) est centralisé dans tests/utils/supabase-mock.ts
 
-const mockFrom = vi.fn()
-const mockUser = ref<any>({ id: 'parent-123' })
+const { client: mockClient, from: mockFrom, user: mockUser } = createSupabaseMock({ user: { id: 'parent-123' } })
 
-mockNuxtImport('useSupabaseClient', () => () => ({ from: mockFrom }))
+mockNuxtImport('useSupabaseClient', () => () => mockClient)
 mockNuxtImport('useSupabaseUser', () => () => mockUser)
 
 const { useEventRegistrations } = await import('~/composables/useEventRegistrations')
-
-// ─── Helper : chaîne de mock Supabase ─────────────────────────────────────────
-// Retourne `undefined` pour `.then` afin que le Proxy ne soit pas
-// interprété comme un thenable (ce qui causerait un timeout infini).
-
-// Champs de réponse Supabase : retournent undefined si absents du leaf
-// (évite qu'ils soient des fonctions truthy qui déclenchent throw)
-const RESPONSE_FIELDS = new Set(['data', 'error', 'count', 'status', 'statusText', 'body'])
-
-function mockChain(leaf: Record<string, any> = {}) {
-  const handler: ProxyHandler<object> = {
-    get(_t, prop) {
-      if (prop === 'then' || prop === 'catch' || prop === 'finally') return undefined
-      if (prop in leaf) return (leaf as any)[prop]
-      if (typeof prop === 'string' && RESPONSE_FIELDS.has(prop)) return undefined
-      return () => new Proxy({}, handler)
-    },
-  }
-  return new Proxy({}, handler)
-}
 
 // ═════════════════════════════════════════════════════════════════════════════
 // État initial
