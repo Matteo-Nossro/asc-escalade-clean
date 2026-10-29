@@ -1,0 +1,73 @@
+{
+  "_source": "sandbox:2026-10-28",
+  "data": [
+    {
+      "order": {
+        "id": 100001,
+        "date": "2026-10-27T14:32:10.123+01:00",
+        "formSlug": "adhesion-fixture",
+        "formType": "Membership",
+        "organizationName": "Association fictive",
+        "organizationSlug": "association-fictive",
+        "organizationType": "Association",
+        "organizationIsUnderColucheLaw": false,
+        "formName": "Adhésion fictive",
+        "meta": {
+          "createdAt": "2026-10-27T14:31:02.456+01:00",
+          "updatedAt": "2026-10-27T14:32:11.789+01:00"
+        },
+        "isAnonymous": false,
+        "isAmountHidden": false
+      },
+      "payer": {
+        "email": "payeur.fictif@example.com",
+        "address": "1 rue Fictive",
+        "city": "Villefictive",
+        "zipCode": "00000",
+        "country": "FRA",
+        "dateOfBirth": "1980-01-01T00:00:00+01:00",
+        "firstName": "Prénom",
+        "lastName": "Fictif"
+      },
+      "payments": [
+        {
+          "cashOutState": "MoneyIn",
+          "shareAmount": 12000,
+          "id": 200001,
+          "amount": 12000,
+          "date": "2026-10-27T14:32:10.123+01:00",
+          "paymentMeans": "Card",
+          "installmentNumber": 1,
+          "state": "Authorized",
+          "meta": {
+            "createdAt": "2026-10-27T14:32:10.123+01:00",
+            "updatedAt": "2026-10-27T14:32:11.789+01:00"
+          },
+          "refundOperations": []
+        }
+      ],
+      "name": "Adhésion adulte fictive",
+      "user": {
+        "firstName": "Adhérent",
+        "lastName": "Fictif"
+      },
+      "priceCategory": "Fixed",
+      "qrCode": "fixture-qr-code",
+      "membershipCardUrl": "https://www.helloasso-sandbox.com/fixture/carte-adherent",
+      "tierDescription": "Tarif fictif",
+      "tierId": 300001,
+      "id": 400001,
+      "amount": 12000,
+      "type": "Membership",
+      "initialAmount": 12000,
+      "state": "Processed"
+    }
+  ],
+  "pagination": {
+    "pageSize": 1,
+    "totalCount": 1,
+    "pageIndex": 1,
+    "totalPages": 1,
+    "continuationToken": "fixture-continuation-token"
+  }
+}

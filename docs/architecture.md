@@ -86,6 +86,28 @@ useEvents()
 | `/api/admin/create-member` | POST | Crée compte Auth + profil + rôles + inscriptions groupes |
 | `/api/admin/send-email` | POST | Email notification approbation/refus inscription via Resend |
 
+`requireAdmin(event, { requiredRole?, allowedRoles? })` (`server/utils/requireAdmin.ts`) : sans option, admin, secretary et initiateur passent. `requiredRole` est prioritaire sur `allowedRoles`.
+
+### HelloAsso
+
+Un seul module serveur, `server/utils/helloasso.ts`, parle à HelloAsso (URL, jeton OAuth, erreurs). Aucune route n'appelle directement l'API ni l'endpoint d'auth.
+
+- Configuration : `runtimeConfig.helloasso` (serveur uniquement, rien dans `public`), environnement `sandbox` ou `production` sans valeur par défaut.
+- Jeton : une ligne par environnement dans `helloasso_tokens`. Le renouvellement passe par la RPC `helloasso_acquire_token_lock` : au plus un appel d'auth par renouvellement.
+- Exports : `resolveHelloAssoConfig`, `createHelloAssoClient` (fabrique testable), `useHelloAsso(event)` (branché sur `runtimeConfig` et le service role), `HelloAssoError`, `toH3Error` (500 config, 503 `rate_limited` / `lock_timeout`, 502 pour le reste).
+
+| Route | Méthode | Rôles | Description |
+|---|---|---|---|
+| `/api/admin/helloasso-test` | POST | admin | « Tester la connexion » : données publiques, puis droit `AccessTransactions`. Arrêt au premier échec |
+| `/api/admin/sync-helloasso` | POST | admin | Synchronisation manuelle, via le client |
+| `/api/admin/helloasso-forms` | GET | admin, secretary | Liste des formulaires |
+| `/api/admin/helloasso-forms` | POST | admin | Ajout d'un formulaire (saison `AAAA-AAAA` obligatoire) |
+| `/api/admin/helloasso-forms/:id` | PATCH | admin | Activation et saison d'un formulaire |
+| `/api/admin/helloasso-stats` | GET | admin, secretary | Statistiques |
+| `/api/webhooks/helloasso` | POST | public (secret en query) | Webhook HelloAsso ; secret lu via `runtimeConfig` |
+
+Toutes les routes HelloAsso refusent l'initiateur.
+
 ### CMS / Cache
 
 | Route | Méthode | Description |
@@ -235,4 +257,64 @@ ParentAccessLink // Lien parent-enfant + access_type
 | `contact-page` | Page contact layout 2 colonnes |
 | `actualites-page` | Page actualités |
 | `sorties-page` | Page sorties |
+| `inscriptions-page` | Page inscriptions (champ `body`) — story slug `inscriptions`. Voir note ci-dessous |
 
+> **`/inscriptions` — migration en cours vers Storyblok.**
+> Le fichier `app/pages/inscriptions.vue` (contenu codé en dur, saison 2026/2027) est
+> conservé comme secours et **masque toute story Storyblok du même slug**. Pour passer
+> la page sous Storyblok : créer la story `inscriptions` (content type `inscriptions-page`),
+> la remplir avec les bloks `inscriptions-*` (voir `docs/storyblok.md`), puis supprimer
+> `app/pages/inscriptions.vue` pour que le catch-all `[...slug].vue` prenne le relais.
+
+
+---
+
+## Tests
+
+### Commandes
+
+| Commande | Rôle |
+|---|---|
+| `npm test` | Vitest, une passe (`tests/**/*.test.ts`) |
+| `npm run test:watch` | Vitest en mode watch |
+| `npm run test:coverage` | Couverture V8 (`@vitest/coverage-v8`), rapport dans `coverage/` (ignoré par git) |
+| `npm run test:e2e` | Playwright : build + `nuxt preview` HTTP sur le port 3100 (~7 min) |
+| `E2E_SKIP_BUILD=1 npx playwright test` | Playwright sans rebuild, réutilise `.output/` (~15 s) |
+| `npm run test:e2e:ui` / `test:e2e:report` | Interface Playwright / rapport HTML |
+| `npm run typecheck` | Typecheck par baseline : échoue sur une erreur nouvelle |
+| `npm run typecheck:strict` | `nuxi typecheck`, résultat brut |
+| `npm run typecheck:baseline` | Régénère `tests/typecheck-baseline.json` : décision explicite uniquement |
+
+- `typecheck` renvoie le code 2 en cas de problème d'outillage (sortie d'erreurs non analysable, baseline corrompue).
+- Baseline au 2026-10-22 : 192 erreurs. La dette se traite dans `docs/features/dette-typecheck/`.
+- TypeScript est épinglé en `^5.9.3` : TS 7 est incompatible avec `vue-tsc` 3.3.
+
+### Structure
+
+| Dossier | Contenu |
+|---|---|
+| `tests/composables/` | Composables (environnement `nuxt`, `mockNuxtImport`) |
+| `tests/components/` | Composants montés avec `mountSuspended` |
+| `tests/server/` | Handlers `server/api` ; `tests/utils/nitro.ts` (`createMockEvent`, stubs h3) |
+| `tests/utils/supabase-mock.ts` | `createSupabaseMock`, `mockChain` (mocks Supabase centralisés) |
+| `tests/fixtures/helloasso/` | Fixtures HelloAsso (voir son README) |
+| `e2e/` | Specs Playwright, à la racine, exclu de Vitest |
+
+### Stratégie de base de test (DB-2)
+
+- Pas de Supabase local : les appels Supabase sont mockés.
+- Les `mockNuxtImport` restent dans chaque fichier de test (hoistés par le plugin Vitest) ; `supabase-mock.ts` fournit les clients factices.
+- Limite : les mocks ne détectent ni erreurs SQL, ni RLS, ni contraintes. Une base locale (DB-1) reste à faire si les lots HelloAsso exigent de tester RLS ou migrations.
+- `useRuntimeConfig` dans les tests serveur : `mockNuxtImport`, car le global de `stubNitroGlobals` est ignoré sous l'environnement `nuxt`.
+- `#supabase/server` : alias Nitro que Vite ne résout pas. `vitest.config.ts` le pointe sur `tests/utils/supabase-server-stub.ts`, que chaque test remplace par `vi.mock`.
+
+### Playwright
+
+- Serveur : build de production + `nuxt preview` en HTTP (pas de `nuxt dev` ni `mkcert`). Le preview charge `.env`, pas `.env.test`.
+- Le build écrase `.nuxt/` et `.output/` : ne pas le lancer pendant un `nuxt dev`.
+- Premier lancement sur un poste : `npx playwright install chromium`.
+- Le smoke test (`/`, `/tarifs`) appelle Storyblok : il échoue hors ligne ou avec un token invalide.
+
+### Variables d'environnement de test
+
+`.env.test` (non versionné) : `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_SECRET_KEY`, `STORYBLOK_TOKEN`, `STORYBLOK_REGION`, `STORYBLOK_VERSION`, `STORYBLOK_WEBHOOK_SECRET`, `RESEND_API_KEY`, `NUXT_PUBLIC_SITE_URL`.

@@ -60,7 +60,7 @@
 
     <!-- Groupes -->
     <AdminGroupsList
-      :groups="adminGroups"
+      :groups="groupsWithPayment"
       :loading="groupsLoading"
       :format-schedule="formatScheduleAdmin"
       :readonly="isReadOnly"
@@ -69,6 +69,9 @@
       @delete="handleDeleteGroup"
       @refresh="loadAdminGroups"
     />
+
+    <!-- HelloAsso -->
+    <AdminHelloAssoConfig v-if="!isReadOnly" />
 
     <!-- Modal membre -->
     <AdminModalsMemberModal
@@ -166,7 +169,7 @@ onMounted(async () => {
   }
   isReadOnly.value = !data.some((r: { role_code: string }) => r.role_code === 'admin' || r.role_code === 'secretary')
   authReady.value = true
-  await Promise.all([loadMembers(), loadAdminGroups(), fetchPendingRequests()])
+  await Promise.all([loadMembers(), loadAdminGroups(), fetchPendingRequests(), loadHelloAssoStats()])
 })
 
 // ── Members ───────────────────────────────────────────────────────────────────
@@ -221,6 +224,30 @@ async function loadMembers() {
   }
 }
 
+// ── HelloAsso stats ───────────────────────────────────────────────────────────
+const helloassoGroupStats = ref<{ groupId: string; paid: number; total: number }[]>([])
+
+async function loadHelloAssoStats() {
+  try {
+    const res = await fetch('/api/admin/helloasso-stats')
+    if (res.ok) {
+      const data = await res.json()
+      helloassoGroupStats.value = data.groups ?? []
+    }
+  } catch (e) {
+    console.error('Erreur stats HelloAsso:', e)
+  }
+}
+
+const groupsWithPayment = computed(() => {
+  const statsMap = new Map(helloassoGroupStats.value.map(g => [g.groupId, g]))
+  return adminGroups.value.map((g: any) => ({
+    ...g,
+    _payment_paid: statsMap.get(g.id)?.paid,
+    _payment_total: statsMap.get(g.id)?.total,
+  }))
+})
+
 // ── KPI ───────────────────────────────────────────────────────────────────────
 const stats = computed(() => ({
   totalMembres: allRows.value.length,
@@ -228,6 +255,8 @@ const stats = computed(() => ({
   placesDispo: Math.max(0, 180 - allRows.value.length),
   totalPlaces: 180,
   inscriptionsAttente: pendingRequests.value.length,
+  paymentDone: allRows.value.filter(r => r.payment_done && r.status === 'Actif').length,
+  paymentPending: allRows.value.filter(r => !r.payment_done && r.status === 'Actif').length,
 }))
 
 // ── Search / Filter / Pagination ──────────────────────────────────────────────
@@ -549,6 +578,7 @@ async function saveMember() {
     }
     isModalOpen.value = false
     await loadMembers()
+    await loadHelloAssoStats()
     toast.add({
       title: editMode.value ? 'Adhérent mis à jour' : 'Adhérent créé',
       description: `${memberForm.value.first_name} ${memberForm.value.last_name}`,

@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
     <AdminKpiCard
       label="Total membres"
       :value="stats.totalMembres"
@@ -29,6 +29,20 @@
       icon-bg="bg-yellow-50"
       icon-color="text-yellow-600"
     />
+    <AdminKpiCard
+      label="Adhérents payés"
+      :value="stats.paymentDone"
+      icon="i-heroicons-banknotes"
+      icon-bg="bg-emerald-50"
+      icon-color="text-emerald-600"
+    />
+    <AdminKpiCard
+      label="Non payés"
+      :value="stats.paymentPending"
+      icon="i-heroicons-exclamation-circle"
+      icon-bg="bg-red-50"
+      icon-color="text-red-500"
+    />
   </div>
 </template>
 
@@ -40,6 +54,8 @@ defineProps<{
     placesDispo: number
     totalPlaces: number
     inscriptionsAttente: number
+    paymentDone: number
+    paymentPending: number
   }
 }>()
 </script>

@@ -119,6 +119,8 @@ export interface Group {
   instructors?: GroupInstructor[]
   referent?: Pick<Profile, 'id' | 'full_name'>
   _members_count?: number
+  _payment_paid?: number
+  _payment_total?: number
 }
 
 export interface GroupSchedule {

@@ -1,0 +1,7 @@
+{
+  "_source": "sandbox:2026-10-28",
+  "access_token": "fixture-access-token-refreshed",
+  "expires_in": 1799,
+  "refresh_token": "fixture-refresh-token-refreshed",
+  "token_type": "bearer"
+}

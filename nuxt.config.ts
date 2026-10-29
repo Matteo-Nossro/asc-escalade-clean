@@ -133,6 +133,17 @@ export default defineNuxtConfig({
   runtimeConfig: {
     storyblokWebhookSecret: process.env.STORYBLOK_WEBHOOK_SECRET || '',
     resendApiKey: process.env.RESEND_API_KEY || '',
+    // HelloAsso : serveur uniquement. Surchargé à l'exécution par NUXT_HELLOASSO_* ;
+    // repli au build sur les anciennes HELLOASSO_*. environment sans valeur par défaut.
+    helloasso: {
+      clientId: process.env.HELLOASSO_CLIENT_ID || '',
+      clientSecret: process.env.HELLOASSO_CLIENT_SECRET || '',
+      orgSlug: process.env.HELLOASSO_ORG_SLUG || '',
+      environment: process.env.HELLOASSO_ENVIRONMENT || '',
+      apiUrl: process.env.HELLOASSO_API_URL || '',
+      tokenUrl: process.env.HELLOASSO_TOKEN_URL || '',
+      webhookSecret: process.env.HELLOASSO_WEBHOOK_SECRET || '',
+    },
     public: {
       storyblokVersion: process.env.STORYBLOK_VERSION || 'published',
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://escalade-chevigny.fr',

@@ -2,7 +2,7 @@ import type { H3Event } from 'h3'
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 
 const ADMIN_ROLES = ['admin', 'secretary', 'initiateur'] as const
-type AdminRole = (typeof ADMIN_ROLES)[number]
+export type AdminRole = (typeof ADMIN_ROLES)[number]
 
 /**
  * Garde à appeler en première ligne de chaque handler `server/api/admin/*`.
@@ -14,11 +14,14 @@ type AdminRole = (typeof ADMIN_ROLES)[number]
  * base. Ce helper vérifie la session Supabase et la présence d'un rôle admin.
  *
  * Passer `requiredRole: 'admin'` pour exiger explicitement le rôle admin
- * (ex. octroi du rôle admin à un autre utilisateur).
+ * (ex. octroi du rôle admin à un autre utilisateur), ou `allowedRoles` pour
+ * restreindre à une liste (ex. ['admin', 'secretary'] pour une lecture). Si les
+ * deux sont donnés, `requiredRole` est prioritaire. Sans option : admin,
+ * secretary et initiateur passent.
  */
 export async function requireAdmin(
   event: H3Event,
-  options: { requiredRole?: AdminRole } = {},
+  options: { requiredRole?: AdminRole, allowedRoles?: readonly AdminRole[] } = {},
 ) {
   const user = await serverSupabaseUser(event)
   if (!user) {
@@ -33,7 +36,11 @@ export async function requireAdmin(
   }
 
   const client = serverSupabaseServiceRole(event)
-  const allowed = options.requiredRole ? [options.requiredRole] : [...ADMIN_ROLES]
+  const allowed: AdminRole[] = options.requiredRole
+    ? [options.requiredRole]
+    : options.allowedRoles
+      ? [...options.allowedRoles]
+      : [...ADMIN_ROLES]
 
   const { data, error } = await client
     .from('user_roles')

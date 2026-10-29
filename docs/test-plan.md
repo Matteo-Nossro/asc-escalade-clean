@@ -1,5 +1,7 @@
 # Plan de test — ASC Escalade
 
+> Tests automatisés (Vitest, Playwright, typecheck) : voir [docs/architecture.md § Tests](architecture.md#tests). Ce fichier liste les scénarios **manuels**.
+
 > **Légende statut :** ✅ OK · ❌ KO · ⚠️ Partiel · 🐛 Bug connu · ⏭️ Non testé
 
 ---
@@ -281,6 +283,28 @@
 
 ---
 
+## 14. Admin — HelloAsso (socle)
+
+> Lot `helloasso-socle`. Déjà automatisé (Vitest), non répété ici : client et jeton (`tests/server/utils/helloasso.test.ts`), rôles des 6 routes (`helloasso-roles.test.ts`), contrat de la route de test, validation de `season`, rendu et masquage du composant (`tests/components/admin/HelloAssoConfig.test.ts`, avec `fetch` simulé), frontière « aucun appel HelloAsso hors du client ». Les scénarios ci-dessous exigent la **vraie** sandbox, le vrai rendu NuxtUI ou la base de dev.
+> Prérequis : variables `NUXT_HELLOASSO_*` de la sandbox (dont `ENVIRONMENT=sandbox`), comptes de test admin / secrétaire / initiateur.
+
+| # | Scénario | Résultat attendu | Statut | Notes |
+|---|----------|-----------------|--------|-------|
+| HA01 | Admin, `/admin/dashboard` : cliquer « Tester la connexion » (sandbox) | Chargement sur le bouton, puis « Connexion HelloAsso opérationnelle » ; 2 vérifications cochées (données publiques, transactions) ; slug de l'association de test affiché | | |
+| HA02 | Lecture du badge d'environnement après HA01 | Badge jaune plein « SANDBOX (test) », bien visible et distinct d'un badge « Production » (gris, discret) ; texte et contraste lisibles | | |
+| HA03 | Cliquer deux fois de suite sur « Tester la connexion » | Même résultat ; `helloasso_tokens` garde une seule ligne `sandbox` et son jeton n'est pas renouvelé au 2e clic (`updated_at` inchangé) | | Vérifier dans Supabase (dev), sans copier de valeur de jeton |
+| HA04 | Retirer `NUXT_HELLOASSO_ENVIRONMENT` (ou une clé), relancer le serveur et tester | Message d'erreur clair citant le **nom** de la clé manquante, aucune valeur secrète affichée, aucun appel à HelloAsso | | Remettre la variable ensuite |
+| HA05 | Client API sans le privilège `AccessTransactions` (si reproductible dans le back-office sandbox) | Bloc rouge « Droits insuffisants pour les transactions » avec « privilège AccessTransactions manquant » et l'indication de vérifier les droits du client API ; la vérification « données publiques » reste cochée | | Optionnel : cas couvert en simulation |
+| HA06 | Connecté en **secrétaire**, ouvrir le dashboard | Liste des formulaires visible avec saison et état Actif / Inactif en lecture seule ; pas de « Tester la connexion », pas de « Synchroniser maintenant », pas de formulaire d'ajout, pas de switch | | Contrôle du rendu réel |
+| HA07 | Connecté en **initiateur** | Le bloc « HelloAsso — Configuration » n'apparaît pas | | |
+| HA08 | Admin : ajouter un formulaire (slug, libellé, type) en choisissant la saison suivante | Toast « Formulaire ajouté » ; la ligne apparaît avec « Saison AAAA-AAAA » correspondant au choix ; `season` renseignée en base ; le sélecteur revient sur la saison en cours | | |
+| HA09 | Admin : activer puis désactiver un formulaire avec le switch, puis recharger | État conservé après rechargement ; le switch NuxtUI 4 (`USwitch`) est visible, réagit au clic et son état est lisible | | Point signalé par T5 : rendu à valider à l'œil |
+| HA10 | Admin : « Synchroniser maintenant » (sandbox) | Synchronisation terminée sans erreur, via le client (aucun jeton visible dans les logs ni l'onglet Réseau) ; compteur d'adhérents mis à jour | | Rapprochement inchangé (refonte au lot 2) |
+| HA11 | `node scripts/check-helloasso-socle-db.mjs` sur le projet de **dev** | Tableau de vérifications : 0 ÉCHEC, code de sortie 0 ; aucune clé ni mot de passe affiché ; aucune ligne de test résiduelle dans `helloasso_forms` | | À relancer à la porte de qualité et après toute modification de la migration |
+| HA12 | Avant déploiement en prod : relire `helloasso_forms` après la migration | Aucune ligne sans `season` ; lignes existantes sur `2025-2026` ; doublon `(Membership, test-rls)` traité au préalable | | Blocage connu, voir `docs/features/helloasso-socle/plan.md` risque n° 1 |
+
+---
+
 ## Résumé
 
 | Catégorie | Total | ✅ OK | ❌ KO | ⚠️ Partiel | 🐛 Bug connu | ⏭️ Non testé |
@@ -298,7 +322,8 @@
 | API | 4 | | | | | |
 | Responsive | 6 | | | | | |
 | Persistance | 6 | | | | | |
-| **Total** | **154** | | | | | **4** |
+| Admin HelloAsso (socle) | 12 | | | | | |
+| **Total** | **166** | | | | | **4** |
 
 ---
 

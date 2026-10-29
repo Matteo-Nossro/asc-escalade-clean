@@ -48,6 +48,14 @@
               >
                 {{ group._members_count || 0 }} / {{ group.max_members }}
               </UBadge>
+              <UBadge
+                v-if="group._payment_total != null"
+                :color="group._payment_paid === group._payment_total ? 'success' : 'warning'"
+                variant="soft"
+                size="sm"
+              >
+                {{ group._payment_paid }} / {{ group._payment_total }} payés
+              </UBadge>
               <UBadge v-if="group.price" color="info" variant="soft" size="sm">
                 {{ group.price }}€
               </UBadge>

@@ -1,5 +1,7 @@
 # Schéma de la base de données Supabase
 
+> 🤖 Version agents : skill `supabase-db` (`.claude/skills/supabase-db/`), avec index des tables, règles d'accès et une fiche par table. Ce fichier reste la source de vérité ; s'il change : `node .claude/skills/supabase-db/scripts/split-tables.mjs`.
+
 > Ce schéma est fourni à titre de référence uniquement — ne pas exécuter tel quel (ordre des tables et contraintes non garanti).
 
 ---
@@ -298,6 +300,77 @@ CREATE TABLE public.User (
 
 ---
 
+### `helloasso_forms`
+Formulaires HelloAsso déclarés sur le site (adhésions, événements). Créée par `20260520`, complétée par `20261025_helloasso_socle` (`season`, `event_id`, contraintes, écritures admin seul).
+
+```sql
+CREATE TABLE public.helloasso_forms (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  form_slug text NOT NULL,
+  form_type text NOT NULL DEFAULT 'Membership',  -- 'Membership' | 'Event'
+  label text NOT NULL,
+  active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  season text NOT NULL,                          -- 'AAAA-AAAA', années consécutives
+  event_id uuid REFERENCES public.events(id) ON DELETE SET NULL,  -- seulement si form_type = 'Event'
+  CONSTRAINT helloasso_forms_pkey PRIMARY KEY (id),
+  CONSTRAINT helloasso_forms_type_slug_key UNIQUE (form_type, form_slug),
+  CONSTRAINT helloasso_forms_form_type_check CHECK (form_type IN ('Membership', 'Event')),
+  CONSTRAINT helloasso_forms_season_format CHECK (...),   -- voir la migration (CASE protégeant le cast)
+  CONSTRAINT helloasso_forms_event_type_check CHECK (event_id IS NULL OR form_type = 'Event')
+);
+```
+
+- RLS : lecture pour `is_admin_or_secretary()` ; insertion, modification et suppression pour `has_role('admin')` uniquement (décision du 2026-10-28).
+- La migration refuse un doublon `(form_type, form_slug)` ou une saison invalide existante : corriger les lignes à la main, puis relancer.
+
+---
+
+### `helloasso_tokens`
+Jeton d'accès HelloAsso, une ligne par environnement (`sandbox` ou `production`). Accès service role uniquement.
+
+```sql
+CREATE TABLE public.helloasso_tokens (
+  environment text PRIMARY KEY CHECK (environment IN ('sandbox', 'production')),
+  client_id text,                           -- renseigné à l'écriture du jeton
+  access_token text,
+  access_expires_at timestamp with time zone,
+  refresh_token text,
+  refresh_expires_at timestamp with time zone,
+  lock_holder uuid,
+  lock_until timestamp with time zone,
+  updated_at timestamp with time zone NOT NULL DEFAULT now()
+);
+```
+
+- RLS activée sans aucune policy, et `REVOKE ALL` pour `anon` et `authenticated`. Les jetons sont stockés en clair (pas de Vault).
+- Fonction `helloasso_acquire_token_lock(p_environment, p_holder, p_ttl_seconds = 20)` → `boolean` : prend le verrou de renouvellement s'il est libre ou expiré. L'heure vient de `now()` de la base. `EXECUTE` réservé au service role.
+
+---
+
+### `helloasso_sync_runs`
+Historique des passages de synchronisation HelloAsso (alimenté à partir du lot 2).
+
+```sql
+CREATE TABLE public.helloasso_sync_runs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  scope text NOT NULL,                      -- ex. 'memberships'
+  trigger_source text NOT NULL CHECK (trigger_source IN ('manual', 'cron')),
+  environment text NOT NULL CHECK (environment IN ('sandbox', 'production')),
+  triggered_by uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
+  started_at timestamp with time zone NOT NULL DEFAULT now(),
+  finished_at timestamp with time zone,
+  status text NOT NULL DEFAULT 'running' CHECK (status IN ('running', 'success', 'error')),
+  counts jsonb NOT NULL DEFAULT '{}',       -- compteurs propres à chaque lot
+  error text
+);
+```
+
+- Index `(scope, started_at DESC)`.
+- RLS : lecture pour `is_admin_or_secretary()`. Aucune policy d'écriture : les écritures passent par le service role.
+
+---
+
 ## Types personnalisés (enums)
 
 | Type | Valeurs |
@@ -323,4 +396,10 @@ groups
   ├── group_schedules (1:N)
   ├── group_instructors (1:N) → profiles
   └── group_members (1:N) → profiles
+
+events
+  └── helloasso_forms (event_id, nullable, ON DELETE SET NULL)
+
+profiles
+  └── helloasso_sync_runs (triggered_by, nullable, ON DELETE SET NULL)
 ```
