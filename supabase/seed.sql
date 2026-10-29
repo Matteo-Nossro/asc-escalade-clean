@@ -90,6 +90,7 @@ UPDATE public.profiles p SET
   licence_type        = t.licence_type,
   licence_number      = t.licence_number::bigint,
   status              = 'Actif',
+  profile_completed_at = COALESCE(p.profile_completed_at, now()),
   medical_certificate = 'certificat_medical',
   ffme_insurance      = 'certificat_renouvellement',
   registration_form   = true,
@@ -128,14 +129,16 @@ a AS (
 INSERT INTO public.profiles (
   id, email, full_name, first_name, last_name, birth_date, gender, address, postal_code, city,
   mobile, licence_type, licence_number, status, medical_certificate, ffme_insurance, category,
-  tshirt, club_group, registration_form, payment_done, payment_amount, emergency_contact
+  tshirt, club_group, registration_form, payment_done, payment_amount, emergency_contact,
+  profile_completed_at
 )
 SELECT
   p.id::uuid, p.email, p.first_name || ' ' || p.last_name, p.first_name, p.last_name,
   p.birth_date::date, p.gender, p.address, '21800', 'Chevigny-Saint-Sauveur',
   p.mobile, p.licence_type, p.licence_number::bigint, p.status, p.medical_certificate,
   p.ffme_insurance, p.category, p.tshirt, p.club_group, p.registration_form,
-  p.payment_done, p.payment_amount::numeric, p.emergency_contact
+  p.payment_done, p.payment_amount::numeric, p.emergency_contact,
+  now()
 FROM p
 ON CONFLICT DO NOTHING;
 
