@@ -68,3 +68,35 @@ Pré-requis : la mise en cohérence (§ 2) est faite, les lots à livrer sont me
 - Application : redéployer l'image précédente.
 - Base : les migrations ne se défont pas ; une correction passe par une **nouvelle** migration. La restauration de la sauvegarde (§ 2.1) est le dernier recours.
 - HelloAsso : désactiver le cron et le webhook ; HelloAsso reste la source de vérité des paiements, une synchronisation ultérieure rattrape l'état.
+
+## 4. Mise en ligne auth-profils (migrations **avant** le code)
+Pré-requis : § 2 faite. Migrations livrées : `20261029_auth_profils.sql` puis `20261030_profiles_block_status_role.sql` (la première est déjà appliquée sur le dev : ne pas la réécrire). Réglage du dashboard de prod fait **avant** l'étape 6 : `/callback` dans les URLs de redirection (§ 5).
+
+1. **Sauvegarde** schéma + données (§ 2.1).
+2. **Liste des migrations** : `npx supabase db push --linked --dry-run` doit proposer ces deux fichiers, et les seuls restant à livrer (lots HelloAsso, § 3). Toute autre ligne ⇒ s'arrêter.
+3. **Migrations d'abord** : `npx supabase db push --linked`, puis `npx supabase migration list --linked`.
+   - Le code de cette feature lit `profile_completed_at`. Déployé avant la colonne, ou avant son rattrapage, il renverrait **tous** les comptes vers `/completer-profil`. Ne jamais inverser les étapes 3 et 6.
+4. **Contrôle des profils existants** (lecture seule) : tous les profils doivent avoir `profile_completed_at` renseigné, soit 0 profil incomplet :
+   ```bash
+   npx supabase db query --linked "select count(*) from public.profiles where profile_completed_at is null;"
+   ```
+   Un résultat non nul signale un profil créé par l'ancien code entre l'étape 3 et le déploiement : le compléter à la main avant l'étape 6.
+5. **Défaut du statut** : `profiles.status` vaut `'En attente'` par défaut. Les insertions de l'application posent déjà le statut ; aucun compte existant n'est modifié.
+6. **Déploiement de l'application** (workflow `.github/workflows/deploy.yml`), seulement après les étapes 3 et 4.
+7. **Contrôle sur le dev uniquement** : `node scripts/check-auth-profils-db.mjs` (crée et supprime des comptes de test). Ne jamais le lancer contre le projet de prod.
+8. **Hors périmètre** : cette mise en ligne ne corrige **pas** les comptes déjà créés en prod (statuts « Actif » à tort, profils incomplets, comptes Google/Microsoft sans rôle). Le rattrapage marque seulement ces profils comme complétés, pour qu'ils ne soient pas renvoyés vers la complétion. Leur correction relève d'une décision séparée de l'utilisateur.
+9. **Revenir sur le dev** : `npx supabase link --project-ref ybtnnogxukfldurozqwa`.
+
+## 5. Réglages manuels du dashboard (hors migrations)
+Ces réglages ne sont **pas** portés par `supabase/migrations/` ni par `db push` : ils se font à la main dans le dashboard de **chaque** projet, et ne se recopient pas d'un projet à l'autre. À vérifier lors de toute recréation ou bascule de projet.
+
+| Réglage | Où (dashboard) | Prod | Dev |
+|---|---|---|---|
+| SMTP personnalisé | Authentication → Emails → SMTP Settings | Resend (déjà en place, rien à faire) | Resend, clé API dédiée au dev ([docs/dev/supabase-dev.md](dev/supabase-dev.md)) |
+| Rate limits | Authentication → Rate Limits | valeurs en place | à relever avec le SMTP personnalisé |
+| Modèles d'e-mails | Authentication → Emails → Templates | modèles en place | à aligner sur la prod |
+| URLs de redirection (`/callback`) | Authentication → URL Configuration → Redirect URLs | `https://escalade-chevigny.fr/callback**` (à adapter au domaine réel de la Site URL de prod) | `https://localhost:3000/callback**` (serveur de dev en https) |
+
+**`/callback` dans les URLs de redirection : à faire AVANT de déployer en prod le code auth-profils R2.** Les liens de confirmation d'inscription (`signUp` et renvoi) passent `emailRedirectTo = <origine>/callback?type=signup`. Une URL absente de la liste est ignorée par Supabase, qui renvoie alors vers la Site URL sans l'écran de confirmation ni de lien expiré.
+- `**` couvre les paramètres (`?type=signup`, `?type=recovery`) ; une entrée `…/callback` seule ne les couvre pas.
+- Le modèle « Confirm signup » doit utiliser `{{ .ConfirmationURL }}` (ou `{{ .RedirectTo }}`), pas `{{ .SiteURL }}` en dur, sinon le lien de retour est perdu.

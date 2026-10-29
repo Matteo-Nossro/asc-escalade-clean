@@ -174,11 +174,24 @@ const colors: Record<string, string> = {
 
 | Composable | Usage |
 |---|---|
-| `useAuth()` | `profile`, `roles`, `isAdmin`, `isStaff`, `isParent`, `fetchProfile()`, `updateProfile()`, `loginWithEmail()`, `loginWithOAuth()`, `signUp()`, `logout()`, `hasRole()` |
+| `useAuth()` | État partagé (`useState`) : `profile`, `roles`, `authStatus`, `isProfileComplete`, `isAdmin`, `isStaff`, `isParent`, `ensureProfile()`, `fetchProfile()`, `resetAuth()`, `updateProfile()`, `loginWithEmail()`, `loginWithOAuth()`, `signUp()`, `resendSignupConfirmation()`, `logout()`, `hasRole()`. Ne pas charger le profil dans un composant : le plugin `auth-sync.client.ts` s'en charge |
 | `useFamily()` | `children`, `fetchChildren()`, `linkChild()`, `updateAccess()`, `unlinkChild()` — liens parent → enfants |
 | `useGroups()` | `groups`, `myEnrollments`, `fetchGroups()`, `fetchMyEnrollments()`, `enroll()`, `unenroll()`, `isEnrolled()`, `formatSchedule()` + CRUD admin + `fetchPreviousYearEnrollments(profileId)` (inscriptions N-1) |
 | `useEventRegistrations()` | `registrations`, `fetchByEvent()`, `fetchMine()`, `register()`, `cancel()`, `confirm()`, `isRegistered()`, `countByEvent()` |
 | `useEnrollmentRequests()` | `pendingRequests`, `fetchPendingRequests()`, `approveRequest()`, `rejectRequest()` — workflow admin |
+
+`app/utils/authRedirect.ts` exporte `signupConfirmationRedirect(origin?)`, l'URL de retour des e-mails de confirmation (`/callback?type=signup`). C'est la seule source de cette URL : ne pas l'écrire en dur dans une page ou un composable.
+
+---
+
+## Composants d'inscription partagés (`components/auth/`)
+
+Utilisés par `register.vue` et `completer-profil.vue`. Les champs, les types et les validations viennent de `app/utils/profileForm.ts` : ne pas les redéfinir dans une page.
+
+| Composant | Props / modèles | Rôle |
+|---|---|---|
+| `AuthProfileFieldsForm` | `errors` ; `v-model` : `ParentFields` | Champs du responsable |
+| `AuthChildrenForm` | `v-model` : `ChildData[]`, `draft`, `draftErrors` | Saisie des enfants, brouillon remonté à la page |
 
 ---
 

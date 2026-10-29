@@ -25,7 +25,9 @@
 | Récupération mot de passe | Envoi d'un lien de réinitialisation par email |
 | Inscription | Formulaire multi-étapes (adulte ou parent avec enfants) |
 | Callback OAuth | Gestion des redirections Google/Microsoft |
-| Middleware global | Protège `/admin/*`, `/profil`, `/mes-inscriptions` |
+| Confirmation par e-mail | Lien de confirmation vers `/callback`. Lien expiré ou déjà utilisé : explication et renvoi de l'e-mail (depuis `/callback` et `/login`). Confirmation sans session : écran « Adresse e-mail confirmée », connexion ensuite. Retour `?code=` arrivé sur une autre page : renvoyé vers `/callback` |
+| Middleware global | Protège `/admin/*`, `/profil`, `/mes-inscriptions`, `/completer-profil` |
+| Complétion du profil | Compte Google/Microsoft ou profil incomplet : renvoi vers `/completer-profil` (mêmes champs que l'inscription). Le compte reste « En attente » jusqu'à validation du bureau |
 | Middleware guest | Empêche un utilisateur connecté d'accéder à `/login` et `/register` |
 
 ### Flux d'inscription (5 étapes)
@@ -125,7 +127,8 @@
 
 | Endpoint | Méthode | Description |
 |---|---|---|
-| `/api/register` | POST | Création de compte (profil + rôle + enfants) |
+| `/api/register` | POST | Création de compte (profil « En attente » + rôle `parent` si enfants + enfants) |
+| `/api/profile/complete` | POST | Complétion du profil du compte connecté (même règle que l'inscription) |
 | `/api/contact` | POST | Envoi du formulaire de contact (rate limiting 3 req/h/IP, honeypot) |
 | `/api/admin/members` | GET | Liste des membres (param `exportAll=true` pour CSV) |
 | `/api/admin/create-member` | POST | Création d'un membre admin + envoi lien reset mot de passe |
@@ -165,7 +168,7 @@
 
 | Rôle | Accès |
 |---|---|
-| `parent` | Espace membre, inscriptions, gestion enfants |
+| `parent` | Espace membre, inscriptions, gestion enfants. Attribué seulement si des enfants sont déclarés à l'inscription ou à la complétion |
 | `initiateur` | Tableau de bord admin en lecture seule |
 | `secretary` | Tableau de bord admin complet (membres, groupes, demandes) |
 | `admin` | Accès total |

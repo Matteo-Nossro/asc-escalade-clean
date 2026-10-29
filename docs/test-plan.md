@@ -4,6 +4,12 @@
 
 > **Légende statut :** ✅ OK · ❌ KO · ⚠️ Partiel · 🐛 Bug connu · ⏭️ Non testé
 
+> **Étape préalable à toute campagne de tests manuels : le serveur de dev tourne avec le dernier code.**
+> 1. Arrêter puis relancer `npm run dev`. Une modification de `nuxt.config.ts`, d'un plugin, d'un middleware ou d'un fichier `app/utils/` n'est pas toujours rechargée à chaud.
+> 2. Ouvrir le site à l'adresse réellement servie : **`https://localhost:3000`**. En dev, `devServer.https` est activé, donc pas de `http://`. Puis recharger sans le cache (Ctrl+Maj+R).
+> 3. Contrôle rapide pour les tests de liens d'e-mail : dans l'onglet Réseau des outils de développement, la requête `…/auth/v1/signup` doit contenir `redirect_to=https%3A%2F%2Flocalhost%3A3000%2Fcallback%3Ftype%3Dsignup`. Sinon, le code servi n'est pas le dernier.
+> 4. Pour les tests de liens d'e-mail, vérifier aussi les réglages du dashboard du dev ([docs/dev/supabase-dev.md](dev/supabase-dev.md)) : URLs de redirection et Site URL.
+
 ---
 
 ## 1. Authentification
@@ -305,6 +311,85 @@
 
 ---
 
+## 15. Authentification et profils (`auth-profils`)
+
+> Lot `auth-profils`. Déjà automatisé (Vitest), non répété ici : `/api/register` et `/api/profile/complete` (identité, non-écrasement, rôle `parent`, enfants), `create-member`, `useAuth` partagé, middleware (complétion, garde `/admin`), page `/completer-profil`, menu « Administration » avec le vrai `useAuth`. Les scénarios ci-dessous exigent un vrai navigateur, de vrais fournisseurs OAuth ou la base de dev.
+> Prérequis : projet Supabase de **dev**, migration `20261029_auth_profils.sql` poussée, comptes de test admin / secrétaire. Pour OAuth : un compte Google et un compte Microsoft jamais inscrits sur le site.
+> Parcours e2e rare (envoie un vrai e-mail, limité en débit) : `E2E_ALLOW_WRITES=1 E2E_SEND_EMAIL=1 E2E_SKIP_BUILD=1 npx playwright test e2e/auth-profils.spec.ts --grep "@email"`. S'il est sauté à cause de la limite d'envoi, ce n'est pas un échec.
+> Base de dev : `node scripts/check-auth-profils-db.mjs` (T1b) à relancer après toute modification de la migration.
+
+### 15a. Inscription par e-mail (`/register`)
+
+| # | Scénario | Résultat attendu | Statut | Notes |
+|---|----------|-----------------|--------|-------|
+| AP01 | Inscription adulte sans enfant (étapes 1 à 3, bouton « terminer »), e-mail jamais utilisé | Écran de succès (étape 4) sans fausse erreur ; en base : profil « En attente », `profile_completed_at` renseigné, **aucun** rôle `parent` (attribué seulement si des enfants sont déclarés, décision R1-a) | | Pas de 409 malgré la ligne créée par le trigger |
+| AP02 | Inscription avec 2 enfants | 2 profils enfants « En attente » créés, liens `parent_access` ; une re-soumission ne duplique pas les enfants | | |
+| AP03 | Inscription avec un e-mail déjà utilisé | Message « Cette adresse email est déjà utilisée », retour à l'étape 2, aucune écriture | | |
+| AP04 | Inscription : valeurs saisies (téléphone, adresse) | Conservées en base ; une valeur vide du formulaire n'écrase pas l'enrichissement FFME existant | | |
+| AP05 | Étape 3 : saisir un enfant sans l'ajouter, revenir à l'étape 2 puis retourner à l'étape 3 | La saisie de l'enfant en cours (et ses erreurs) est conservée ; les enfants déjà ajoutés aussi | | Régression corrigée pendant la feature (brouillon porté par la page, `tests/components/auth/ChildrenForm.draft.test.ts`) |
+| AP06 | Après l'inscription, ouvrir `/profil` sans avoir confirmé l'e-mail | Pas de boucle de redirection ; selon la configuration Supabase : renvoi vers `/login` ou vers `/completer-profil` | | |
+
+### 15b. Complétion OAuth (Google, Microsoft)
+
+| # | Scénario | Résultat attendu | Statut | Notes |
+|---|----------|-----------------|--------|-------|
+| AP07 | Première connexion via **Google** (compte jamais inscrit) | Retour sur `/callback`, puis redirection vers `/completer-profil` ; prénom et nom pré-remplis depuis Google si fournis | | |
+| AP08 | Première connexion via **Microsoft** (compte jamais inscrit) | Idem AP07 | | |
+| AP09 | `/completer-profil` : valider sans enfant | Message « en attente de validation par le bureau » ; profil « En attente », `profile_completed_at` renseigné, **aucun** rôle `parent` | | Différence voulue avec `/register` |
+| AP10 | `/completer-profil` : valider avec un enfant | Rôle `parent` attribué, enfant « En attente » créé avec lien `parent_access` | | |
+| AP11 | Après AP09, ouvrir `/profil` et `/mes-inscriptions` | Accès autorisé (profil complété), plus de renvoi vers la complétion | | |
+| AP12 | Profil complété : ouvrir `/completer-profil` à la main | Redirection vers `/profil` | | |
+| AP13 | Profil incomplet : ouvrir `/profil`, `/mes-inscriptions`, `/admin/dashboard` | Redirection vers `/completer-profil` dans les trois cas | | |
+| AP14 | `/completer-profil` : lien de déconnexion | Session fermée, retour sur `/login` ou `/` | | |
+| AP15 | Reconnexion OAuth d'un compte déjà complété | Pas de passage par `/completer-profil` | | |
+| AP16 | Lecture du profil en échec (bloquer la requête `profiles` dans l'onglet Réseau) puis ouvrir `/profil` | Comportement actuel : la page s'ouvre sans redirection (état d'erreur, pas de boucle) ; `/admin` renvoie vers `/` | | Documenté par `tests/middleware/auth.global.error-state.test.ts` |
+
+### 15c. Validation par le bureau et création par un admin
+
+| # | Scénario | Résultat attendu | Statut | Notes |
+|---|----------|-----------------|--------|-------|
+| AP17 | Admin : dashboard, un profil « En attente » issu de AP01 ou AP09 | Le profil apparaît parmi les membres en attente ; le passer à « Actif » persiste après rechargement | | |
+| AP18 | Membre validé (AP17) : se reconnecter | Accès normal à `/profil` et `/mes-inscriptions`, pas de nouveau passage par la complétion | | |
+| AP19 | Admin : ajouter un membre avec e-mail, statut laissé par défaut | Profil « Actif », `profile_completed_at` renseigné ; l'invité n'est pas renvoyé vers `/completer-profil` | | Un statut choisi (Inactif / En attente) est conservé |
+| AP20 | Admin : ajouter un membre dont le compte est déjà enrichi (téléphone, licence FFME), champs du formulaire vides | Téléphone et licence conservés (pas écrasés par du vide) | | |
+| AP21 | Admin : créer un membre dont le profil était déjà complété | La date d'origine de `profile_completed_at` est conservée | | Corrigé pendant la feature (`tests/server/api/admin/create-member.completed-at.test.ts`) |
+
+### 15d. Menu « Administration » et état partagé
+
+| # | Scénario | Résultat attendu | Statut | Notes |
+|---|----------|-----------------|--------|-------|
+| AP22 | Se connecter en **admin** via `/login` | Sans recharger la page, le menu utilisateur du header affiche « Administration » (desktop et mobile) | | Corrigé par `useAuth` partagé + plugin `auth-sync` |
+| AP23 | Se connecter en **secrétaire**, puis en initiateur | « Administration » visible ; ouverture de `/admin/dashboard` autorisée | | |
+| AP24 | Se connecter en simple adhérent | « Administration » absente ; `/admin/dashboard` renvoie vers `/` | | |
+| AP25 | Se déconnecter puis se reconnecter avec un autre compte (sans recharger) | Menu et rôles du **nouveau** compte, aucune trace du précédent (profil, rôles) | | |
+| AP26 | Ouvrir le dashboard admin juste après la connexion | Le bloc HelloAsso et les actions admin s'affichent sans rechargement | | |
+| AP27 | Une seule lecture de `profiles` et de `user_roles` par connexion (onglet Réseau) | Pas de requêtes en double entre header, middleware et page | | |
+
+### 15e. Retour des liens d'e-mail (R2)
+
+> Déjà automatisé (Vitest) : `emailRedirectTo` de `signUp`, `resendSignupConfirmation` (sent / rate_limited / error), page `/callback` (lien invalide en query et en hash, confirmation sans session, `type=recovery`), middleware (`error_code` renvoyé vers `/callback`), bouton de renvoi sur `/login`, et le parcours « compte sans complétion → `/login` → `/completer-profil` ». R2b (Vitest) : validation de l'e-mail du renvoi sur `/login`, écran `callback-auth-error` pour les erreurs autres que `otp_expired`, attente de session de `/callback` (3 s maximum, redirection immédiate si déjà connecté), source unique de l'URL de retour. Les scénarios ci-dessous exigent de vrais e-mails (limités en débit : ne pas les enchaîner) et la configuration Supabase. Prérequis : `/callback` dans les URLs de redirection autorisées du projet (`docs/mise-en-prod.md` § 5).
+
+| # | Scénario | Résultat attendu | Statut | Notes |
+|---|----------|-----------------|--------|-------|
+| AP28 | Inscription (`/register`), puis premier clic sur le lien de l'e-mail de confirmation | Retour sur `/callback?type=signup` (et non sur la page d'accueil) : « Adresse e-mail confirmée », bouton « Se connecter » vers `/login`, inscription en attente de validation par le bureau | | R2-a, R2-d |
+| AP29 | Cliquer une seconde fois sur le même lien | Page `/callback` avec « Ce lien n'est plus valide » (déjà utilisé, expiré ou remplacé), bouton « Se connecter », formulaire de renvoi | | R2-c ; avant R2 : retour muet sur `/?error=access_denied&error_code=otp_expired` |
+| AP30 | Ouvrir à la main `/?error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired` puis `/club/histoire?error_code=otp_expired` | Dans les deux cas, renvoi vers `/callback` avec l'écran « n'est plus valide » (aucune page blanche, aucun message muet) | | R2-e ; couvert aussi en lecture seule par `e2e/email-link.spec.ts` |
+| AP31 | Sur `/callback` (lien invalide), saisir l'adresse d'un compte non confirmé et valider | Message « Si une inscription non confirmée existe pour cette adresse, un nouvel e-mail vient d'être envoyé… » ; un e-mail arrive ; son lien ramène sur « Adresse e-mail confirmée » ; l'ancien lien est invalide | | R2-b, R2-c ; même message pour une adresse inconnue (aucune fuite sur l'existence du compte) |
+| AP32 | Renvoyer plusieurs fois de suite (formulaire de `/callback` ou bouton de `/login`) | À la limite d'envoi, message demandant de patienter ; pas d'écran d'erreur technique | | R2-b ; à ne tenter qu'une fois, consomme le quota d'envoi |
+| AP33 | `/login` avec un compte jamais confirmé (bon mot de passe) | « Veuillez confirmer votre adresse email » + bouton « Renvoyer l'e-mail de confirmation » qui utilise l'e-mail saisi ; mêmes messages qu'AP31 | | R2-f |
+| AP34 | Compte créé par `signUp` seul (sans passage par `/api/register`, profil du trigger : non complété, « En attente », aucun rôle), e-mail confirmé, connexion par `/login` sans `redirect` | Arrivée sur `/completer-profil` (et non sur `/admin/dashboard` ni `/`) | | R2-g ; couvert par `tests/pages/login.resend.test.ts` |
+| AP35 | Lien de réinitialisation de mot de passe expiré ou déjà utilisé | `/callback` : « n'est plus valide » et « Se connecter », **sans** formulaire de renvoi ; `/login` propose « Mot de passe oublié » | | R2-c (`type=recovery`) |
+| AP36 | Retour d'un refus Google / Microsoft (annuler sur l'écran de consentement) ou d'une erreur serveur d'authentification sur `/callback` (`?error=access_denied&error_code=bad_oauth_state`, ou `#error=server_error`) | Écran « La connexion n'a pas abouti » (`callback-auth-error`) et bouton « Se connecter » vers `/login`, **sans** formulaire de renvoi, sans redirection ; le texte technique (`error_description`) n'est jamais affiché | | R2b-3 ; seul `error_code=otp_expired` garde l'écran « n'est plus valide » (AP29) |
+| AP37 | Sur `/login`, après un échec « e-mail non confirmé », vider le champ e-mail (ou y saisir `abc`) puis cliquer « Renvoyer l'e-mail de confirmation » | Aucun e-mail envoyé ; message sous le champ : « L'adresse email est requise » (champ vide) ou « Format d'email invalide » | | R2b-1 ; couvert par `tests/pages/login.resend-validation.test.ts` |
+| AP38 | Cliquer sur le lien de confirmation d'inscription sur une connexion lente (session ouverte après plus de 0,5 s) | Jamais d'écran « Adresse e-mail confirmée » si la session s'ouvre : arrivée directe sur `/completer-profil` (profil incomplet) ; « Adresse e-mail confirmée » seulement si aucune session n'arrive au bout de 3 s | | R2b-4 ; à observer avec le réseau bridé dans les outils du navigateur |
+| AP39 | Inscription par e-mail, puis « Renvoyer l'e-mail de confirmation » depuis `/login` ou `/callback` : comparer les liens des deux e-mails | Les deux liens ramènent sur `/callback?type=signup` (même URL de retour, définie dans `app/utils/authRedirect.ts`) | | R2b-5 ; couvert par `tests/utils/authRedirect.test.ts` ; consomme le quota d'envoi |
+| AP40 | Ouvrir à la main `https://localhost:3000/?code=0b9c7e2a-4d51-4f0e-9a3b-6c1d2e3f4a5b` (UUID quelconque), puis `/profil?code=0b9c7e2a-4d51-4f0e-9a3b-6c1d2e3f4a5b&x=1#h` | Arrivée sur `/callback` (query et hash conservés) puis, en moins de 5 s, sur `/login` : aucun message d'erreur affiché, aucune page blanche | | R2c-1, R2c-2 ; couvert par `tests/middleware/auth.global.code-return.test.ts`, `tests/pages/callback.code-exchange.test.ts` et `e2e/email-link.spec.ts` |
+| AP41 | Ouvrir `https://localhost:3000/?code=abc` et `/tarifs?code=abc` | Aucune redirection : le paramètre `code` n'est pas un UUID, la page reste affichée | | R2c-1 |
+| AP42 | Avec la Site URL du dev volontairement laissée sur `https://localhost:3000` et `/callback**` retirée des Redirect URLs, s'inscrire puis cliquer le lien de l'e-mail | Supabase retombe sur `/?code=…` : renvoi automatique vers `/callback`, session ouverte, arrivée sur `/completer-profil` (profil incomplet) ou `/profil` ; jamais de retour muet sur l'accueil | | R2c ; consomme le quota d'envoi ; remettre ensuite la configuration de `docs/dev/supabase-dev.md` |
+| AP43 | Ouvrir le lien de confirmation dans un **autre navigateur** que celui de l'inscription (vérificateur PKCE absent) | Après 3 s, « Adresse e-mail confirmée » + « Se connecter » (type=signup) ; aucune erreur technique affichée | | R2c-2 ; échange refusé silencieusement ; consomme le quota d'envoi |
+
+---
+
 ## Résumé
 
 | Catégorie | Total | ✅ OK | ❌ KO | ⚠️ Partiel | 🐛 Bug connu | ⏭️ Non testé |
@@ -323,7 +408,8 @@
 | Responsive | 6 | | | | | |
 | Persistance | 6 | | | | | |
 | Admin HelloAsso (socle) | 12 | | | | | |
-| **Total** | **166** | | | | | **4** |
+| Authentification et profils (auth-profils) | 43 | | | | | |
+| **Total** | **209** | | | | | **4** |
 
 ---
 
