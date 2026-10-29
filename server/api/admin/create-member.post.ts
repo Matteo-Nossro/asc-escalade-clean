@@ -49,21 +49,39 @@ export default defineEventHandler(async (event) => {
     userId = crypto.randomUUID()
   }
 
-  // 2. Upsert le profil
-  const { error: profileError } = await client.from('profiles').upsert({
+  // 2. Upsert le profil : seules les valeurs non vides sont écrites, pour ne pas écraser
+  //    la ligne créée par handle_new_user / on_profile_enrich (téléphone, licence FFME…).
+  //    Le statut (« Actif » par défaut) et profile_completed_at sont toujours posés.
+  // Un profil déjà complété garde sa date d'origine.
+  const { data: existingProfile } = await client
+    .from('profiles')
+    .select('profile_completed_at')
+    .eq('id', userId)
+    .maybeSingle<{ profile_completed_at: string | null }>()
+  const payload: Record<string, unknown> = {
     id: userId,
-    email: email?.trim() || null,
-    first_name: first_name || null,
-    last_name: last_name || null,
-    full_name: fullName || null,
-    phone: phone || null,
-    mobile: mobile || null,
-    birth_date: birth_date || null,
-    gender: gender || null,
     status: status || 'Actif',
-    licence_number: licence && licence !== '-' ? parseInt(licence) : null,
+    profile_completed_at: existingProfile?.profile_completed_at || new Date().toISOString(),
+  }
+  const optional: Record<string, unknown> = {
+    email: email?.trim(),
+    first_name,
+    last_name,
+    full_name: fullName,
+    phone,
+    mobile,
+    birth_date,
+    gender,
     licence_type: formule && formule !== '-' ? formule : null,
-  })
+  }
+  for (const [key, value] of Object.entries(optional)) {
+    if (value !== null && value !== undefined && value !== '') payload[key] = value
+  }
+  if (licence && licence !== '-') {
+    const licenceNumber = parseInt(licence)
+    if (!Number.isNaN(licenceNumber)) payload.licence_number = licenceNumber
+  }
+  const { error: profileError } = await client.from('profiles').upsert(payload)
   if (profileError) throw createError({ statusCode: 400, statusMessage: profileError.message })
 
   // 3. Assigner les rôles
