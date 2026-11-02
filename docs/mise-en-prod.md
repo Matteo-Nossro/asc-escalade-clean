@@ -96,6 +96,7 @@ Ces réglages ne sont **pas** portés par `supabase/migrations/` ni par `db push
 | Rate limits | Authentication → Rate Limits | valeurs en place | à relever avec le SMTP personnalisé |
 | Modèles d'e-mails | Authentication → Emails → Templates | modèles en place | à aligner sur la prod |
 | URLs de redirection (`/callback`) | Authentication → URL Configuration → Redirect URLs | `https://escalade-chevigny.fr/callback**` (à adapter au domaine réel de la Site URL de prod) | `https://localhost:3000/callback**` (serveur de dev en https) |
+| Protection contre les mots de passe compromis (HaveIBeenPwned, advisor `auth_leaked_password_protection`) | Authentication → Providers → Email (ou Attack Protection, selon la version du dashboard) | à activer si l'offre le permet | à activer si l'offre le permet |
 
 **`/callback` dans les URLs de redirection : à faire AVANT de déployer en prod le code auth-profils R2.** Les liens de confirmation d'inscription (`signUp` et renvoi) passent `emailRedirectTo = <origine>/callback?type=signup`. Une URL absente de la liste est ignorée par Supabase, qui renvoie alors vers la Site URL sans l'écran de confirmation ni de lien expiré.
 - `**` couvre les paramètres (`?type=signup`, `?type=recovery`) ; une entrée `…/callback` seule ne les couvre pas.
