@@ -8,11 +8,6 @@
 
 | # | Point | Feature | Taille |
 |---|---|---|---|
-| Q5 | `app/pages/callback.vue:277` : `void redirectConnected(type)` sans `catch` ; une erreur de navigation laisse la page sur « Connexion en cours… » | auth-profils | XS |
-| Q6 | `app/pages/callback.vue:225-229` : la redirection de recovery attend `ensureProfile()` dont elle n'a pas besoin ; tester `recovery` avant la lecture | auth-profils | XS |
-| Q7 | `app/pages/callback.vue:259` : `code` non validé au format UUID avant `exchangeCodeForSession` (sans conséquence, Supabase refuse) | auth-profils | XS |
-| Q8 | `tests/pages/callback.link-error.test.ts:100` : commentaire « ~500 ms » périmé depuis R2b-4 | auth-profils | XS |
-| Q9 | `tests/middleware/auth.global.code-return.test.ts:107-117` : le compte des lectures ne détecte plus seul un `ensureProfile` parasite ; commenter la limite ou renommer le test | auth-profils | XS |
 | Q11 | `.claude/skills/asc-rules/scripts/check.mjs:129-144` : faux positifs en ERREUR sur les hex des commentaires, textes et sélecteurs ; passer le source dans `mask(src, false)` avant la recherche (prioritaire dès qu'il bloque une édition légitime) | harmonisation-couleurs | S |
 | Q12 | `app/utils/categoryColors.ts:41-52` : `normalizeKey` lève une exception sur une catégorie non textuelle (objet, nombre) ; `typeof` dans `getCategoryColor`, regex des accents en `̀-ͯ` | harmonisation-couleurs | XS |
 | Q13 | Aucun test ne vérifie l'alignement des valeurs dupliquées (`#7FD857`, `#0F1729`) entre `main.css`, `categoryColors.ts` et `email-theme.ts` | harmonisation-couleurs | XS |
@@ -68,6 +63,7 @@
 
 ## Retirés (corrigés ou clos depuis)
 - enfants-fiabilite : Q1 à Q4 (rôle `parent` accordé après les enfants, compensation journalisée, 23505 ⇒ 409, message 403 neutre) et Q10 (enfants affichés selon les liens `parent_access`) ; puis Q18 (400 « Compte utilisateur introuvable » aligné sur le message neutre) et Q19 (bloc `{}` anonyme retiré de `profil.vue`).
+- auth-profils (`callback.vue`) : Q5 (`catch` sur la redirection, repli sur `callback-auth-error`), Q6 (recovery sans `ensureProfile`), Q7 (code validé au format UUID avant l'échange), Q8 (commentaire « ~500 ms » corrigé), Q9 (limite du compte des lectures commentée).
 - « Design ordinateur » de `/profil`, `/register`, `/completer-profil` : fait par profil-register-desktop (lots 1 et 2).
 - 4 avertissements couleur de `check.mjs` (`Header.vue`, `register.vue`) : `check.mjs` est vide sur ces fichiers depuis harmonisation-couleurs.
 - Barre collante de `/profil` en `lg:bg-gray-100` sur fond en dégradé : captures 1440 validées par l'utilisateur le 2026-11-02.

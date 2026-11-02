@@ -97,7 +97,7 @@ describe('R2-c — lien invalide : erreur dans la query', () => {
   it('affiche callback-link-error (« n\'est plus valide »), sans aucune redirection', async () => {
     await mountAndWaitFor('callback-link-error')
     expect(wrapper.find(sel('callback-link-error')).text()).toContain("n'est plus valide")
-    await wait(900) // la page agit ~500 ms après le montage
+    await wait(900) // marge pour une éventuelle redirection asynchrone (plus de délai fixe depuis R2b-4)
     expect(h.navigateTo).not.toHaveBeenCalled()
   })
 

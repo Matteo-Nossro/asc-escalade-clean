@@ -108,6 +108,8 @@ describe('R2c-1 — la règle passe avant les contrôles d\'authentification et 
     user.value = { id: 'nouveau', email: 'nouveau@test.fr' }
     // Le plugin auth-sync lit le profil dès que `user` change, indépendamment du middleware : on le laisse finir,
     // puis on ne mesure que les lectures déclenchées par le middleware.
+    // Limite : ensureProfile ne relit pas un profil déjà chargé, donc un appel parasite du middleware
+    // passerait inaperçu ici ; ce compte ne garantit que l'absence de nouvelle lecture.
     await flushPromises()
     await flushPromises()
     const readsBefore = db.reads.length

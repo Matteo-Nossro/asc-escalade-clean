@@ -223,12 +223,18 @@ onBeforeUnmount(() => {
   cleanup()
 })
 
+/** Format d'un code PKCE Supabase (même règle que le middleware auth.global). */
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 async function redirectConnected(type: string) {
-  await ensureProfile()
-  if (disposed) return
+  // Réinitialisation du mot de passe : la destination ne dépend pas du profil
   if (type === 'recovery') {
     await navigateTo('/profil?resetPassword=true')
-  } else if (authStatus.value === 'ready' && !isProfileComplete.value) {
+    return
+  }
+  await ensureProfile()
+  if (disposed) return
+  if (authStatus.value === 'ready' && !isProfileComplete.value) {
     await navigateTo('/completer-profil')
   } else if (['admin', 'secretary', 'initiateur'].some((r) => hasRole(r as any))) {
     await navigateTo('/admin/dashboard')
@@ -256,7 +262,7 @@ onMounted(async () => {
     try {
       const supabase = useSupabaseClient()
       const { data } = await supabase.auth.getSession()
-      if (!data?.session && !user.value) await supabase.auth.exchangeCodeForSession(code)
+      if (!data?.session && !user.value && UUID_RE.test(code)) await supabase.auth.exchangeCodeForSession(code)
     } catch {
       // volontairement ignoré : l'attente de session ci-dessous tranche
     }
@@ -274,7 +280,9 @@ onMounted(async () => {
     if (!value || settled || disposed) return
     settled = true
     cleanup()
-    void redirectConnected(type)
+    redirectConnected(type).catch(() => {
+      if (!disposed) view.value = 'auth-error'
+    })
   })
   timer = setTimeout(async () => {
     timer = null
