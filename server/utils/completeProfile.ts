@@ -100,7 +100,7 @@ export async function completeProfile(client: SupabaseClient, input: CompletePro
 
   if (!existing) {
     const { error } = await client.from('profiles').insert({ id: userId, email: values.email, status: 'En attente' })
-    if (error) throw fail(error.message)
+    if (error) throw error.code === '23505' ? alreadyCompleted() : fail(error.message)
   }
 
   // ── 2. Réservation atomique : seule la première requête passe ─────────────
@@ -116,19 +116,7 @@ export async function completeProfile(client: SupabaseClient, input: CompletePro
   const createdChildIds: string[] = []
   try {
     if (children.length > 0) {
-      // ── 3. Rôle parent : si et seulement si des enfants sont déclarés ─────
-      const { data: existingRole } = await client
-        .from('user_roles')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('role_code', 'parent')
-        .maybeSingle()
-      if (!existingRole) {
-        const { error } = await client.from('user_roles').insert({ user_id: userId, role_code: 'parent' })
-        if (error) throw fail(error.message)
-      }
-
-      // ── 4. Enfants (sans compte auth) — pas de doublon à la re-soumission ─
+      // ── 3. Enfants (sans compte auth) — pas de doublon à la re-soumission ─
       const { data: existingChild } = await client
         .from('parent_access')
         .select('id')
@@ -167,15 +155,31 @@ export async function completeProfile(client: SupabaseClient, input: CompletePro
           if (accessError) throw fail(`Erreur lien parent-enfant : ${accessError.message}`)
         }
       }
+
+      // ── 4. Rôle parent : en dernier, jamais accordé si les enfants échouent ─
+      const { data: existingRole } = await client
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('role_code', 'parent')
+        .maybeSingle()
+      if (!existingRole) {
+        const { error } = await client.from('user_roles').insert({ user_id: userId, role_code: 'parent' })
+        if (error) throw fail(error.message)
+      }
     }
   }
   catch (error) {
     // Compensation (au mieux) : aucun enfant orphelin, réservation libérée pour permettre la reprise.
+    // Chaque étape en échec est journalisée sans interrompre la suite ni changer l'erreur levée.
     if (createdChildIds.length > 0) {
-      await client.from('parent_access').delete().in('child_id', createdChildIds)
-      await client.from('profiles').delete().in('id', createdChildIds)
+      const { error: e1 } = await client.from('parent_access').delete().in('child_id', createdChildIds)
+      if (e1) console.error('[completeProfile] compensation suppression des liens parent_access', e1)
+      const { error: e2 } = await client.from('profiles').delete().in('id', createdChildIds)
+      if (e2) console.error('[completeProfile] compensation suppression des profils enfants', e2)
     }
-    await client.from('profiles').update({ profile_completed_at: null }).eq('id', userId)
+    const { error: e3 } = await client.from('profiles').update({ profile_completed_at: null }).eq('id', userId)
+    if (e3) console.error('[completeProfile] compensation libération de profile_completed_at', e3)
     throw error
   }
 }

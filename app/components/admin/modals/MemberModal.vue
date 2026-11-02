@@ -189,7 +189,7 @@
         </div>
 
         <!-- Lien parent → enfants -->
-        <div v-if="form.roles.includes('parent')" class="space-y-3">
+        <div v-if="form.roles.includes('parent') || form.linkedChildren.length > 0" class="space-y-3">
           <UFormField label="Enfants liés">
             <div class="space-y-2">
               <div

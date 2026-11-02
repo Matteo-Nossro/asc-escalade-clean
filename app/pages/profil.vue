@@ -954,19 +954,17 @@ onMounted(async () => {
     userRoles.value = rolesData.map((r: any) => r.role_code as RoleCode)
   }
 
-  // Si parent → charger les enfants liés
-  if (userRoles.value.includes('parent')) {
-    const { data: childrenData } = await supabase
-      .from('parent_access')
-      .select(`
-        id, parent_id, child_id, access_type, created_at,
-        child:profiles!child_id (id, first_name, last_name, avatar_url, birth_date)
-      `)
-      .eq('parent_id', uid)
+  // Enfants liés : selon les liens parent_access, indépendamment du rôle parent
+  const { data: childrenData } = await supabase
+    .from('parent_access')
+    .select(`
+      id, parent_id, child_id, access_type, created_at,
+      child:profiles!child_id (id, first_name, last_name, avatar_url, birth_date)
+    `)
+    .eq('parent_id', uid)
 
-    if (childrenData) {
-      children.value = childrenData as ParentAccessLink[]
-    }
+  if (childrenData) {
+    children.value = childrenData as ParentAccessLink[]
   }
 
   ready.value = true

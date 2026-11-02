@@ -98,7 +98,7 @@ useEvents()
 
 | Route | Méthode | Description |
 |---|---|---|
-| `/api/register` | POST | Inscription publique : complète le profil créé par le trigger (statut « En attente ») + rôle `parent` seulement si des enfants sont déclarés + profils enfants. Sans session, l'UUID renvoyé par `signUp` et l'e-mail doivent désigner le même compte (jamais connecté, créé depuis moins d'une heure) ; 409 si le profil est déjà complété. Logique commune : `server/utils/completeProfile.ts`. Service role. Le compte Auth est créé côté client via `supabase.auth.signUp()` avant l'appel. |
+| `/api/register` | POST | Inscription publique : complète le profil créé par le trigger (statut « En attente ») + rôle `parent` seulement si des enfants sont déclarés (accordé après les enfants) + profils enfants. Sans session, l'UUID renvoyé par `signUp` et l'e-mail doivent désigner le même compte (jamais connecté, créé depuis moins d'une heure) ; 409 si le profil est déjà complété. Tout 403, ainsi que le 400 « compte introuvable », renvoie le même message neutre, qui ne révèle pas l'état du compte. Logique commune : `server/utils/completeProfile.ts`. Service role. Le compte Auth est créé côté client via `supabase.auth.signUp()` avant l'appel. |
 | `/api/profile/complete` | POST | Complétion du profil d'un compte connecté (Google/Microsoft). Session obligatoire (401) ; id et e-mail pris dans la session, jamais dans le corps. Même logique `completeProfile` que `/api/register`. |
 | `/api/add-child` | POST | Ajoute un profil enfant (sans compte Auth) et le lie au parent connecté via `parent_access`. Assigne automatiquement le rôle `parent` si absent. Utilise le service role. |
 

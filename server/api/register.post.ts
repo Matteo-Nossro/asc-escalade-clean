@@ -17,6 +17,8 @@ import { completeProfile, validateProfileInput } from '../utils/completeProfile'
 import type { ChildPayload, ParentPayload } from '../utils/completeProfile'
 
 const MAX_ACCOUNT_AGE_MS = 60 * 60 * 1000
+// Message unique et neutre : ne révèle pas l'état du compte.
+const NEUTRAL_MESSAGE = 'Impossible de finaliser l\'inscription. Si vous avez déjà un compte, connectez-vous ; sinon, recommencez l\'inscription.'
 
 export default defineEventHandler(async (event) => {
   const client = serverSupabaseServiceRole(event)
@@ -38,18 +40,18 @@ export default defineEventHandler(async (event) => {
   const sessionUser = await serverSupabaseUser(event)
   const sessionId = sessionUser ? (sessionUser.id || (sessionUser as any).sub) : null
   if (sessionUser && sessionId !== userId) {
-    throw createError({ statusCode: 403, statusMessage: 'Identifiant utilisateur incohérent avec la session' })
+    throw createError({ statusCode: 403, statusMessage: NEUTRAL_MESSAGE })
   }
 
   // Le userId doit désigner un compte auth existant dont l'e-mail est celui du formulaire.
   const { data: authData, error: authCheckError } = await client.auth.admin.getUserById(userId)
   const authUser = authData?.user
   if (authCheckError || !authUser) {
-    throw createError({ statusCode: 400, statusMessage: 'Compte utilisateur introuvable' })
+    throw createError({ statusCode: 400, statusMessage: NEUTRAL_MESSAGE })
   }
   const authEmail = (authUser.email ?? '').trim().toLowerCase()
   if (!authEmail || authEmail !== parent.email.trim().toLowerCase()) {
-    throw createError({ statusCode: 403, statusMessage: 'Identité non vérifiée' })
+    throw createError({ statusCode: 403, statusMessage: NEUTRAL_MESSAGE })
   }
 
   // Sans session : seulement un compte tout juste créé et jamais utilisé.
@@ -57,7 +59,7 @@ export default defineEventHandler(async (event) => {
     const createdAt = Date.parse(authUser.created_at)
     const tooOld = Number.isNaN(createdAt) || Date.now() - createdAt > MAX_ACCOUNT_AGE_MS
     if (authUser.last_sign_in_at || tooOld) {
-      throw createError({ statusCode: 403, statusMessage: 'Identité non vérifiée' })
+      throw createError({ statusCode: 403, statusMessage: NEUTRAL_MESSAGE })
     }
   }
 

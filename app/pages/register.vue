@@ -500,7 +500,7 @@ async function submitWithChildren(childrenToRegister: ChildData[]) {
       const errData = await res.json().catch(() => ({}))
       const msg: string = errData?.statusMessage || errData?.message || `Erreur ${res.status}`
       currentStep.value = 2
-      stepError.value = res.status === 409 || msg.toLowerCase().includes('déjà')
+      stepError.value = res.status === 409
         ? 'Cette adresse email est déjà utilisée. Essayez de vous connecter.'
         : msg
       return

@@ -395,6 +395,18 @@
 | AP42 | Avec la Site URL du dev volontairement laissée sur `https://localhost:3000` et `/callback**` retirée des Redirect URLs, s'inscrire puis cliquer le lien de l'e-mail | Supabase retombe sur `/?code=…` : renvoi automatique vers `/callback`, session ouverte, arrivée sur `/completer-profil` (profil incomplet) ou `/profil` ; jamais de retour muet sur l'accueil | | R2c ; consomme le quota d'envoi ; remettre ensuite la configuration de `docs/dev/supabase-dev.md` |
 | AP43 | Ouvrir le lien de confirmation dans un **autre navigateur** que celui de l'inscription (vérificateur PKCE absent) | Après 3 s, « Adresse e-mail confirmée » + « Se connecter » (type=signup) ; aucune erreur technique affichée | | R2c-2 ; échange refusé silencieusement ; consomme le quota d'envoi |
 
+### 15f. Fiabilité des enfants (`enfants-fiabilite`)
+
+> Automatisé (Vitest) : ordre rôle `parent` après enfants, journal de compensation, 23505 vers 409, message 403 neutre, enfants selon liens `parent_access` (`/profil`, `MemberModal`). Les scénarios ci-dessous couvrent le rendu réel et les cas difficiles à provoquer.
+
+| # | Scénario | Résultat attendu | Statut | Notes |
+|---|----------|-----------------|--------|-------|
+| AP44 | Inscription avec un enfant dont la création échoue (ex. donnée refusée par la base) | Erreur affichée ; le compte n'a pas le rôle `parent` en base (`user_roles`) | | Q1 ; provoquer l'échec côté dev uniquement |
+| AP45 | Inscription réussie avec 2 enfants, puis sans enfant | Avec enfants : rôle `parent` + enfants sur `/profil` ; sans enfant : aucun rôle `parent` | | Q1, comportement nominal |
+| AP46 | Après un échec d'inscription (AP44), consulter les logs du serveur | Une ligne `console.error` par étape de compensation en erreur, avec le nom de l'étape ; le client reçoit la même erreur qu'avant | | Q2 |
+| AP47 | Compte non confirmé (inscrit il y a plus d'une heure) refait une inscription | Message « Impossible de finaliser l'inscription. Si vous avez déjà un compte, connectez-vous ; sinon, recommencez l'inscription. » affiché tel quel sur `/register` ; HTTP 403 | | Q4 ; vérifier aussi avec une autre adresse e-mail |
+| AP48 | Adhérent sans rôle `parent` mais avec lien `parent_access` : ouvrir `/profil` et sa fiche dans `MemberModal`. Puis un adhérent sans lien | Avec lien : enfants affichés dans les deux vues ; sans lien : aucune section enfants | | Q10 |
+
 ---
 
 ## Résumé
@@ -416,7 +428,8 @@
 | Persistance | 6 | | | | | |
 | Admin HelloAsso (socle) | 12 | | | | | |
 | Authentification et profils (auth-profils) | 43 | | | | | |
-| **Total** | **209** | | | | | **4** |
+| Fiabilité des enfants (enfants-fiabilite) | 5 | | | | | |
+| **Total** | **214** | | | | | **4** |
 
 ---
 
