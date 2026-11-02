@@ -3,60 +3,60 @@
     <div class="space-y-6 lg:flex-1 lg:min-w-0">
       <!-- Identité -->
       <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-      <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-        <UIcon name="i-lucide-user" class="w-5 h-5 text-vp-green" />
-        Identité
-      </h3>
-      <div class="space-y-5">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <UFormField label="Prénom" required :error="errors.first_name">
-            <UInput v-model="model.first_name" data-testid="input-first-name" placeholder="Jean" icon="i-lucide-user" size="lg" class="w-full" />
-          </UFormField>
-          <UFormField label="Nom" required :error="errors.last_name">
-            <UInput v-model="model.last_name" data-testid="input-last-name" placeholder="Dupont" icon="i-lucide-user" size="lg" class="w-full" />
-          </UFormField>
-        </div>
+        <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+          <UIcon name="i-lucide-user" class="w-5 h-5 text-vp-green" />
+          Identité
+        </h3>
+        <div class="space-y-5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <UFormField label="Prénom" required :error="errors.first_name">
+              <UInput v-model="model.first_name" data-testid="input-first-name" placeholder="Jean" icon="i-lucide-user" size="lg" class="w-full" />
+            </UFormField>
+            <UFormField label="Nom" required :error="errors.last_name">
+              <UInput v-model="model.last_name" data-testid="input-last-name" placeholder="Dupont" icon="i-lucide-user" size="lg" class="w-full" />
+            </UFormField>
+          </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <UFormField label="Date de naissance" required :error="errors.birth_date">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <UFormField label="Date de naissance" required :error="errors.birth_date">
+              <UInput
+                v-model="model.birth_date"
+                data-testid="input-birth-date"
+                type="date"
+                icon="i-lucide-calendar"
+                size="lg"
+                class="w-full"
+                :max="maxBirthDate"
+              />
+            </UFormField>
+            <UFormField label="Sexe" required :error="errors.gender">
+              <select
+                :value="genderDisplay"
+                data-testid="select-gender"
+                class="w-full h-[46px] px-3 rounded-lg border text-sm text-gray-900 cursor-pointer focus:outline-none focus:ring-2 focus:ring-vp-green focus:border-transparent transition-all"
+                :class="errors.gender ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-white'"
+                @change="onGenderChange"
+              >
+                <option value="">Sélectionner…</option>
+                <option value="Homme">Homme</option>
+                <option value="Femme">Femme</option>
+              </select>
+            </UFormField>
+          </div>
+
+          <UFormField label="Téléphone" :error="errors.phone">
             <UInput
-              v-model="model.birth_date"
-              data-testid="input-birth-date"
-              type="date"
-              icon="i-lucide-calendar"
+              v-model="model.phone"
+              data-testid="input-phone"
+              type="tel"
+              placeholder="06 00 00 00 00"
+              icon="i-lucide-smartphone"
               size="lg"
               class="w-full"
-              :max="maxBirthDate"
             />
           </UFormField>
-          <UFormField label="Sexe" required :error="errors.gender">
-            <select
-              :value="genderDisplay"
-              data-testid="select-gender"
-              class="w-full h-[46px] px-3 rounded-lg border text-sm text-gray-900 cursor-pointer focus:outline-none focus:ring-2 focus:ring-vp-green focus:border-transparent transition-all"
-              :class="errors.gender ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-white'"
-              @change="onGenderChange"
-            >
-              <option value="">Sélectionner…</option>
-              <option value="Homme">Homme</option>
-              <option value="Femme">Femme</option>
-            </select>
-          </UFormField>
         </div>
-
-        <UFormField label="Téléphone" :error="errors.phone">
-          <UInput
-            v-model="model.phone"
-            data-testid="input-phone"
-            type="tel"
-            placeholder="06 00 00 00 00"
-            icon="i-lucide-smartphone"
-            size="lg"
-            class="w-full"
-          />
-        </UFormField>
       </div>
-    </div>
 
       <!-- Emplacement pour des champs propres à la page (ex. identifiants de connexion) -->
       <slot name="after-identity" />

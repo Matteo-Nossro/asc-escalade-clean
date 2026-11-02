@@ -7,12 +7,12 @@ import { vi } from 'vitest'
  * `readBody`, `getHeader`, `useRuntimeConfig`...) qui n'existent pas sous Vitest :
  * on les pose en globaux avant d'importer la route.
  *
- * ATTENTION : sous l'environnement `nuxt` (vitest.config.ts), `useRuntimeConfig` est réécrit en
- * import par le plugin Nuxt : le global ci-dessous est alors ignoré. Dans ce cas, simuler la
- * config avec `mockNuxtImport('useRuntimeConfig', ...)` (cf. tests/server/api/revalidate.test.ts).
+ * `useRuntimeConfig` n'est pas posé ici : sous l'environnement `nuxt` (vitest.config.ts), il est
+ * réécrit en import par le plugin Nuxt et un global serait ignoré. Simuler la config avec
+ * `mockNuxtImport('useRuntimeConfig', ...)` (cf. tests/server/api/revalidate.test.ts).
  *
  * Usage :
- *   const { setRuntimeConfig } = stubNitroGlobals()
+ *   stubNitroGlobals()
  *   const handler = (await import('../../../server/api/xxx.post')).default
  *   await handler(createMockEvent({ headers: {...}, body: {...} }))
  */
@@ -59,23 +59,14 @@ export class MockH3Error extends Error {
 }
 
 /**
- * Pose les globaux Nitro/h3. Retourne `setRuntimeConfig` pour piloter `useRuntimeConfig()`.
+ * Pose les globaux Nitro/h3 (hors `useRuntimeConfig`, voir l'en-tête du fichier).
  * À appeler avant l'import de la route ; `vi.unstubAllGlobals()` (ou `unstubGlobals: true`) les retire.
  */
-export function stubNitroGlobals(initialConfig: Record<string, unknown> = {}) {
-  let runtimeConfig: Record<string, unknown> = { ...initialConfig }
-
+export function stubNitroGlobals() {
   vi.stubGlobal('defineEventHandler', (handler: unknown) => handler)
   vi.stubGlobal('createError', (input: ConstructorParameters<typeof MockH3Error>[0]) => new MockH3Error(input))
   vi.stubGlobal('readBody', async (event: MockEvent) => event.body)
   vi.stubGlobal('getHeader', (event: MockEvent, name: string) => event.headers[name.toLowerCase()])
   vi.stubGlobal('getQuery', (event: MockEvent) => event.query)
   vi.stubGlobal('getRouterParam', (event: MockEvent, name: string) => event.params[name])
-  vi.stubGlobal('useRuntimeConfig', () => runtimeConfig)
-
-  return {
-    setRuntimeConfig(config: Record<string, unknown>) {
-      runtimeConfig = { ...config }
-    },
-  }
 }

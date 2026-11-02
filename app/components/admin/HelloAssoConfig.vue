@@ -176,6 +176,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { currentSeasonStart, seasonLabel } from '~/utils/season'
 
 interface HelloAssoForm {
   id: string
@@ -207,12 +208,6 @@ const adding = ref(false)
 const testing = ref(false)
 const testResult = ref<TestResult | null>(null)
 const syncResult = ref<{ matched: number; unmatched: { firstName: string; lastName: string }[] } | null>(null)
-
-// Saison au format AAAA-AAAA, coupure au 1er septembre (mois 8, base 0).
-function currentSeasonStart(date = new Date()): number {
-  return date.getMonth() >= 8 ? date.getFullYear() : date.getFullYear() - 1
-}
-const seasonLabel = (start: number) => `${start}-${start + 1}`
 
 const seasonOptions = computed(() => {
   const start = currentSeasonStart()
