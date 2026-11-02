@@ -14,6 +14,7 @@
 | Q15 | `app/components/admin/HelloAssoConfig.vue:211-214` : saison en cours calculée à l'heure du navigateur, la migration utilise `Europe/Paris` (écart possible le 1er septembre vers minuit) | helloasso-socle | XS |
 | Q16 | `tests/utils/nitro.ts:62-77` : `setRuntimeConfig` est sans effet sous l'environnement `nuxt` ; le retirer ou le marquer déprécié (piège pour les lots HelloAsso) | outillage-tests | XS |
 | Q17 | `app/components/auth/ProfileFieldsForm.vue:5-58` : indentation de la carte Identité non réalignée après l'ajout du wrapper | profil-register-desktop | XS |
+| Q18 | Une seule règle de version Storyblok partout : helper partagé (`?_storyblok` → `draft`, sinon `STORYBLOK_VERSION \|\| 'published'`) utilisé par `useEvents`, `usePosts`, `app/pages/[...slug].vue`, `app/pages/posts/[slug].vue` et les bloks de liste (`Home/Actualites.vue`, `actualites/Page.vue`, `sorties/Page.vue`). Aujourd'hui, les pages ignorent `STORYBLOK_VERSION` et les bloks de liste ignorent `?_storyblok`. Objectif : dans l'éditeur visuel, toutes les listes montrent les brouillons | suite Q14 | S |
 
 ## À décider avec moi
 
