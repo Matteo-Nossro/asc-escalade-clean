@@ -1,21 +1,30 @@
 #!/usr/bin/env node
 /**
- * Crée (ou vérifie) les 4 comptes de test du projet Supabase de DEV :
- * admin, secrétaire, initiateur, adhérent (rôle `parent`).
+ * Crée (ou vérifie) les 5 comptes de test du projet Supabase de DEV :
+ * admin, secrétaire, initiateur, adhérent (rôle `parent`), incomplete.
  *
  * Le trigger `on_auth_user_created` crée le profil. Les rôles (`user_roles`)
  * et les données fictives sont posés ensuite par `supabase/seed.sql`, qui
- * retrouve chaque compte via `auth.users.raw_app_meta_data->>'test_role'`.
+ * retrouve chaque compte via `auth.users.raw_app_meta_data->>'test_role'`
+ * (seuls `admin`, `secretary`, `initiateur`, `parent` y sont reconnus :
+ * `incomplete` est ignoré par `seed.sql`, volontairement).
+ *
+ * Le compte `incomplete` sert aux captures / tests de `/completer-profil` :
+ * il doit **toujours** avoir un profil non complété (`status` = « En attente »,
+ * `profile_completed_at` NULL, aucun rôle). Qu'il soit nouvellement créé ou
+ * déjà existant, ce script remet systématiquement son profil dans cet état
+ * (idempotent) — y compris s'il a été complété ou modifié entre deux lancements.
  *
  * Variables (lues dans l'environnement, sinon dans `.env` ; une variable déjà
  * définie n'est jamais écrasée) :
  *   SUPABASE_URL           URL du projet (doit être celui de DEV)
  *   SUPABASE_SECRET_KEY    clé service role (replis : SUPABASE_SERVICE_ROLE_KEY,
  *                          puis SUPABASE_SERVICE_KEY)
- *   TEST_USERS_PASSWORD    mot de passe commun aux 4 comptes
+ *   TEST_USERS_PASSWORD    mot de passe commun aux 5 comptes
  *   TEST_USERS_EMAIL       adresse de base `local@domaine` ; les comptes sont
  *                          `local+admin@domaine`, `local+secretaire@domaine`,
- *                          `local+initiateur@domaine`, `local+adherent@domaine`
+ *                          `local+initiateur@domaine`, `local+adherent@domaine`,
+ *                          `local+incomplete@domaine`
  *
  * Sécurité : refus avant tout appel réseau si l'URL ou la clé ne désigne pas
  * le projet de DEV. La clé et le mot de passe ne sont jamais affichés.
@@ -29,12 +38,14 @@ import { createClient } from '@supabase/supabase-js'
 
 const DEV_REF = 'ybtnnogxukfldurozqwa'
 
-// suffixe d'e-mail · nom fictif · test_role (= code du rôle attendu dans user_roles)
+// suffixe d'e-mail · nom fictif · test_role (= code du rôle attendu dans user_roles,
+// ou null si le compte ne doit avoir AUCUN rôle et un profil toujours non complété)
 const COMPTES = [
   { suffixe: 'admin', fullName: 'Alice Admin-Test', testRole: 'admin' },
   { suffixe: 'secretaire', fullName: 'Sacha Secrétaire-Test', testRole: 'secretary' },
   { suffixe: 'initiateur', fullName: 'Ivan Initiateur-Test', testRole: 'initiateur' },
   { suffixe: 'adherent', fullName: 'Paula Adhérent-Test', testRole: 'parent' },
+  { suffixe: 'incomplete', fullName: 'Nina Incomplet-Test', testRole: null },
 ]
 
 function fail(message) {
@@ -126,29 +137,55 @@ async function chargerUtilisateurs() {
   return parEmail
 }
 
+/** Remet le profil `id` en « non complété », sans rôle. Utilisé pour les comptes testRole === null. */
+async function reinitialiserIncomplet(id, email) {
+  const { error: errRoles } = await supabase.from('user_roles').delete().eq('user_id', id)
+  if (errRoles) {
+    console.error(`${email} · erreur suppression rôles : ${errRoles.message}`)
+    return false
+  }
+  const { error: errProfil } = await supabase
+    .from('profiles')
+    .update({ status: 'En attente', profile_completed_at: null })
+    .eq('id', id)
+  if (errProfil) {
+    console.error(`${email} · erreur remise à l'état non complété : ${errProfil.message}`)
+    return false
+  }
+  return true
+}
+
 async function creer() {
   const existants = await chargerUtilisateurs()
   let enErreur = false
 
   for (const c of comptes) {
-    const deja = existants.get(c.email.toLowerCase())
-    if (deja) {
-      console.log(`${c.email} · déjà existant · ${deja.id}`)
-      continue
+    let id = existants.get(c.email.toLowerCase())?.id
+
+    if (id) {
+      console.log(`${c.email} · déjà existant · ${id}`)
+    } else {
+      const { data, error } = await supabase.auth.admin.createUser({
+        email: c.email,
+        password: motDePasse,
+        email_confirm: true,
+        user_metadata: { full_name: c.fullName },
+        app_metadata: { test_role: c.testRole },
+      })
+      if (error) {
+        console.error(`${c.email} · erreur de création : ${error.message}`)
+        enErreur = true
+        continue
+      }
+      id = data.user.id
+      console.log(`${c.email} · créé · ${id}`)
     }
-    const { data, error } = await supabase.auth.admin.createUser({
-      email: c.email,
-      password: motDePasse,
-      email_confirm: true,
-      user_metadata: { full_name: c.fullName },
-      app_metadata: { test_role: c.testRole },
-    })
-    if (error) {
-      console.error(`${c.email} · erreur de création : ${error.message}`)
-      enErreur = true
-      continue
+
+    if (c.testRole === null) {
+      const ok = await reinitialiserIncomplet(id, c.email)
+      if (!ok) enErreur = true
+      else console.log(`${c.email} · remis à l'état non complété (status: En attente, profile_completed_at: null, aucun rôle)`)
     }
-    console.log(`${c.email} · créé · ${data.user.id}`)
   }
   if (enErreur) process.exit(1)
 }
@@ -167,7 +204,7 @@ async function verifier() {
 
     const { data: profil, error: errProfil } = await supabase
       .from('profiles')
-      .select('id')
+      .select('id, status, profile_completed_at')
       .eq('id', user.id)
       .maybeSingle()
     if (errProfil) fail(`lecture de profiles : ${errProfil.message}`)
@@ -179,6 +216,16 @@ async function verifier() {
     if (errRoles) fail(`lecture de user_roles : ${errRoles.message}`)
 
     const codes = (roles ?? []).map((r) => r.role_code)
+
+    if (c.testRole === null) {
+      const nonComplete = profil?.status === 'En attente' && profil?.profile_completed_at === null && codes.length === 0
+      console.log(
+        `${c.email} · ${user.id} · profil: ${profil ? 'oui' : 'non'} · status: ${profil?.status ?? '?'} · profile_completed_at: ${profil?.profile_completed_at ?? 'null'} · rôles: ${codes.length ? codes.join(', ') : '(aucun)'}`,
+      )
+      if (!profil || !nonComplete) incomplet = true
+      continue
+    }
+
     console.log(
       `${c.email} · ${user.id} · profil: ${profil ? 'oui' : 'non'} · rôles: ${codes.length ? codes.join(', ') : '(aucun)'}`,
     )
