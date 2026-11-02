@@ -38,7 +38,9 @@ export const DIFFICULTY_COLORS: Record<string, string> = {
 }
 
 // Clé de recherche : sans accents, en minuscules, espaces de bord retirés.
-function normalizeKey(value: string): string {
+// Valeur non textuelle (donnée Storyblok inattendue : objet, nombre…) → '' (donc repli), jamais d'exception.
+function normalizeKey(value: unknown): string {
+  if (typeof value !== 'string') return ''
   return value.normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toLowerCase()
 }
 

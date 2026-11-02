@@ -73,6 +73,15 @@ describe('getCategoryColor', () => {
     expect(getCategoryColor()).toBe(DEFAULT_TAG_COLOR)
   })
 
+  it('catégorie non textuelle (donnée Storyblok inattendue) -> repli, sans exception', () => {
+    for (const value of [42, 0, true, {}, { name: 'Bloc' }, ['Bloc'], Symbol('x')]) {
+      expect(() => getCategoryColor(value as unknown as string)).not.toThrow()
+      expect(getCategoryColor(value as unknown as string)).toBe(DEFAULT_TAG_COLOR)
+      expect(getCategoryColor(value as unknown as string, NEUTRAL_TAG_COLOR)).toBe(NEUTRAL_TAG_COLOR)
+      expect(getDifficultyColor(value as unknown as string)).toBe(NEUTRAL_TAG_COLOR)
+    }
+  })
+
   it('repli personnalisé : remplace le défaut pour inconnu/vide, pas pour une catégorie connue', () => {
     expect(getCategoryColor('Inconnue', NEUTRAL_TAG_COLOR)).toBe('#6B7280')
     expect(getCategoryColor('', NEUTRAL_TAG_COLOR)).toBe('#6B7280')

@@ -8,13 +8,10 @@
 
 | # | Point | Feature | Taille |
 |---|---|---|---|
-| Q11 | `.claude/skills/asc-rules/scripts/check.mjs:129-144` : faux positifs en ERREUR sur les hex des commentaires, textes et sélecteurs ; passer le source dans `mask(src, false)` avant la recherche (prioritaire dès qu'il bloque une édition légitime) | harmonisation-couleurs | S |
-| Q12 | `app/utils/categoryColors.ts:41-52` : `normalizeKey` lève une exception sur une catégorie non textuelle (objet, nombre) ; `typeof` dans `getCategoryColor`, regex des accents en `̀-ͯ` | harmonisation-couleurs | XS |
-| Q13 | Aucun test ne vérifie l'alignement des valeurs dupliquées (`#7FD857`, `#0F1729`) entre `main.css`, `categoryColors.ts` et `email-theme.ts` | harmonisation-couleurs | XS |
 | Q15 | `app/components/admin/HelloAssoConfig.vue:211-214` : saison en cours calculée à l'heure du navigateur, la migration utilise `Europe/Paris` (écart possible le 1er septembre vers minuit) | helloasso-socle | XS |
 | Q16 | `tests/utils/nitro.ts:62-77` : `setRuntimeConfig` est sans effet sous l'environnement `nuxt` ; le retirer ou le marquer déprécié (piège pour les lots HelloAsso) | outillage-tests | XS |
 | Q17 | `app/components/auth/ProfileFieldsForm.vue:5-58` : indentation de la carte Identité non réalignée après l'ajout du wrapper | profil-register-desktop | XS |
-| Q18 | Une seule règle de version Storyblok partout : helper partagé (`?_storyblok` → `draft`, sinon `STORYBLOK_VERSION \|\| 'published'`) utilisé par `useEvents`, `usePosts`, `app/pages/[...slug].vue`, `app/pages/posts/[slug].vue` et les bloks de liste (`Home/Actualites.vue`, `actualites/Page.vue`, `sorties/Page.vue`). Aujourd'hui, les pages ignorent `STORYBLOK_VERSION` et les bloks de liste ignorent `?_storyblok`. Objectif : dans l'éditeur visuel, toutes les listes montrent les brouillons | suite Q14 | S |
+| Q20 | Une seule règle de version Storyblok partout : helper partagé (`?_storyblok` → `draft`, sinon `STORYBLOK_VERSION \|\| 'published'`) utilisé par `useEvents`, `usePosts`, `app/pages/[...slug].vue`, `app/pages/posts/[slug].vue` et les bloks de liste (`Home/Actualites.vue`, `actualites/Page.vue`, `sorties/Page.vue`). Aujourd'hui, les pages ignorent `STORYBLOK_VERSION` et les bloks de liste ignorent `?_storyblok`. Objectif : dans l'éditeur visuel, toutes les listes montrent les brouillons | suite Q14 | S |
 
 ## À décider avec moi
 
@@ -63,6 +60,7 @@
 
 ## Retirés (corrigés ou clos depuis)
 - enfants-fiabilite : Q1 à Q4 (rôle `parent` accordé après les enfants, compensation journalisée, 23505 ⇒ 409, message 403 neutre) et Q10 (enfants affichés selon les liens `parent_access`) ; puis Q18 (400 « Compte utilisateur introuvable » aligné sur le message neutre) et Q19 (bloc `{}` anonyme retiré de `profil.vue`).
+- harmonisation-couleurs : Q11 (`check.mjs` ignore les hex des commentaires et des textes du template), Q12 (`normalizeKey` sans exception sur une catégorie non textuelle, regex des accents en `̀-ͯ`), Q13 (test de cohérence des couleurs `main.css` / `categoryColors.ts` / `email-theme.ts`).
 - auth-profils (`callback.vue`) : Q5 (`catch` sur la redirection, repli sur `callback-auth-error`), Q6 (recovery sans `ensureProfile`), Q7 (code validé au format UUID avant l'échange), Q8 (commentaire « ~500 ms » corrigé), Q9 (limite du compte des lectures commentée).
 - « Design ordinateur » de `/profil`, `/register`, `/completer-profil` : fait par profil-register-desktop (lots 1 et 2).
 - 4 avertissements couleur de `check.mjs` (`Header.vue`, `register.vue`) : `check.mjs` est vide sur ces fichiers depuis harmonisation-couleurs.

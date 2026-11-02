@@ -125,9 +125,34 @@ function resolveImport(spec) {
   return rel(path.join(path.dirname(PLUGIN), spec))
 }
 
+// Template d'un SFC : masque commentaires HTML et textes entre balises (les {{ }} et attributs restent).
+function maskTemplateText(src) {
+  const tOpen = /^<template(\s[^>]*)?>/m.exec(src)
+  if (!tOpen) return src
+  const start = tOpen.index + tOpen[0].length
+  const close = src.lastIndexOf('</template>')
+  const end = close > start ? close : src.length
+  const blank = (s) => s.replace(/[^\n]/g, ' ')
+  let out = src.slice(0, start), i = start, inTag = false, q = null
+  while (i < end) {
+    const c = src[i]
+    if (inTag) {
+      if (q) { if (c === q) q = null } else if (c === '"' || c === "'") q = c; else if (c === '>') inTag = false
+      out += c; i++; continue
+    }
+    if (src.startsWith('<!--', i)) { const j = src.indexOf('-->', i + 4); const e = j < 0 || j > end ? end : j + 3; out += blank(src.slice(i, e)); i = e; continue }
+    if (src.startsWith('{{', i)) { const j = src.indexOf('}}', i + 2); const e = j < 0 || j > end ? end : j + 2; out += src.slice(i, e); i = e; continue }
+    if (c === '<' && /[A-Za-z/!]/.test(src[i + 1] ?? '')) { inTag = true; out += c; i++; continue }
+    out += c === '\n' ? '\n' : ' '; i++
+  }
+  return out + src.slice(end)
+}
+
 // ---------- règles ----------
-function checkColors(file, src) {
+function checkColors(file, raw) {
   if (THEME_FILES.has(file) || HEX_FREE_DIR.test(file)) return
+  // Hex des commentaires et des textes ignorés ; chaînes (classes, styles) conservées.
+  const src = mask(file.endsWith('.vue') ? maskTemplateText(raw) : raw, false)
   const fix = '→ token de app/assets/css/main.css (classe vp-*/palette ou var()), catégories : app/utils/categoryColors.ts'
   // `_` autorisé avant le # : valeurs arbitraires Tailwind (shadow-[0_0_20px_#7FD857])
   for (const m of src.matchAll(/(?<![A-Za-z0-9&#/\-])#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![\w-])/g)) {
