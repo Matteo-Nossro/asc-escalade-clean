@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 py-12 page-content">
-    <div class="w-full max-w-xl mx-auto">
+    <div class="w-full max-w-xl lg:max-w-5xl mx-auto">
 
       <!-- ── En-tête ── -->
       <div class="text-center mb-8">
@@ -23,43 +23,45 @@
           <p class="text-sm text-gray-500 mt-1">Sélectionnez votre situation</p>
         </div>
 
-        <button
-          type="button"
-          class="w-full bg-white rounded-3xl shadow-xl border-2 p-6 text-left transition-all hover:shadow-2xl"
-          :class="typeChoice === 'adult' ? 'border-vp-green' : 'border-transparent hover:border-vp-green'"
-          data-testid="btn-type-adult"
-          @click="typeChoice = 'adult'"
-        >
-          <div class="flex items-start gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-vp-green/10 flex items-center justify-center shrink-0">
-              <UIcon name="i-lucide-user" class="w-6 h-6 text-vp-green" />
+        <div class="space-y-4 lg:space-y-0 lg:flex lg:gap-6 lg:items-start">
+          <button
+            type="button"
+            class="w-full bg-white rounded-3xl shadow-xl border-2 p-6 text-left transition-all hover:shadow-2xl lg:flex-1 lg:min-w-0"
+            :class="typeChoice === 'adult' ? 'border-vp-green' : 'border-transparent hover:border-vp-green'"
+            data-testid="btn-type-adult"
+            @click="typeChoice = 'adult'"
+          >
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 rounded-2xl bg-vp-green/10 flex items-center justify-center shrink-0">
+                <UIcon name="i-lucide-user" class="w-6 h-6 text-vp-green" />
+              </div>
+              <div class="flex-1">
+                <p class="font-bold text-gray-900 text-lg">Je suis majeur et je souhaite m'inscrire</p>
+                <p class="text-sm text-gray-500 mt-1">Créer mon compte personnel.</p>
+              </div>
+              <UIcon v-if="typeChoice === 'adult'" name="i-lucide-check-circle-2" class="w-5 h-5 text-vp-green shrink-0 mt-1" />
             </div>
-            <div class="flex-1">
-              <p class="font-bold text-gray-900 text-lg">Je suis majeur et je souhaite m'inscrire</p>
-              <p class="text-sm text-gray-500 mt-1">Créer mon compte personnel.</p>
-            </div>
-            <UIcon v-if="typeChoice === 'adult'" name="i-lucide-check-circle-2" class="w-5 h-5 text-vp-green shrink-0 mt-1" />
-          </div>
-        </button>
+          </button>
 
-        <button
-          type="button"
-          class="w-full bg-white rounded-3xl shadow-xl border-2 p-6 text-left transition-all hover:shadow-2xl"
-          :class="typeChoice === 'minor' ? 'border-amber-400' : 'border-transparent hover:border-amber-400'"
-          data-testid="btn-type-minor"
-          @click="typeChoice = 'minor'"
-        >
-          <div class="flex items-start gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center shrink-0">
-              <UIcon name="i-lucide-users" class="w-6 h-6 text-amber-500" />
+          <button
+            type="button"
+            class="w-full bg-white rounded-3xl shadow-xl border-2 p-6 text-left transition-all hover:shadow-2xl lg:flex-1 lg:min-w-0"
+            :class="typeChoice === 'minor' ? 'border-amber-400' : 'border-transparent hover:border-amber-400'"
+            data-testid="btn-type-minor"
+            @click="typeChoice = 'minor'"
+          >
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center shrink-0">
+                <UIcon name="i-lucide-users" class="w-6 h-6 text-amber-500" />
+              </div>
+              <div class="flex-1">
+                <p class="font-bold text-gray-900 text-lg">Je souhaite inscrire mon enfant (mineur)</p>
+                <p class="text-sm text-gray-500 mt-1">Un mineur ne peut pas s'inscrire seul.</p>
+              </div>
+              <UIcon v-if="typeChoice === 'minor'" name="i-lucide-check-circle-2" class="w-5 h-5 text-amber-500 shrink-0 mt-1" />
             </div>
-            <div class="flex-1">
-              <p class="font-bold text-gray-900 text-lg">Je souhaite inscrire mon enfant (mineur)</p>
-              <p class="text-sm text-gray-500 mt-1">Un mineur ne peut pas s'inscrire seul.</p>
-            </div>
-            <UIcon v-if="typeChoice === 'minor'" name="i-lucide-check-circle-2" class="w-5 h-5 text-amber-500 shrink-0 mt-1" />
-          </div>
-        </button>
+          </button>
+        </div>
 
         <UAlert
           v-if="typeChoice === 'minor'"
@@ -199,7 +201,7 @@
 
 
         <!-- Navigation -->
-        <div class="flex gap-3">
+        <div class="flex gap-3 lg:justify-end">
           <UButton variant="soft" size="xl" :disabled="submitting" type="button" @click="currentStep = 1">
             <template #leading>
               <UIcon name="i-lucide-arrow-left" class="w-5 h-5" />
@@ -213,7 +215,7 @@
             size="xl"
             :loading="submitting"
             :disabled="submitting"
-            class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold shadow-lg hover:shadow-xl transition-all"
+            class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold shadow-lg hover:shadow-xl transition-all lg:w-auto"
           >
             <template v-if="!submitting" #leading>
               <UIcon :name="typeChoice === 'minor' ? 'i-lucide-arrow-right' : 'i-lucide-check'" class="w-5 h-5" />
@@ -260,7 +262,7 @@
 
 
         <!-- Navigation + soumission -->
-        <div class="flex gap-3">
+        <div class="flex gap-3 lg:justify-end">
           <UButton variant="soft" size="xl" :disabled="submitting" type="button" @click="currentStep = 2">
             <template #leading>
               <UIcon name="i-lucide-arrow-left" class="w-5 h-5" />
@@ -272,7 +274,7 @@
             size="xl"
             :loading="submitting"
             :disabled="submitting"
-            class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold shadow-lg hover:shadow-xl transition-all"
+            class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold shadow-lg hover:shadow-xl transition-all lg:w-auto"
             data-testid="btn-register-finish"
             @click="submitRegistration"
           >

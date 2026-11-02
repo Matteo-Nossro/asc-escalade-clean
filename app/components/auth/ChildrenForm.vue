@@ -1,7 +1,7 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 lg:space-y-0 lg:flex lg:gap-6 lg:items-start">
     <!-- Cartes enfants déjà ajoutés -->
-    <div v-if="model.length > 0" class="space-y-3">
+    <div v-if="model.length > 0" class="space-y-3 lg:flex-1 lg:min-w-0">
       <div
         v-for="(child, i) in model"
         :key="i"
@@ -22,7 +22,7 @@
     </div>
 
     <!-- Formulaire ajout enfant -->
-    <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+    <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100 lg:flex-1 lg:min-w-0">
       <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
         <UIcon name="i-lucide-user-plus" class="w-5 h-5 text-vp-green" />
         Ajouter un enfant

@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 py-12 page-content">
-    <div class="w-full max-w-xl mx-auto">
+    <div class="w-full max-w-xl lg:max-w-5xl mx-auto lg:pb-28">
 
       <!-- ── En-tête ── -->
       <div class="text-center mb-8">
@@ -56,20 +56,25 @@
           :parent-address="{ address: form.address, postal_code: form.postal_code, city: form.city }"
         />
 
-        <UButton
-          type="submit"
-          block
-          size="xl"
-          data-testid="btn-complete-submit"
-          :loading="submitting"
-          :disabled="submitting"
-          class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold shadow-lg hover:shadow-xl transition-all"
-        >
-          <template v-if="!submitting" #leading>
-            <UIcon name="i-lucide-check" class="w-5 h-5" />
-          </template>
-          {{ submitting ? 'Envoi en cours…' : 'Valider mon profil' }}
-        </UButton>
+        <!-- Bouton valider (barre d'actions collante à partir de lg) -->
+        <div class="lg:sticky lg:bottom-0 lg:z-20 lg:bg-gray-100 lg:border-t lg:border-gray-200 lg:px-4 lg:py-4">
+          <div class="flex lg:justify-end">
+            <UButton
+              type="submit"
+              block
+              size="xl"
+              data-testid="btn-complete-submit"
+              :loading="submitting"
+              :disabled="submitting"
+              class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold shadow-lg hover:shadow-xl transition-all lg:w-auto"
+            >
+              <template v-if="!submitting" #leading>
+                <UIcon name="i-lucide-check" class="w-5 h-5" />
+              </template>
+              {{ submitting ? 'Envoi en cours…' : 'Valider mon profil' }}
+            </UButton>
+          </div>
+        </div>
       </form>
 
       <!-- ── Succès ── -->

@@ -1,7 +1,8 @@
 <template>
-  <div class="space-y-6">
-    <!-- Identité -->
-    <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+  <div class="space-y-6 lg:space-y-0 lg:flex lg:gap-6 lg:items-start">
+    <div class="space-y-6 lg:flex-1 lg:min-w-0">
+      <!-- Identité -->
+      <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
       <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
         <UIcon name="i-lucide-user" class="w-5 h-5 text-vp-green" />
         Identité
@@ -57,11 +58,12 @@
       </div>
     </div>
 
-    <!-- Emplacement pour des champs propres à la page (ex. identifiants de connexion) -->
-    <slot name="after-identity" />
+      <!-- Emplacement pour des champs propres à la page (ex. identifiants de connexion) -->
+      <slot name="after-identity" />
+    </div>
 
     <!-- Adresse -->
-    <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+    <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100 lg:flex-1 lg:min-w-0">
       <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
         <UIcon name="i-lucide-map-pin" class="w-5 h-5 text-vp-green" />
         Adresse

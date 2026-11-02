@@ -37,6 +37,8 @@
 4. *(Parents)* Ajout des profils enfants
 5. Confirmation
 
+- Sur ordinateur (≥ 1024 px) : `/register` et `/completer-profil` en mise en page desktop (cartes adulte / parent côte à côte à l'étape 1, formulaires en deux colonnes, boutons alignés à droite)
+
 ---
 
 ## 3. Espace utilisateur connecté

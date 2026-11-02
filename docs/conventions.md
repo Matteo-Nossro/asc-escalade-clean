@@ -205,6 +205,7 @@ Le dashboard admin est découpé en composants autonomes. Tous les composants pa
 Référence : `app/pages/profil.vue`. Le mobile reste la pile verticale d'origine (`max-w-xl`) ; tout le desktop passe par des classes `lg:` / `xl:`.
 - Conteneur : `max-w-xl lg:max-w-5xl`.
 - Cartes en **deux colonnes indépendantes** (`lg:flex lg:gap-6 lg:items-start`, une `div` `lg:flex-1 lg:min-w-0` par colonne) plutôt qu'une `grid` alignée : pas de trou quand les cartes conditionnelles (`v-if`) ou les hauteurs diffèrent. Couper l'ordre DOM en deux blocs consécutifs ; pas de `order-*`, pour que la tabulation suive le même ordre qu'en mobile.
+- Composant partagé par plusieurs pages (ex. `ProfileFieldsForm` / `ChildrenForm`, utilisés par `/register` et `/completer-profil`) : le split en colonnes se fait **à l'intérieur** du composant, pas dans la page appelante, pour que toutes les pages consommatrices aient le même découpage.
 - Barre d'actions collante (bouton d'enregistrement + messages) : `lg:sticky lg:bottom-0 lg:z-20 lg:bg-gray-100 lg:border-t`, fond opaque, uniquement à partir de `lg`. Ajouter `lg:pb-28` au conteneur pour que la dernière carte ne soit pas masquée.
 - Bouton pleine largeur en mobile (`block`), `lg:w-auto` + `lg:justify-end` sur le wrapper à `lg`.
 
