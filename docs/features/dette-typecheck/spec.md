@@ -12,6 +12,7 @@ Ramener à zéro les 192 erreurs de `nuxi typecheck` mesurées le 2026-10-22, pu
 - [ ] **Lot 2, types Supabase** (~54 erreurs `Database = unknown`) : `app/types/database.types.ts` est généré (`supabase gen types`, commande lancée par l'utilisateur, qui a accès à la base) et branché dans `@nuxtjs/supabase`. La procédure de régénération est documentée.
 - [ ] **Lot 3, le reste** (~97 erreurs ponctuelles : props NuxtUI invalides, `NavigateToOptions`, etc.) : corrections minimales, sans changement de comportement.
 - [ ] La baseline est régénérée après chaque lot (`npm run typecheck:baseline`) et le nombre d'erreurs baisse.
+- [ ] **Lot 4, fichiers de `tests/`** (rattaché depuis le backlog, ex-D15) : `tests/**` (dont `tests/utils/supabase-mock.ts`, `tests/utils/nitro.ts`) est hors du tsconfig Nuxt et n'est donc pas vérifié par `npm run typecheck`. L'inclure (tsconfig dédié ou `include` étendu), mesurer les erreurs qui apparaissent et les corriger dans ce lot.
 - [ ] Une fois à zéro : la baseline est supprimée, et `typecheck` redevient `nuxi typecheck`.
 - [ ] `npm test` et `npm run test:e2e` restent verts.
 

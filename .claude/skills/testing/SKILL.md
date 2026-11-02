@@ -24,6 +24,7 @@ Référence générale : `docs/architecture.md` § Tests.
 7. **Tests d'abord** :
    - `qa` (et `e2e` pour les parcours) écrit les tests à partir des critères d'acceptation, **avant** le code. Ils doivent échouer pour la bonne raison : fonctionnalité absente, pas une erreur de syntaxe ou d'import.
    - Les agents de dev **ne modifient pas ces tests**. Un test qui leur semble faux ⇒ stop, et signalement.
+8. **Tous les tests Vitest vont dans `tests/`** (miroir de l'arborescence : `tests/components/…`, `tests/server/api/…`). `vitest.config.ts` n'inclut que `tests/**` : un test placé ailleurs (à côté du composant, dans `server/`…) ne tournerait pas, sans aucun message. Les parcours Playwright restent dans `e2e/`.
 
 ## Exemples (à ouvrir selon le besoin)
 | Cible | Fichier | Modèle dans le dépôt |

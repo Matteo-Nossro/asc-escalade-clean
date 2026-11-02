@@ -59,7 +59,11 @@
 }
 
 /* Garantit l'émission des variables de palette lues en var(--color-…) depuis des <style> de
-   composants (non traités par Tailwind) : gray-200 et gray-700 (Header, posts/[slug]). */
+   composants (non traités par Tailwind) : gray-200 et gray-700 (Header, posts/[slug]).
+   Tailwind n'émet une variable --color-* que si une classe qui l'utilise est trouvée ; les <style>
+   de app/components/layout/Header.vue et app/pages/posts/[slug].vue lisent var(--color-gray-200) /
+   var(--color-gray-700) sans aucune classe correspondante. Retirer cette ligne casse leurs couleurs
+   sans erreur ; toute nouvelle var(--color-…) lue dans un <style> doit être ajoutée ici. */
 @source inline("bg-gray-200 text-gray-700");
 
 :root {

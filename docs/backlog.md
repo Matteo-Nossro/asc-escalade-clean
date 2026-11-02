@@ -8,29 +8,25 @@
 
 | # | Point | Feature | Taille |
 |---|---|---|---|
+| Q23 | **PRIORITAIRE** (ex-D7). Nouvelle migration qui fixe `search_path` sur **toutes** les fonctions `SECURITY DEFINER` de `public`. État du dev au 2026-11-02 (`pg_proc`) : `is_admin_or_secretary()`, `has_role(_role text)`, `enrich_profile_from_temps_user()` sans `search_path` ; `handle_new_user()` en `search_path=public` (à aligner sur la valeur retenue). Valeur à trancher au plan : `''` (noms qualifiés `public.` dans les corps) ou `public, pg_temp`. À ajouter si la passe le permet : les 3 fonctions non `SECURITY DEFINER` signalées par l'advisor `function_search_path_mutable` (`handle_updated_at`, `registrations_block_user_status_change`, `profiles_block_payment_change`). Tests d'abord, dans la même passe que Q24 | auth-profils | S |
+| Q24 | (ex-D6) T1b : tester le cas « jeton `authenticated` sans `sub` » directement en SQL dans `scripts/check-auth-profils-db.mjs` : transaction avec `set local role authenticated` et `set_config('request.jwt.claims', '{"role":"authenticated"}', true)`, puis `rollback` ; pas de secret JWT | auth-profils | S |
+| Q25 | (ex-D2) `app/middleware/auth.global.ts` : en état `error`, bloquer (ou réessayer la lecture du profil) au lieu de laisser un profil incomplet atteindre `/profil`. La lecture unique des rôles par session est acceptée : le serveur revérifie chaque action | auth-profils | S |
+| Q26 | (ex-D3) `app/composables/useAuth.ts:24-25` : retirer `loading` et `error` s'ils n'ont toujours aucun lecteur (à revérifier par `Grep` au moment de la passe) | auth-profils | XS |
+| Q27 | (ex-D8) Contraste des pastilles `Tag` en `soft` d'au moins **4,5:1** (WCAG AA) : texte plus foncé dans la teinte de la catégorie (aujourd'hui vert ≈ 1,8:1, ambre ≈ 2,1:1, turquoise ≈ 1,9:1), y compris dans `ProchainsEvenements` | harmonisation-couleurs | S |
+| Q28 | (ex-D14) `.claude/settings.json:10` : restreindre `Bash(npm run test:e2e *)` aux usages prévus par le plan (règles explicites par cible plutôt qu'un joker) | outillage-tests | XS |
 | Q20 | Une seule règle de version Storyblok partout : helper partagé (`?_storyblok` → `draft`, sinon `STORYBLOK_VERSION \|\| 'published'`) utilisé par `useEvents`, `usePosts`, `app/pages/[...slug].vue`, `app/pages/posts/[slug].vue` et les bloks de liste (`Home/Actualites.vue`, `actualites/Page.vue`, `sorties/Page.vue`). Aujourd'hui, les pages ignorent `STORYBLOK_VERSION` et les bloks de liste ignorent `?_storyblok`. Objectif : dans l'éditeur visuel, toutes les listes montrent les brouillons | suite Q14 | S |
-| Q21 | `.claude/skills/asc-rules/scripts/check.mjs` : signale à tort les sélecteurs CSS dont l'identifiant ressemble à un hex (`#add`, `#bad`, `#face`…) ; à traiter s'il bloque une modification légitime | harmonisation-couleurs | XS |
+| Q21 | `.claude/skills/asc-rules/scripts/check.mjs`, regroupé avec ex-D9 : (a) étendre la vérification aux `.css` (hors `main.css`), `.js` et `.mjs`, pas aux `.svg` ; (b) ne plus signaler les sélecteurs CSS dont l'identifiant ressemble à un hex (`#add`, `#bad`, `#face`…), devenu nécessaire avec l'extension aux `.css` | harmonisation-couleurs | S |
 | Q22 | Règle de saison éclatée : `app/utils/season.ts` (`currentSeasonStart` en `Europe/Paris`, `seasonLabel`), `server/utils/helloasso-season.ts` (`isValidSeason`), migration `20261025_helloasso_socle.sql` (coupure au 1er septembre en `Europe/Paris`), et une 3e copie dans `app/components/GroupsAccordion.vue:226` (`getMonth() >= 8`, heure du navigateur). Cohérentes au 2026-11-02 (même coupure, même format `AAAA-AAAA+1` ; `seasonLabel` produit toujours une valeur acceptée par `isValidSeason`), sauf le fuseau de `GroupsAccordion.vue`. Proposition : un seul module `shared/utils/season.ts` (Nuxt 4, importable côté app et server) avec `currentSeasonStart`, `seasonLabel`, `isValidSeason`, utilisé par `HelloAssoConfig.vue`, `GroupsAccordion.vue` et les routes `helloasso-forms` ; supprimer les deux fichiers actuels et déplacer le test dans `tests/utils/season.test.ts` (+ cas `isValidSeason`) | suite Q15 | S |
 
 ## À décider avec moi
 
 | # | Point | Feature | Taille |
 |---|---|---|---|
-| D1 | Statut des enfants : propager l'activation du parent (« En attente » → « Actif ») aux enfants rattachés ? Un enfant « En attente » peut-il être inscrit à un groupe ? | auth-profils | M |
-| D2 | `app/middleware/auth.global.ts` : en état `error`, la règle de complétion est sautée (un profil incomplet atteint `/profil`) ; rôles lus une fois par session (un retrait d'admin ne se voit qu'au rechargement) | auth-profils | S |
-| D3 | `app/composables/useAuth.ts:24-25` : `loading` et `error` partagés entre lecture du profil et actions de connexion ; aucun lecteur aujourd'hui : les séparer ou les retirer | auth-profils | XS |
-| D4 | Lien d'un e-mail **renvoyé** (`auth.resend`) : jeton hors PKCE, retour en `#access_token=…` que le client PKCE n'exploite pas (noté sans correction) ; pistes : `verifyOtp` + modèle `token_hash`, ou lecture du hash dans `callback.vue` | auth-profils | M |
-| D5 | `resendSignupConfirmation` : `rate_limited` n'est renvoyé que pour un compte existant non confirmé (témoin d'existence, comportement GoTrue accepté) ; à garder pour mémoire ou classer | auth-profils | XS |
-| D6 | T1b : le cas « jeton `authenticated` sans `sub` » n'est pas testé par `scripts/check-auth-profils-db.mjs` (il faut le secret JWT) | auth-profils | S |
-| D7 | `is_admin_or_secretary()` en `SECURITY DEFINER` sans `search_path` (`20260101_rattrapage_schema.sql:416`) ; durcissement par une nouvelle migration | auth-profils | S |
-| D8 | Contraste des pastilles `Tag` en `soft` sous AA (vert ≈ 1,8:1, ambre ≈ 2,1:1, turquoise ≈ 1,9:1), étendu à `ProchainsEvenements` | harmonisation-couleurs | S |
-| D9 | `check.mjs` ne couvre que `.vue` / `.ts` (pas les `.css` hors `main.css`, `.js` / `.mjs`, `public/*.svg`) ; aucun hex dans ces fichiers aujourd'hui | harmonisation-couleurs | S |
-| D10 | `main.css:63` `@source inline("bg-gray-200 text-gray-700")` : couplage implicite avec les `<style>` de `Header.vue` et `posts/[slug].vue` ; tokens `--vp-*` dédiés ? | harmonisation-couleurs | S |
-| D11 | Captures de non-régression aveugles aux nuances proches (`#7FD857` → `#6bc546` passe) ; survol, focus, modales, onglets admin non capturés | harmonisation-couleurs | S |
-| D12 | `vitest.config.ts:23-24` : `include` limité à `tests/**` ; un test placé ailleurs ne tournerait pas, sans bruit | helloasso-socle | XS |
-| D13 | En dev, le `message` d'une erreur h3 non gérée peut contenir du détail technique (masqué en prod par Nitro) ; probablement à classer sans suite | helloasso-socle | XS |
-| D14 | `.claude/settings.json:10` : la règle `Bash(npm run test:e2e *)` ouvre des arguments arbitraires à Playwright, au-delà du plan | outillage-tests | XS |
-| D15 | Les fichiers de `tests/` (dont `supabase-mock.ts`, `nitro.ts`) sont hors du tsconfig Nuxt : non vérifiés par `npm run typecheck` | outillage-tests | S |
+| D1 | Statut des enfants : propager l'activation du parent (« En attente » → « Actif ») aux enfants rattachés ? Un enfant « En attente » peut-il être inscrit à un groupe ? **En attente de l'avis du bureau.** Proposition par défaut : case « Valider aussi les enfants rattachés », cochée par défaut, à la validation du parent ; pas d'inscription en groupe pour un enfant non validé | auth-profils | M |
+| D16 | Advisor Supabase (dev, 2026-11-02, niveau **ERROR**) `security_definer_view` : la vue `public.member_directory` s'exécute avec les droits de son créateur (RLS de l'appelant contournée). Passer en `security_invoker = true` ou restreindre ses colonnes et ses `GRANT` | auth-profils | S |
+| D17 | Advisors `anon/authenticated_security_definer_function_executable` : `has_role`, `is_admin_or_secretary`, `handle_new_user`, `enrich_profile_from_temps_user` appelables via `/rest/v1/rpc/…` par `anon` et `authenticated`. Les deux fonctions de trigger n'ont pas à être exposées ; `has_role` / `is_admin_or_secretary` servent aux RLS (`authenticated` nécessaire, `anon` à vérifier). `REVOKE EXECUTE` ciblés, à joindre à Q23 si accepté | auth-profils | XS |
+| D18 | Advisor `auth_leaked_password_protection` : protection contre les mots de passe compromis (HaveIBeenPwned) désactivée ; réglage du tableau de bord Supabase, à activer à la main en dev et en prod (la prod n'est pas touchée par Claude) | auth-profils | XS |
+| D19 | Advisor `rls_enabled_no_policy` (INFO) : `public.User`, `public.temps_user`, `public.helloasso_tokens` sans policy (accès réservé au service role). Voulu pour `helloasso_tokens` ; `User` et `temps_user` sont-elles encore utilisées, ou à supprimer par migration ? | auth-profils | S |
 
 ## Lié à un futur lot HelloAsso
 
@@ -58,6 +54,13 @@
 | P4 | Contrôle visuel des badges de `ProchainsEvenements` avec un événement de test en brouillon (catégorie inconnue → gris) | harmonisation-couleurs | XS |
 
 ## Retirés (corrigés ou clos depuis)
+- Décisions du 2026-11-02 sur les « À décider » : D2, D3, D6, D7, D8, D14 passés en corrections (Q25, Q26, Q24, Q23, Q27, Q28), D9 regroupé dans Q21 ; D15 rattaché à la spec `dette-typecheck` (lot 4). Acceptés :
+  - D4 (lien d'un e-mail renvoyé hors PKCE) : l'adresse est bien confirmée côté Supabase avant la redirection ; seule la connexion automatique échoue, l'utilisateur se connecte ensuite normalement.
+  - D5 (`rate_limited` révèle un compte non confirmé) : comportement natif de GoTrue ; l'information est la même que celle déjà donnée par l'inscription.
+  - D10 (`@source inline` de `main.css`) : couplage gardé, expliqué par un commentaire dans `main.css` (pourquoi la ligne existe, quels fichiers en dépendent).
+  - D11 (captures aveugles aux nuances proches) : les captures visent la mise en page ; les valeurs de couleur sont couvertes par le test de cohérence (Q13) et `check.mjs`.
+  - D12 (`include` Vitest limité à `tests/**`) : règle « tous les tests vont dans `tests/` » ajoutée à la skill `testing` (règle 8).
+  - D13 (détail technique dans une erreur h3 en dev) : Nitro le masque en prod ; en dev, ce détail aide au débogage.
 - enfants-fiabilite : Q1 à Q4 (rôle `parent` accordé après les enfants, compensation journalisée, 23505 ⇒ 409, message 403 neutre) et Q10 (enfants affichés selon les liens `parent_access`) ; puis Q18 (400 « Compte utilisateur introuvable » aligné sur le message neutre) et Q19 (bloc `{}` anonyme retiré de `profil.vue`).
 - Petites dettes : Q15 (saison de `HelloAssoConfig.vue` calculée en `Europe/Paris` via `app/utils/season.ts`, testée autour du 1er septembre), Q16 (`setRuntimeConfig` retiré de `tests/utils/nitro.ts`), Q17 (indentation de la carte Identité de `ProfileFieldsForm.vue`).
 - harmonisation-couleurs : Q11 (`check.mjs` ignore les hex des commentaires et des textes du template), Q12 (`normalizeKey` sans exception sur une catégorie non textuelle, regex des accents en `̀-ͯ`), Q13 (test de cohérence des couleurs `main.css` / `categoryColors.ts` / `email-theme.ts`).
