@@ -11,7 +11,6 @@
 | Q11 | `.claude/skills/asc-rules/scripts/check.mjs:129-144` : faux positifs en ERREUR sur les hex des commentaires, textes et sélecteurs ; passer le source dans `mask(src, false)` avant la recherche (prioritaire dès qu'il bloque une édition légitime) | harmonisation-couleurs | S |
 | Q12 | `app/utils/categoryColors.ts:41-52` : `normalizeKey` lève une exception sur une catégorie non textuelle (objet, nombre) ; `typeof` dans `getCategoryColor`, regex des accents en `̀-ͯ` | harmonisation-couleurs | XS |
 | Q13 | Aucun test ne vérifie l'alignement des valeurs dupliquées (`#7FD857`, `#0F1729`) entre `main.css`, `categoryColors.ts` et `email-theme.ts` | harmonisation-couleurs | XS |
-| Q14 | `app/composables/useEvents.ts:7` ignore le mode prévisualisation (`?_storyblok`) : le bureau ne peut pas prévisualiser un événement avant publication | harmonisation-couleurs | S |
 | Q15 | `app/components/admin/HelloAssoConfig.vue:211-214` : saison en cours calculée à l'heure du navigateur, la migration utilise `Europe/Paris` (écart possible le 1er septembre vers minuit) | helloasso-socle | XS |
 | Q16 | `tests/utils/nitro.ts:62-77` : `setRuntimeConfig` est sans effet sous l'environnement `nuxt` ; le retirer ou le marquer déprécié (piège pour les lots HelloAsso) | outillage-tests | XS |
 | Q17 | `app/components/auth/ProfileFieldsForm.vue:5-58` : indentation de la carte Identité non réalignée après l'ajout du wrapper | profil-register-desktop | XS |

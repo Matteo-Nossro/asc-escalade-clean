@@ -1,10 +1,15 @@
 // composables/useEvents.ts
 export const useEvents = () => {
   const storyblokApi = useStoryblokApi()
+  // Même règle que usePosts dans posts/[slug].vue : brouillons dans l'éditeur Storyblok,
+  // sinon STORYBLOK_VERSION (published par défaut)
+  const version: 'draft' | 'published' = useRoute().query._storyblok
+    ? 'draft'
+    : ((useRuntimeConfig().public.storyblokVersion as 'draft' | 'published') || 'published')
 
   const getEvents = async () => {
     const { data } = await storyblokApi.get('cdn/stories', {
-      version: (useRuntimeConfig().public.storyblokVersion as 'draft' | 'published') || 'published',
+      version,
       starts_with: 'posts/',
       per_page: 100
     })
