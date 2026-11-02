@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 py-12 page-content">
-    <div class="w-full max-w-xl mx-auto">
+    <div class="w-full max-w-xl lg:max-w-5xl mx-auto lg:pb-28">
 
       <!-- Titre -->
       <div class="text-center mb-8">
@@ -19,6 +19,10 @@
 
       <!-- Contenu -->
       <div v-else class="space-y-6">
+
+        <!-- Cartes principales : deux colonnes indépendantes à partir de lg (cartes 1-4 à gauche, 5-7 à droite, ordre DOM inchangé) -->
+        <div class="space-y-6 lg:space-y-0 lg:flex lg:gap-6 lg:items-start">
+        <div class="space-y-6 lg:flex-1 lg:min-w-0">
 
         <!-- Réinitialisation mot de passe -->
         <div v-if="showResetPassword" class="bg-white rounded-3xl shadow-2xl p-8 border-2 border-vp-green">
@@ -329,6 +333,9 @@
           </div>
         </div>
 
+        </div>
+        <div class="space-y-6 lg:flex-1 lg:min-w-0">
+
         <!-- Card Adresse -->
         <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
           <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
@@ -453,7 +460,7 @@
             <UBadge color="neutral" variant="soft" size="xs">Lecture seule</UBadge>
           </h3>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             <div v-if="form.licence_type" class="p-4 bg-gray-50 rounded-xl">
               <p class="text-xs text-gray-500 mb-1">Type de licence</p>
               <p class="font-medium text-gray-900">{{ form.licence_type }}</p>
@@ -473,44 +480,49 @@
           </div>
         </div>
 
-        <!-- Bouton sauvegarder -->
-        <div class="flex gap-3">
-          <UButton
-            block
-            size="xl"
-            :loading="saving"
-            :disabled="saving || !hasChanges"
-            class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold shadow-lg hover:shadow-xl transition-all"
-            @click="saveProfile"
-          >
-            <template #leading>
-              <UIcon name="i-lucide-save" class="w-5 h-5" />
-            </template>
-            {{ saving ? 'Enregistrement…' : 'Enregistrer les modifications' }}
-          </UButton>
+        </div>
         </div>
 
-        <!-- Messages -->
-        <UAlert
-          v-if="successMessage"
-          color="success"
-          variant="soft"
-          :title="successMessage"
-          icon="i-lucide-check-circle"
-          class="transition-all"
-        />
+        <!-- Bouton sauvegarder + messages (barre d'actions collante à partir de lg) -->
+        <div class="space-y-6 lg:space-y-4 lg:sticky lg:bottom-0 lg:z-20 lg:bg-gray-100 lg:border-t lg:border-gray-200 lg:px-4 lg:py-4">
+          <div class="flex gap-3 lg:justify-end">
+            <UButton
+              block
+              size="xl"
+              :loading="saving"
+              :disabled="saving || !hasChanges"
+              class="bg-vp-green hover:bg-vp-green-hover text-vp-dark font-bold shadow-lg hover:shadow-xl transition-all lg:w-auto"
+              @click="saveProfile"
+            >
+              <template #leading>
+                <UIcon name="i-lucide-save" class="w-5 h-5" />
+              </template>
+              {{ saving ? 'Enregistrement…' : 'Enregistrer les modifications' }}
+            </UButton>
+          </div>
 
-        <UAlert
-          v-if="errorMessage"
-          color="error"
-          variant="soft"
-          :title="errorMessage"
-          icon="i-lucide-alert-circle"
-        />
+          <!-- Messages -->
+          <UAlert
+            v-if="successMessage"
+            color="success"
+            variant="soft"
+            :title="successMessage"
+            icon="i-lucide-check-circle"
+            class="transition-all"
+          />
 
-        <!-- Footer -->
-        <div class="text-center text-sm text-gray-400 pb-4">
-          <p>Les informations de licence et de club sont gérées par le secrétariat.</p>
+          <UAlert
+            v-if="errorMessage"
+            color="error"
+            variant="soft"
+            :title="errorMessage"
+            icon="i-lucide-alert-circle"
+          />
+
+          <!-- Footer -->
+          <div class="text-center text-sm text-gray-400 pb-4 lg:pb-0">
+            <p>Les informations de licence et de club sont gérées par le secrétariat.</p>
+          </div>
         </div>
 
       </div>

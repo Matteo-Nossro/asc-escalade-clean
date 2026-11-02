@@ -48,6 +48,7 @@
 - Consulter ses informations club (numéro de licence, groupe, passeport)
 - Ajouter / modifier les profils enfants (parents)
 - Basculer entre son profil et celui d'un enfant
+- Sur ordinateur (≥ 1024 px) : cartes en deux colonnes, bouton « Enregistrer » collant en bas de l'écran
 
 ### Mes inscriptions (`/mes-inscriptions`)
 - Voir ses adhésions aux groupes et leur statut (confirmé / en attente)
