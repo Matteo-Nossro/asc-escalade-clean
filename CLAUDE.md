@@ -26,6 +26,7 @@ Site Nuxt 4 + Storyblok pour le club d'escalade ASC Escalade (Chevigny-Saint-Sau
 - Projet de dev : `ybtnnogxukfldurozqwa`, le **seul** sur lequel Claude travaille ; la prod n'est **jamais** touchée par Claude (`db push`/`db reset` bloqués ailleurs par `.claude/hooks/agent-guard.mjs`).
 - Une migration déjà appliquée sur un projet n'est **jamais réécrite** : on crée une nouvelle migration.
 - Le MCP Supabase pointe sur le projet dev, en **lecture seule** ; les changements de schéma passent **uniquement** par `supabase/migrations/`.
+- **Droits explicites** : « Automatically expose new tables » est désactivé (dev et prod), plus rien n'est accordé automatiquement à `anon`, `authenticated` ni `service_role`. Toute nouvelle table, vue, séquence ou fonction exposée porte ses `REVOKE ALL` puis `GRANT` explicites **dans sa migration**, au strict nécessaire (service role compris). Détails : skill `supabase-db`.
 - Mise en prod (historique de migrations de la prod, ordre des opérations HelloAsso) : [docs/mise-en-prod.md](docs/mise-en-prod.md).
 
 ### Images Storyblok

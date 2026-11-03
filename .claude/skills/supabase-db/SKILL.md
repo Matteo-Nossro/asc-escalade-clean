@@ -33,3 +33,8 @@ Enums : `registration_status` = `pending`, `confirmed`, `cancelled` · `access_t
 - Id utilisateur : `user.value?.id ?? user.value?.sub` (SSR / JWT).
 - Le middleware `app/middleware/auth.global.ts` ne protège pas les appels API directs : la garde doit être côté serveur.
 - **Schéma** : nouvelle migration `supabase/migrations/AAAAMMJJ_<nom>.sql`, **seulement** si `plan.md` la prévoit, puis mise à jour de `docs/database.md`. RLS de référence : `supabase/migrations/20260426_security_fixes_rls.sql`.
+- **Droits explicites dans chaque migration** (« Automatically expose new tables » désactivé sur le dev et la prod depuis le 2026-11-03) : un objet créé par `postgres` dans `public` ne reçoit plus SELECT / INSERT / UPDATE / DELETE pour `anon`, `authenticated` **ni `service_role`** ; une fonction n'est plus exécutable que par `postgres`. Pour toute nouvelle table, vue, séquence ou fonction exposée, la migration contient :
+  1. `REVOKE ALL ON <objet> FROM PUBLIC, anon, authenticated;` (les privilèges par défaut laissent encore TRUNCATE / REFERENCES / TRIGGER sur les tables) ;
+  2. les `GRANT` au **strict nécessaire**, rôle par rôle : `service_role` si `server/` y accède, `authenticated` seulement pour ce que les policies autorisent, `anon` seulement pour une lecture publique voulue ; `USAGE` sur la séquence si un rôle client insère ;
+  3. pour une fonction `SECURITY DEFINER` : `SET search_path = ''`, noms qualifiés, `EXECUTE` à `PUBLIC` retiré ; aucune fonction de trigger exécutable par `anon` / `authenticated`.
+  Ne jamais s'appuyer sur `ALTER DEFAULT PRIVILEGES` (celui de `20260101_rattrapage_schema.sql` est historique et ne doit pas servir de modèle).
