@@ -152,46 +152,67 @@ npx supabase link --project-ref ybtnnogxukfldurozqwa
 ### Conséquence : `--include-all` sur tous les `db push` suivants
 Une fois `20261102` dans l'historique, les migrations plus anciennes encore à livrer (`20261025`, `20261029`, `20261030`) sont refusées sans `--include-all`. Cette option pousse **tout** ce qui manque à l'historique : si le § 2 n'avait pas été fait, elle rejouerait les 5 migrations historiques, dont le `TRUNCATE` de `20260411`. Le contrôle de la liste exacte au dry-run reste donc obligatoire, et il passe aussi `--include-all`.
 
-## 3. Jour de la mise en ligne HelloAsso
-Pré-requis : la mise en cohérence (§ 2) est faite, les lots à livrer sont mergés et validés sur le dev en sandbox HelloAsso.
+## 3. Livraison groupée : HelloAsso, auth-profils, sécurité
+`db push` envoie **toutes** les migrations en attente d'un coup : ces livraisons ne peuvent pas se faire séparément. Elles partagent donc un même `db push`, suivi d'un seul déploiement de l'application.
 
+**Migrations livrées**, dans cet ordre : `20261025_helloasso_socle.sql`, `20261029_auth_profils.sql`, `20261030_profiles_block_status_role.sql`, `20261103_fonctions_search_path.sql` (B), `20261104_registrations_service_role.sql` (C), `20261105_helloasso_grants_explicites.sql` (D), plus celles des lots HelloAsso livrés (`20260520_helloasso.sql` n'étant jamais réécrite).
+
+**Prérequis bloquants**
+- § 2 et § 2 bis faits.
+- **La migration D (backlog Q29) fait partie de la liste.** Sans elle, « Automatically expose new tables » étant désactivé, `service_role` n'aurait aucun droit sur `helloasso_tokens` et `helloasso_sync_runs` : le jeton et la synchronisation HelloAsso seraient cassés.
+- Lots à livrer mergés et validés sur le dev, en sandbox HelloAsso.
+- **Rien n'est poussé sur `dev` avant l'étape 9** : `git push` déploie l'application.
+
+### Déroulé
 1. **Gel** : plus aucune modification de schéma à la main dans le dashboard de prod.
 2. **Sauvegarde** schéma + données (§ 2.1).
-3. **Liste des migrations à livrer** : `npx supabase db push --remote --include-all --dry-run` (`--include-all` dès que le § 2 bis est fait). `db push` envoie **toutes** les migrations en attente d'un coup : la liste contient donc aussi celles du § 4. Elle ne doit contenir **aucune** des 5 versions historiques, ni `20261102`. Toute ligne inattendue ⇒ s'arrêter.
-   - `20261025_helloasso_socle.sql` est refusée tant que `helloasso_forms` contient en prod le doublon `(Membership, test-rls)`. Ce cas se traite **avant** le push, à la main, selon la décision de l'utilisateur : vérifier d'abord si `profile_payments` référence les lignes concernées (clé étrangère `ON DELETE RESTRICT` : une ligne référencée ne se supprime pas). La relecture des saisons après la migration est à l'étape 5.
-4. **Variables d'environnement de prod** chez l'hébergeur : `NUXT_HELLOASSO_*` (client id/secret **de production**, slug de l'organisation, URL de l'API de prod, environnement `NUXT_HELLOASSO_ENVIRONMENT=production`, **obligatoire** : sans lui la synchronisation renvoie `config_missing`), secret du webhook à définir **avant** d'exposer le webhook (lot 7), secret du cron si le lot 4 est livré.
-5. **Migrations** : `npx supabase db push --remote --include-all` (relire « Target », confirmer à la main), puis `npx supabase migration list --remote` pour contrôler.
-   - **Saison des formulaires existants** : `20261025_helloasso_socle.sql` remplit `season` d'après la date de création (coupure au 1er septembre) ; un formulaire créé après le 1er septembre 2026 reçoit donc `2026-2027`, même s'il concerne la saison 2025-2026. Juste après la migration, relire la saison de **chaque** formulaire existant (`select form_slug, label, season, created_at from helloasso_forms order by created_at;`) et corriger les erreurs dans l'admin ou par une requête `update` ciblée.
-6. **Déploiement de l'application** (workflow `.github/workflows/deploy.yml`).
-7. **Contrôles** dans l'admin :
-   - « Tester la connexion » HelloAsso : environnement `production`, organisation correcte, OK ;
-   - première synchronisation manuelle des adhésions, vérification du passage dans `helloasso_sync_runs` (compteurs, aucune erreur) ;
-   - contrôle sur quelques adhérents connus du statut « payé ».
-8. **Automatismes** (selon les lots livrés) : activer le cron OVH (lot 4), déclarer l'URL du webhook dans HelloAsso (lot 7). **Le secret du webhook doit être défini en prod (étape 4) AVANT de déclarer cette URL chez HelloAsso** : sans secret, la route refuse toutes les notifications. L'URL déclarée doit contenir `?secret=<NUXT_HELLOASSO_WEBHOOK_SECRET>` : sinon les notifications sont ignorées et les paiements ne sont plus enregistrés.
-9. **Revenir sur le dev** : `npx supabase link --project-ref ybtnnogxukfldurozqwa`.
+3. **Doublon `helloasso_forms`** : `20261025_helloasso_socle.sql` est refusée tant que la prod contient le doublon `(Membership, test-rls)`. Le traiter **avant** le push, à la main, selon la décision de l'utilisateur : vérifier d'abord si `profile_payments` référence les lignes concernées (clé étrangère `ON DELETE RESTRICT` : une ligne référencée ne se supprime pas).
+4. **Réglage du dashboard** : `/callback` dans les URLs de redirection (§ 5), avant l'étape 9.
+5. **Variables d'environnement de prod** chez l'hébergeur : `NUXT_HELLOASSO_*` (client id/secret **de production**, slug de l'organisation, URL de l'API de prod, environnement `NUXT_HELLOASSO_ENVIRONMENT=production`, **obligatoire** : sans lui la synchronisation renvoie `config_missing`), secret du webhook à définir **avant** d'exposer le webhook (lot 7), secret du cron si le lot 4 est livré.
+6. **Liste des migrations** :
+   ```bash
+   npx supabase link --project-ref <REF-PROD>
+   npx supabase db push --remote --include-all --dry-run
+   ```
+   Elle doit contenir **exactement** les migrations listées plus haut. Aucune des 5 versions historiques, ni `20261102`. Toute autre ligne ⇒ s'arrêter.
+7. **Migrations d'abord** : `npx supabase db push --remote --include-all` (relire « Target », confirmer à la main), puis `npx supabase migration list --remote`.
+8. **Contrôles de la base** (lecture seule) :
+   - **Droits HelloAsso** : `anon` aucun ; `authenticated` `SELECT` sur `helloasso_sync_runs` seulement ; `service_role` sans `TRUNCATE`, `REFERENCES`, `TRIGGER`.
+     ```sql
+     select t as table_name, r as role,
+            coalesce((select string_agg(p, ', ')
+                        from unnest(array['SELECT','INSERT','UPDATE','DELETE','TRUNCATE','REFERENCES','TRIGGER']) p
+                       where has_table_privilege(r, 'public.' || t, p)), '(aucun)') as droits
+       from unnest(array['helloasso_tokens','helloasso_sync_runs']) t,
+            unnest(array['anon','authenticated','service_role']) r
+      order by 1, 2;
+     ```
+   - **Saison des formulaires existants** : `20261025_helloasso_socle.sql` remplit `season` d'après la date de création (coupure au 1er septembre) ; un formulaire créé après le 1er septembre 2026 reçoit donc `2026-2027`, même s'il concerne la saison 2025-2026. Relire la saison de **chaque** formulaire (`select form_slug, label, season, created_at from helloasso_forms order by created_at;`) et corriger les erreurs par une requête `update` ciblée.
+   - **Profils existants** : tous doivent avoir `profile_completed_at` renseigné.
+     ```bash
+     npx supabase db query --remote --read-only "select count(*) from public.profiles where profile_completed_at is null;"
+     ```
+     Un résultat non nul signale un profil créé par l'ancien code entre les étapes 7 et 9 : le compléter à la main avant l'étape 9.
+   - **Défaut du statut** : `profiles.status` vaut `'En attente'` par défaut. Les insertions de l'application posent déjà le statut ; aucun compte existant n'est modifié.
+9. **Déploiement de l'application**, seulement après les étapes 7 et 8 : `git push origin dev` (workflow `.github/workflows/deploy.yml`). Le code lit `profile_completed_at` : déployé avant la colonne ou son rattrapage, il renverrait **tous** les comptes vers `/completer-profil`. Ne jamais inverser les étapes 7 et 9.
+10. **Contrôles dans l'admin** :
+    - « Tester la connexion » HelloAsso : environnement `production`, organisation correcte, OK ;
+    - première synchronisation manuelle des adhésions, vérification du passage dans `helloasso_sync_runs` (compteurs, aucune erreur) ;
+    - contrôle sur quelques adhérents connus du statut « payé ».
+11. **Automatismes** (selon les lots livrés) : activer le cron OVH (lot 4), déclarer l'URL du webhook dans HelloAsso (lot 7). **Le secret du webhook doit être défini en prod (étape 5) AVANT de déclarer cette URL chez HelloAsso** : sans secret, la route refuse toutes les notifications. L'URL déclarée doit contenir `?secret=<NUXT_HELLOASSO_WEBHOOK_SECRET>` : sinon les notifications sont ignorées et les paiements ne sont plus enregistrés.
+12. **Revenir sur le dev** : `npx supabase link --project-ref ybtnnogxukfldurozqwa`.
+
+**Contrôles sur le dev uniquement** : `scripts/check-auth-profils-db.mjs`, `scripts/check-helloasso-socle-db.mjs` et `scripts/check-securite-bdd.mjs` créent et suppriment des données de test. Ne jamais les lancer contre la prod.
+
+**Hors périmètre** : cette livraison ne corrige **pas** les comptes déjà créés en prod (statuts « Actif » à tort, profils incomplets, comptes Google/Microsoft sans rôle, comptes de test sans profil). Le rattrapage marque seulement ces profils comme complétés, pour qu'ils ne soient pas renvoyés vers la complétion. Leur correction relève d'une décision séparée de l'utilisateur.
 
 ### Retour arrière
 - Application : redéployer l'image précédente.
 - Base : les migrations ne se défont pas ; une correction passe par une **nouvelle** migration. La restauration de la sauvegarde (§ 2.1) est le dernier recours.
 - HelloAsso : désactiver le cron et le webhook ; HelloAsso reste la source de vérité des paiements, une synchronisation ultérieure rattrape l'état.
 
-## 4. Mise en ligne auth-profils (migrations **avant** le code)
-Pré-requis : § 2 faite. Migrations livrées : `20261029_auth_profils.sql` puis `20261030_profiles_block_status_role.sql` (la première est déjà appliquée sur le dev : ne pas la réécrire). Réglage du dashboard de prod fait **avant** l'étape 6 : `/callback` dans les URLs de redirection (§ 5).
-
-1. **Sauvegarde** schéma + données (§ 2.1).
-2. **Liste des migrations** : `npx supabase db push --remote --include-all --dry-run` (`--include-all` dès que le § 2 bis est fait) doit proposer ces deux fichiers et les seules autres migrations restant à livrer (§ 3, qui partent dans le même push). Aucune des 5 versions historiques, ni `20261102`. Toute autre ligne ⇒ s'arrêter.
-3. **Migrations d'abord** : `npx supabase db push --remote --include-all` (relire « Target », confirmer à la main), puis `npx supabase migration list --remote`.
-   - Le code de cette feature lit `profile_completed_at`. Déployé avant la colonne, ou avant son rattrapage, il renverrait **tous** les comptes vers `/completer-profil`. Ne jamais inverser les étapes 3 et 6.
-4. **Contrôle des profils existants** (lecture seule) : tous les profils doivent avoir `profile_completed_at` renseigné, soit 0 profil incomplet :
-   ```bash
-   npx supabase db query --remote --read-only "select count(*) from public.profiles where profile_completed_at is null;"
-   ```
-   Un résultat non nul signale un profil créé par l'ancien code entre l'étape 3 et le déploiement : le compléter à la main avant l'étape 6.
-5. **Défaut du statut** : `profiles.status` vaut `'En attente'` par défaut. Les insertions de l'application posent déjà le statut ; aucun compte existant n'est modifié.
-6. **Déploiement de l'application** (workflow `.github/workflows/deploy.yml`), seulement après les étapes 3 et 4.
-7. **Contrôle sur le dev uniquement** : `node scripts/check-auth-profils-db.mjs` (crée et supprime des comptes de test). Ne jamais le lancer contre le projet de prod.
-8. **Hors périmètre** : cette mise en ligne ne corrige **pas** les comptes déjà créés en prod (statuts « Actif » à tort, profils incomplets, comptes Google/Microsoft sans rôle). Le rattrapage marque seulement ces profils comme complétés, pour qu'ils ne soient pas renvoyés vers la complétion. Leur correction relève d'une décision séparée de l'utilisateur.
-9. **Revenir sur le dev** : `npx supabase link --project-ref ybtnnogxukfldurozqwa`.
+## 4. (fusionné dans le § 3)
+La mise en ligne auth-profils fait partie de la livraison groupée du § 3.
 
 ## 5. Réglages manuels du dashboard (hors migrations)
 Ces réglages ne sont **pas** portés par `supabase/migrations/` ni par `db push` : ils se font à la main dans le dashboard de **chaque** projet, et ne se recopient pas d'un projet à l'autre. À vérifier lors de toute recréation ou bascule de projet.
