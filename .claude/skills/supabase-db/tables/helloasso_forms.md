@@ -22,5 +22,5 @@ CREATE TABLE public.helloasso_forms (
 );
 ```
 
-- RLS : lecture pour `is_admin_or_secretary()` ; insertion, modification et suppression pour `has_role('admin')` uniquement (décision du 2026-10-28).
+- RLS : lecture pour `private.is_admin_or_secretary()` ; insertion, modification et suppression pour `private.has_role('admin')` uniquement (décision du 2026-10-28). Fonctions déplacées dans `private` par 20261103.
 - La migration refuse un doublon `(form_type, form_slug)` ou une saison invalide existante : corriger les lignes à la main, puis relancer.

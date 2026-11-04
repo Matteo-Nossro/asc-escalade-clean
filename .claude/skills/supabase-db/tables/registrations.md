@@ -24,3 +24,5 @@ CREATE TABLE public.registrations (
   CONSTRAINT registrations_reviewed_by_fkey FOREIGN KEY (reviewed_by) REFERENCES public.profiles(id)
 );
 ```
+
+- Trigger `registrations_block_user_status_change` (BEFORE UPDATE) : hors admin et secrétaire (`private.is_admin_or_secretary()`), seul un passage de `status` à `cancelled` est permis, et `reviewed_by`, `reviewed_at`, `admin_note` restent réservés. Exemptés avant tout appel : connexion sans claim JWT (`auth.role() IS NULL`) et `service_role` (20261104).

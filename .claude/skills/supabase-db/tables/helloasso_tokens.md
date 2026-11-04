@@ -18,5 +18,5 @@ CREATE TABLE public.helloasso_tokens (
 );
 ```
 
-- RLS activée sans aucune policy, et `REVOKE ALL` pour `anon` et `authenticated`. Les jetons sont stockés en clair (pas de Vault).
+- RLS activée sans aucune policy. Droits (20261105) : `service_role` a `SELECT`, `INSERT`, `UPDATE` ; `anon` et `authenticated` n'ont rien ; jamais `DELETE`, `TRUNCATE`, `REFERENCES`, `TRIGGER`. Les jetons sont stockés en clair (pas de Vault).
 - Fonction `helloasso_acquire_token_lock(p_environment, p_holder, p_ttl_seconds = 20)` → `boolean` : prend le verrou de renouvellement s'il est libre ou expiré. L'heure vient de `now()` de la base. `EXECUTE` réservé au service role.

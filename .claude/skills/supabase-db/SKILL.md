@@ -23,6 +23,7 @@ Source de vérité : `docs/database.md`. Ouvre seulement la fiche de la table ut
 | `helloasso_forms` | formulaires HelloAsso (`season`, `event_id` ; écritures admin seul) | [tables/helloasso_forms.md](tables/helloasso_forms.md) |
 | `helloasso_tokens` | jeton HelloAsso par environnement, service role seul | [tables/helloasso_tokens.md](tables/helloasso_tokens.md) |
 | `helloasso_sync_runs` | historique des synchronisations HelloAsso (lecture admin + secrétaire) | [tables/helloasso_sync_runs.md](tables/helloasso_sync_runs.md) |
+| `member_directory` (vue) | id et nom des seuls référents et moniteurs, lecture seule | [tables/member_directory.md](tables/member_directory.md) |
 
 Enums : `registration_status` = `pending`, `confirmed`, `cancelled` · `access_type` = `read`, `register`, `full`.
 

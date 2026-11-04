@@ -58,8 +58,8 @@ CREATE TABLE public.profiles (
 
 - `profile_completed_at` : renseigné par `/api/register` et `/api/profile/complete` (réservation atomique, voir `server/utils/completeProfile.ts`), par `create-member`, et par le rattrapage de 20261029 (`= created_at`, uniquement à la création de la colonne).
 - Triggers (20261029, durci par 20261030) :
-  - `on_auth_user_created` → `handle_new_user()` (`SECURITY DEFINER`, `search_path = public`) : crée le profil en `'En attente'`, `profile_completed_at` vide. La branche `ON CONFLICT` ne touche ni `status` ni `profile_completed_at`.
-  - `profiles_block_status` (BEFORE UPDATE) → `profiles_block_status_change()` : refuse toute modification de `status` ou de `profile_completed_at`, sauf si la connexion n'a aucune claim JWT (`auth.role() IS NULL` : postgres, seed, GoTrue, `on_profile_enrich`), si `auth.role() = 'service_role'`, ou si `is_admin_or_secretary()` (admin et secretary ; `initiateur` et `parent` non). Un jeton `anon` ou `authenticated` sans `sub` n'est plus exempté (20261030 remplace l'exemption `auth.uid() IS NULL`). Couvre aussi les profils enfants, que `profiles_update_family` laisse modifier.
+  - `on_auth_user_created` → `handle_new_user()` (`SECURITY DEFINER`, `search_path = ''` depuis 20261103, sans `EXECUTE` pour `anon` / `authenticated`) : crée le profil en `'En attente'`, `profile_completed_at` vide. La branche `ON CONFLICT` ne touche ni `status` ni `profile_completed_at`.
+  - `profiles_block_status` (BEFORE UPDATE) → `profiles_block_status_change()` : refuse toute modification de `status` ou de `profile_completed_at`, sauf si la connexion n'a aucune claim JWT (`auth.role() IS NULL` : postgres, seed, GoTrue, `on_profile_enrich`), si `auth.role() = 'service_role'`, ou si `private.is_admin_or_secretary()` (admin et secretary ; `initiateur` et `parent` non). Un jeton `anon` ou `authenticated` sans `sub` n'est plus exempté (20261030 remplace l'exemption `auth.uid() IS NULL`). Couvre aussi les profils enfants, que `profiles_update_family` laisse modifier.
 - Aucune policy RLS modifiée par ces migrations.
 
 ---
@@ -213,6 +213,8 @@ CREATE TABLE public.registrations (
 );
 ```
 
+- Trigger `registrations_block_user_status_change` (BEFORE UPDATE) : hors admin et secrétaire (`private.is_admin_or_secretary()`), seul un passage de `status` à `cancelled` est permis, et `reviewed_by`, `reviewed_at`, `admin_note` restent réservés. Exemptés avant tout appel : connexion sans claim JWT (`auth.role() IS NULL`) et `service_role` (20261104).
+
 ---
 
 ### `parent_access`
@@ -330,7 +332,7 @@ CREATE TABLE public.helloasso_forms (
 );
 ```
 
-- RLS : lecture pour `is_admin_or_secretary()` ; insertion, modification et suppression pour `has_role('admin')` uniquement (décision du 2026-10-28).
+- RLS : lecture pour `private.is_admin_or_secretary()` ; insertion, modification et suppression pour `private.has_role('admin')` uniquement (décision du 2026-10-28). Fonctions déplacées dans `private` par 20261103.
 - La migration refuse un doublon `(form_type, form_slug)` ou une saison invalide existante : corriger les lignes à la main, puis relancer.
 
 ---
@@ -352,7 +354,7 @@ CREATE TABLE public.helloasso_tokens (
 );
 ```
 
-- RLS activée sans aucune policy, et `REVOKE ALL` pour `anon` et `authenticated`. Les jetons sont stockés en clair (pas de Vault).
+- RLS activée sans aucune policy. Droits (20261105) : `service_role` a `SELECT`, `INSERT`, `UPDATE` ; `anon` et `authenticated` n'ont rien ; jamais `DELETE`, `TRUNCATE`, `REFERENCES`, `TRIGGER`. Les jetons sont stockés en clair (pas de Vault).
 - Fonction `helloasso_acquire_token_lock(p_environment, p_holder, p_ttl_seconds = 20)` → `boolean` : prend le verrou de renouvellement s'il est libre ou expiré. L'heure vient de `now()` de la base. `EXECUTE` réservé au service role.
 
 ---
@@ -376,7 +378,17 @@ CREATE TABLE public.helloasso_sync_runs (
 ```
 
 - Index `(scope, started_at DESC)`.
-- RLS : lecture pour `is_admin_or_secretary()`. Aucune policy d'écriture : les écritures passent par le service role.
+- RLS : lecture pour `private.is_admin_or_secretary()` (policy `helloasso_sync_runs_select_staff`). Aucune policy d'écriture : les écritures passent par le service role.
+- Droits (20261105) : `service_role` a `SELECT`, `INSERT`, `UPDATE` (`server/` n'écrit pas encore cette table) ; `authenticated` a `SELECT` seul ; `anon` n'a rien ; jamais `DELETE`, `TRUNCATE`, `REFERENCES`, `TRIGGER`.
+
+---
+
+### `member_directory` (vue)
+Annuaire public limité aux référents de groupe (`groups.referent_id`) et aux moniteurs (`group_instructors.user_id`). Colonnes `id` et `full_name` seulement (`avatar_url` retiré par 20261102).
+
+- Vue `security_invoker = true` au-dessus de `private.member_directory_rows()` (`SECURITY DEFINER`, `search_path = ''`, `STABLE`). Non modifiable (`is_updatable = NO`, `is_insertable_into = NO`). Remplace la vue de 20260426, qui lisait tous les profils.
+- Droits : `SELECT` seul pour `anon` et `authenticated` ; `EXECUTE` de la fonction pour ces deux rôles ; rien pour `PUBLIC` ni `service_role`.
+- Lecteur unique : `useGroups.fetchGroups` (blok public `GroupsAccordion`, `/mes-inscriptions`, `/admin/dashboard`).
 
 ---
 
@@ -388,6 +400,15 @@ CREATE TABLE public.helloasso_sync_runs (
 | `access_type` | `read`, `register`, `full` |
 
 ---
+
+## Fonctions de sécurité (schéma `private`)
+
+Schéma `private` (20261102) : non exposé par l'API, donc aucun appel RPC. `anon` et `authenticated` ont `USAGE` (requis par `member_directory_rows`) ; `service_role` n'a rien.
+
+- `private.has_role(text)` et `private.is_admin_or_secretary()` (déplacées depuis `public` par 20261103) : `SECURITY DEFINER`, `search_path = ''`, `EXECUTE` pour `authenticated` seul. Appelées par les policies `TO authenticated`.
+- `private.member_directory_rows()` : `SECURITY DEFINER`, `search_path = ''`, `EXECUTE` pour `anon` et `authenticated`. Lue par la vue `member_directory`.
+- `helloasso_acquire_token_lock` : `search_path = ''`, `EXECUTE` pour `service_role` seul.
+- Règle : toute fonction `SECURITY DEFINER` a `search_path = ''` et des noms qualifiés. Les fonctions de trigger (`handle_new_user`, `enrich_profile_from_temps_user`) n'ont `EXECUTE` ni pour `anon`, ni pour `authenticated`, ni pour `PUBLIC` : elles ne servent qu'aux triggers `on_auth_user_created` et `on_profile_enrich`.
 
 ## Relations clés
 
@@ -411,4 +432,7 @@ events
 
 profiles
   └── helloasso_sync_runs (triggered_by, nullable, ON DELETE SET NULL)
+
+member_directory (vue : id, full_name)
+  └── profiles : seuls les référents (groups.referent_id) et les moniteurs (group_instructors.user_id)
 ```

@@ -20,4 +20,5 @@ CREATE TABLE public.helloasso_sync_runs (
 ```
 
 - Index `(scope, started_at DESC)`.
-- RLS : lecture pour `is_admin_or_secretary()`. Aucune policy d'écriture : les écritures passent par le service role.
+- RLS : lecture pour `private.is_admin_or_secretary()` (policy `helloasso_sync_runs_select_staff`). Aucune policy d'écriture : les écritures passent par le service role.
+- Droits (20261105) : `service_role` a `SELECT`, `INSERT`, `UPDATE` (`server/` n'écrit pas encore cette table) ; `authenticated` a `SELECT` seul ; `anon` n'a rien ; jamais `DELETE`, `TRUNCATE`, `REFERENCES`, `TRIGGER`.

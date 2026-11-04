@@ -1,6 +1,6 @@
 # Status — securite-bdd
 
-> Phase : attente validation
+> Phase : terminé
 
 ## Tâches
 <!-- Une ligne de note max par tâche. ☐ à faire · ◐ en cours · ☑ fait · ⛔ bloqué -->
@@ -13,9 +13,9 @@
 - ☑ T0c — Tests d'abord C, D et garde-fou (qa) — `scripts/check-securite-bdd.mjs` (sections [C], [D]) + `tests/hooks/agent-guard.test.ts` (nouveau) ; rouges pour la bonne raison, relevé ci-dessous ; les agents de dev n'y touchent pas
 - ☑ T4 — Migrations C `20261104_registrations_service_role.sql`, D `20261105_helloasso_grants_explicites.sql`, garde-fou `.claude/hooks/agent-guard.mjs` (api-dev) — C/D écrites, non appliquées (à pousser par l'utilisateur, puis `check-securite-bdd` [C] [D]) ; garde-fou : `tests/hooks` 150 verts, `npm test` 930 verts
 - ☑ QA (qa) — T3 : `docs/test-plan.md` § 16 (SB01–SB12) + Résumé (226) ; `check-helloasso-socle-db.mjs` : nettoyage de `helloasso_tokens` / `helloasso_sync_runs` par `pg` (`SUPABASE_DEV_DB_URL`, garde-fou sur le ref du dev, préfixe `t1b-check-` seul), assertions inchangées, 81 OK · 0 ÉCHEC ; `npm test` 59 fichiers / 930 verts ; typecheck 186 (baseline 186), 0 nouvelle
-- ☐ Porte de qualité — npm test · typecheck · e2e (si parcours) — échecs consécutifs : 0/2
+- ☑ Porte de qualité — npm test · typecheck · e2e (si parcours) — échecs consécutifs : 0/2. 2026-11-04 : `npm test` 1068 verts (59 fichiers) ; typecheck 186 erreurs pour une baseline de 186, 0 nouvelle ; e2e après C et D, avant les dernières corrections du garde-fou (fichier hors application) : 14 passés, 0 échoué, 22 captures facultatives ignorées, parcours `@email` exclu ; scripts dev : `check-securite-bdd` 140 OK, `check-auth-profils-db` et `check-helloasso-socle-db` en code 0. Revue : 0 bloquant ; importants 1 à 4 corrigés ; important 5 (droits de `service_role` sur `helloasso_sync_runs`) en attente de décision de l'utilisateur.
 - ☑ Revue (reviewer) — 2026-11-04 : ⚠️ corrections, 0 bloquant, 5 importants (4 sur agent-guard, 1 sur les droits de helloasso_sync_runs en D), 9 mineurs ; voir review.md
-- ☐ Doc + graphify update (doc-writer) — T5 : mise-en-prod (procédure A, --include-all), database.md, skill supabase-db, backlog
+- ☑ Doc + graphify update (doc-writer) — T5 : database.md (`member_directory`, schéma `private`, trigger `registrations`, droits HelloAsso), skill supabase-db (fiches régénérées, index), backlog (Retirés, Q30 à Q33, P5 et P6) ; mise-en-prod déjà à jour, non touché
 
 ## Relevé T0a (dev, avant toute migration) — `node scripts/check-securite-bdd.mjs`
 Fichiers de test créés (les agents de dev n'y touchent pas) : `scripts/check-securite-bdd.mjs`, `tests/composables/useGroups.test.ts` (3 tests ajoutés, verts : le composable lit déjà `'id, full_name'`).
