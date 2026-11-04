@@ -52,6 +52,9 @@ Fichiers de test : `scripts/check-securite-bdd.mjs` (sections [C] et [D] ; `regi
 - Point 4, échec fermé : stdin `null`, tableau (vide ou contenant une commande), `tool_input` à `null`, `command` à `null` / nombre / booléen / objet / tableau : 10 rouges par outil, test « jamais le code 1 » compris. JSON invalide : déjà vert (exit 2). `{}` : exit 0 conservé (vert).
 - `command` absent d'un outil Bash/PowerShell non couvert (non demandé).
 
+### Ajout 2026-11-04 — Garde-fou corrigé, points Important 1 à 4 (api-dev) — `.claude/hooks/agent-guard.mjs` seul fichier modifié
+- ☑ Continuations rejointes (`\` et accent grave, LF/CRLF), `supabase@<version>`, `--remote <valeur>` (un mot suivant qui ouvre une chaîne non fermée, ex. requête SQL, n'est pas une valeur), `migration up|down|squash` gardées, échec fermé (try/catch global, entrée non objet, `tool_input`/`command` invalides ⇒ exit 2). Limites connues notées en tête du fichier. `npx vitest run tests/hooks` : 288 verts ; `npm test` : 59 fichiers, 1068 tests verts.
+
 ## Blocages
 - **`SUPABASE_DEV_DB_URL` du `.env` pointe sur le mauvais hôte pooler** (`aws-1-eu-west-3`) : le serveur répond « tenant/user not found ». Le pooler du dev lié au CLI est `aws-0-eu-west-1.pooler.supabase.com` (testé : connexion OK avec le même utilisateur et mot de passe). Le `.env` n'a pas été modifié ; l'utilisateur doit y remplacer l'hôte. Sans cela le script s'arrête sur « connexion Postgres impossible ».
 - ~~Questions ouvertes à trancher avant T2~~ Tranchées par l'utilisateur le 2026-11-04 : (1) `is_admin_or_secretary` / `has_role` déplacées dans `private` (USAGE + EXECUTE à `authenticated`, rien à `anon` / PUBLIC) ; (2) pas d'EXECUTE `service_role` sur `private.member_directory_rows` ; (3) `profiles_block_status_change` et `helloasso_acquire_token_lock` incluses dans B ; (4) `migration repair --status applied 20261102` en prod puis `--include-all`, après le § 2 de `mise-en-prod.md`.
