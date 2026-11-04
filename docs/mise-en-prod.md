@@ -2,6 +2,14 @@
 
 > Toutes les commandes de ce document sont lancées **par un humain**, dans son terminal. Claude ne touche jamais la prod (voir `CLAUDE.md` § Supabase) : `.claude/hooks/agent-guard.mjs` refuse `supabase db push` / `db reset` dès que le projet lié n'est pas le dev `ybtnnogxukfldurozqwa`.
 
+> **CLI Supabase** : version épinglée dans `package.json` (3.0.0), donc `npm ci` puis `npx supabase` depuis la racine. Règles de cette version, vérifiées sur le dev le 2026-11-04 :
+> - **Sans `--remote`, la commande vise la base locale.** `--remote` vise le projet lié (`--linked` est déprécié, retiré en v4).
+> - Chaque commande affiche `Target: project <nom> (<ref>)`. **Relire le ref avant de répondre.** Le mot `production` sur cette ligne est le type d'environnement Supabase : il s'affiche aussi sur le dev, seul le ref compte.
+> - `db push` et `migration repair` demandent une confirmation sur un projet hébergé : y répondre à la main. **Jamais de `--yes` ni de `SUPABASE_YES` sur la prod.**
+> - `db query` en lecture : toujours avec `--read-only`.
+> - `db dump` a besoin de **Docker démarré**. En cas d'échec, il laisse un **fichier vide** : contrôler la taille des sauvegardes.
+> - `git push` sur `dev` **déploie l'application** (`.github/workflows/deploy.yml`). Ne pas pousser avant que les migrations nécessaires soient en prod.
+
 ## 1. Situation de départ
 - Le schéma de prod a été créé **à la main** dans le dashboard : la table `supabase_migrations.schema_migrations` de la prod est vide.
 - Le dépôt contient pourtant des migrations dont les objets **existent déjà en prod** (vérifié le 2026-10-24 contre le dump `prod_schema.sql`, schéma `public`) :
@@ -20,25 +28,25 @@ Un `supabase db push` lancé tel quel sur la prod rejouerait donc tout, dont le 
 1. **Sauvegarde** (schéma + données) :
    ```bash
    npx supabase link --project-ref <REF-PROD>
-   npx supabase db dump --linked -f backup/prod_schema_AAAAMMJJ.sql
-   npx supabase db dump --linked --data-only -f backup/prod_data_AAAAMMJJ.sql
+   npx supabase db dump --remote -f backup/prod_schema_AAAAMMJJ.sql
+   npx supabase db dump --remote --data-only -f backup/prod_data_AAAAMMJJ.sql
    ```
-   Les sauvegardes restent hors du dépôt (jamais commitées).
+   Docker doit être démarré. Vérifier que les deux fichiers ne sont pas vides. Les sauvegardes restent hors du dépôt (`backup/` est dans `.gitignore`).
 2. **Vérifier qu'aucune dérive n'a eu lieu depuis le dump de référence** : comparer le nouveau dump de schéma avec `prod_schema.sql`. Tout objet ajouté à la main entre-temps doit d'abord être reporté dans une **nouvelle** migration (jamais dans une migration existante).
 3. **Constater l'historique vide** :
    ```bash
-   npx supabase migration list --linked   # colonne « Remote » vide
+   npx supabase migration list --remote   # colonne « Remote » vide
    ```
 4. **Marquer comme appliquées** les migrations présentes de fait (aucune n'est exécutée) :
    ```bash
-   npx supabase migration repair --linked --status applied 20260101 20260409 20260411 20260426 20260520
+   npx supabase migration repair --remote --status applied 20260101 20260409 20260411 20260426 20260520
    ```
 5. **Contrôler** :
    ```bash
-   npx supabase migration list --linked   # Local = Remote pour les 5 versions
-   npx supabase db push --linked --dry-run # « Remote database is up to date »
+   npx supabase migration list --remote   # Local = Remote pour les 5 versions
+   npx supabase db push --remote --dry-run # ne propose que des versions postérieures à 20260520
    ```
-   Si le dry-run propose la moindre de ces 5 migrations : **s'arrêter**, ne pas pousser.
+   Le dry-run liste les migrations plus récentes encore à livrer : c'est normal, ne pas les pousser ici. S'il propose la moindre de ces 5 migrations : **s'arrêter**, ne pas pousser.
 6. **Revenir sur le dev** immédiatement :
    ```bash
    npx supabase link --project-ref ybtnnogxukfldurozqwa
@@ -46,15 +54,113 @@ Un `supabase db push` lancé tel quel sur la prod rejouerait donc tout, dont le 
 
 À partir de là, prod et dev partagent le même historique. Les nouvelles migrations (lots HelloAsso…) sont testées sur le dev puis poussées en prod par `db push`.
 
+## 2 bis. Correctif de sécurité anticipé : migration A (`member_directory`)
+Applique `20261102_member_directory_securite.sql` en prod **seule**, dans le SQL Editor, avant les autres migrations en attente. Elle ne dépend d'aucune d'elles.
+
+**État de la prod avant (2026-11-03)** : correctif manuel fait, `anon` sans droit, `authenticated` en `SELECT` seul sur l'ancienne vue. Conséquences jusqu'à la migration : un adhérent connecté lit encore le nom et l'avatar de tous les profils ; un visiteur anonyme ne voit plus les noms des moniteurs sur `/tarifs`, sans message d'erreur (`useGroups` ignore l'erreur). La migration est compatible avec ce `revoke` : elle supprime la vue, la recrée et repose tous ses droits. Elle est aussi compatible avec le code déployé, qui ne lit que `id, full_name`.
+
+### Prérequis
+- § 2 fait : `migration list --remote` montre les 5 versions historiques (indispensable avant l'étape 6, voir la remarque sur `--include-all`).
+- Sauvegarde du jour non vide (§ 2.1).
+- `private` absent des schémas exposés : Project Settings → Data API (constaté le 2026-11-03 : `public`, `graphql_public`).
+- Le SQL Editor est ouvert sur le projet de **prod** : vérifier le ref dans l'URL du dashboard.
+
+### Déroulé
+**1. Contrôle avant** (SQL Editor, lecture seule) : `objets_dependants` doit valoir 0, sinon la migration échouerait et s'annulerait. Noter `attendu` : c'est le nombre de lignes que renverra l'annuaire.
+```sql
+select
+  (select count(*)
+     from pg_depend d
+     left join pg_rewrite r on r.oid = d.objid and d.classid = 'pg_rewrite'::regclass
+    where d.refobjid = 'public.member_directory'::regclass and d.deptype = 'n'
+      and coalesce(r.ev_class, 0) <> 'public.member_directory'::regclass) as objets_dependants,
+  (select count(*) from public.profiles p
+    where exists (select 1 from public.groups g where g.referent_id = p.id)
+       or exists (select 1 from public.group_instructors gi where gi.user_id = p.id)) as attendu;
+```
+**2. Migration** : coller **tout** le fichier `supabase/migrations/20261102_member_directory_securite.sql` et l'exécuter une fois. Il porte son `BEGIN` / `COMMIT` : en cas d'erreur, rien n'est appliqué.
+
+**3. Droits sur la vue** : `anon` et `authenticated` n'ont que `SELECT`. Pour `service_role`, `TRUNCATE, REFERENCES, TRIGGER` est toléré à ce stade (reste des privilèges par défaut, retiré par la migration B).
+```sql
+select r as role,
+       coalesce((select string_agg(p, ', ')
+                   from unnest(array['SELECT','INSERT','UPDATE','DELETE','TRUNCATE','REFERENCES','TRIGGER']) p
+                  where has_table_privilege(r, 'public.member_directory', p)), '(aucun)') as droits
+  from unnest(array['anon','authenticated','service_role']) r;
+```
+Puis la vue et sa fonction. Attendu : `{security_invoker=true}`, `NO`, `NO`, colonnes `id, full_name`, `true`, `true`, `false`.
+```sql
+select c.reloptions::text as options, v.is_updatable, v.is_insertable_into,
+       (select string_agg(column_name, ', ' order by ordinal_position)
+          from information_schema.columns
+         where table_schema = 'public' and table_name = 'member_directory') as colonnes,
+       has_function_privilege('anon', 'private.member_directory_rows()', 'EXECUTE') as anon_exec,
+       has_function_privilege('authenticated', 'private.member_directory_rows()', 'EXECUTE') as auth_exec,
+       has_function_privilege('service_role', 'private.member_directory_rows()', 'EXECUTE') as service_exec
+  from pg_class c
+  join information_schema.views v on v.table_schema = 'public' and v.table_name = c.relname
+ where c.oid = 'public.member_directory'::regclass;
+```
+**4. Ce que voit chaque rôle** (SQL Editor, lecture seule ; `set local` ne dure que le temps de l'exécution).
+
+Visiteur anonyme. Attendu : `lignes_annuaire` = `attendu` de l'étape 1, `profils_lisibles` = 0.
+```sql
+set local role anon;
+select set_config('request.jwt.claims', '{"role":"anon"}', true);
+select (select count(*) from public.member_directory) as lignes_annuaire,
+       (select count(*) from public.profiles) as profils_lisibles;
+```
+Choisir un adhérent de test (ni staff, ni référent, ni moniteur) :
+```sql
+select p.id from public.profiles p
+ where p.email is not null
+   and not exists (select 1 from public.user_roles ur where ur.user_id = p.id and ur.role_code in ('admin','secretary'))
+   and not exists (select 1 from public.groups g where g.referent_id = p.id)
+   and not exists (select 1 from public.group_instructors gi where gi.user_id = p.id)
+ limit 1;
+```
+Adhérent, en remplaçant `<UUID>` aux **trois** endroits. Attendu : `lignes_annuaire` = `attendu`, `profils_de_tiers` = 0, `profils_lisibles` = lui et ses enfants rattachés.
+```sql
+set local role authenticated;
+select set_config('request.jwt.claims', '{"role":"authenticated","sub":"<UUID>"}', true);
+select (select count(*) from public.member_directory) as lignes_annuaire,
+       (select count(*) from public.profiles) as profils_lisibles,
+       (select count(*) from public.profiles
+         where id <> '<UUID>'
+           and id not in (select child_id from public.parent_access where parent_id = '<UUID>')) as profils_de_tiers;
+```
+**5. Contrôle de l'extérieur** (Git Bash, clé publique de la prod ; les écritures visent un identifiant qui n'existe pas et ne peuvent donc rien modifier) :
+```bash
+U=https://<REF-PROD>.supabase.co/rest/v1/member_directory; K=<CLE-ANON-PROD>; Z=00000000-0000-0000-0000-000000000000
+curl -s "$U?select=id,full_name" -H "apikey: $K"                 # uniquement les référents et moniteurs
+curl -s "$U?select=avatar_url" -H "apikey: $K"                   # erreur 42703, colonne absente
+curl -s -X PATCH "$U?id=eq.$Z" -H "apikey: $K" -H "Content-Type: application/json" -d '{"full_name":"x"}'   # erreur 55000
+curl -s -X DELETE "$U?id=eq.$Z" -H "apikey: $K"                  # erreur 55000
+```
+Puis ouvrir `/tarifs` en navigation privée : les noms du référent et des moniteurs s'affichent de nouveau.
+
+**6. Enregistrer la migration dans l'historique** (terminal) :
+```bash
+npx supabase link --project-ref <REF-PROD>
+npx supabase migration repair --remote --status applied 20261102   # relire « Target », confirmer à la main
+npx supabase migration list --remote                               # 20261102 présente côté Remote
+npx supabase link --project-ref ybtnnogxukfldurozqwa
+```
+
+**Si un contrôle échoue après l'étape 2** : ne pas faire l'étape 6. En cas de fuite constatée, fermer l'accès tout de suite (`revoke all on public.member_directory from anon, authenticated;`), puis corriger par une nouvelle migration.
+
+### Conséquence : `--include-all` sur tous les `db push` suivants
+Une fois `20261102` dans l'historique, les migrations plus anciennes encore à livrer (`20261025`, `20261029`, `20261030`) sont refusées sans `--include-all`. Cette option pousse **tout** ce qui manque à l'historique : si le § 2 n'avait pas été fait, elle rejouerait les 5 migrations historiques, dont le `TRUNCATE` de `20260411`. Le contrôle de la liste exacte au dry-run reste donc obligatoire, et il passe aussi `--include-all`.
+
 ## 3. Jour de la mise en ligne HelloAsso
 Pré-requis : la mise en cohérence (§ 2) est faite, les lots à livrer sont mergés et validés sur le dev en sandbox HelloAsso.
 
 1. **Gel** : plus aucune modification de schéma à la main dans le dashboard de prod.
 2. **Sauvegarde** schéma + données (§ 2.1).
-3. **Liste des migrations à livrer** : `npx supabase db push --linked --dry-run` ne doit proposer **que** les nouvelles migrations HelloAsso (créées par les lots, `20260520_helloasso.sql` n'étant jamais réécrite). Toute autre ligne ⇒ s'arrêter.
+3. **Liste des migrations à livrer** : `npx supabase db push --remote --include-all --dry-run` (`--include-all` dès que le § 2 bis est fait). `db push` envoie **toutes** les migrations en attente d'un coup : la liste contient donc aussi celles du § 4. Elle ne doit contenir **aucune** des 5 versions historiques, ni `20261102`. Toute ligne inattendue ⇒ s'arrêter.
    - `20261025_helloasso_socle.sql` est refusée tant que `helloasso_forms` contient en prod le doublon `(Membership, test-rls)`. Ce cas se traite **avant** le push, à la main, selon la décision de l'utilisateur : vérifier d'abord si `profile_payments` référence les lignes concernées (clé étrangère `ON DELETE RESTRICT` : une ligne référencée ne se supprime pas). La relecture des saisons après la migration est à l'étape 5.
 4. **Variables d'environnement de prod** chez l'hébergeur : `NUXT_HELLOASSO_*` (client id/secret **de production**, slug de l'organisation, URL de l'API de prod, environnement `NUXT_HELLOASSO_ENVIRONMENT=production`, **obligatoire** : sans lui la synchronisation renvoie `config_missing`), secret du webhook à définir **avant** d'exposer le webhook (lot 7), secret du cron si le lot 4 est livré.
-5. **Migrations** : `npx supabase db push --linked`, puis `migration list` pour contrôler.
+5. **Migrations** : `npx supabase db push --remote --include-all` (relire « Target », confirmer à la main), puis `npx supabase migration list --remote` pour contrôler.
    - **Saison des formulaires existants** : `20261025_helloasso_socle.sql` remplit `season` d'après la date de création (coupure au 1er septembre) ; un formulaire créé après le 1er septembre 2026 reçoit donc `2026-2027`, même s'il concerne la saison 2025-2026. Juste après la migration, relire la saison de **chaque** formulaire existant (`select form_slug, label, season, created_at from helloasso_forms order by created_at;`) et corriger les erreurs dans l'admin ou par une requête `update` ciblée.
 6. **Déploiement de l'application** (workflow `.github/workflows/deploy.yml`).
 7. **Contrôles** dans l'admin :
@@ -73,12 +179,12 @@ Pré-requis : la mise en cohérence (§ 2) est faite, les lots à livrer sont me
 Pré-requis : § 2 faite. Migrations livrées : `20261029_auth_profils.sql` puis `20261030_profiles_block_status_role.sql` (la première est déjà appliquée sur le dev : ne pas la réécrire). Réglage du dashboard de prod fait **avant** l'étape 6 : `/callback` dans les URLs de redirection (§ 5).
 
 1. **Sauvegarde** schéma + données (§ 2.1).
-2. **Liste des migrations** : `npx supabase db push --linked --dry-run` doit proposer ces deux fichiers, et les seuls restant à livrer (lots HelloAsso, § 3). Toute autre ligne ⇒ s'arrêter.
-3. **Migrations d'abord** : `npx supabase db push --linked`, puis `npx supabase migration list --linked`.
+2. **Liste des migrations** : `npx supabase db push --remote --include-all --dry-run` (`--include-all` dès que le § 2 bis est fait) doit proposer ces deux fichiers et les seules autres migrations restant à livrer (§ 3, qui partent dans le même push). Aucune des 5 versions historiques, ni `20261102`. Toute autre ligne ⇒ s'arrêter.
+3. **Migrations d'abord** : `npx supabase db push --remote --include-all` (relire « Target », confirmer à la main), puis `npx supabase migration list --remote`.
    - Le code de cette feature lit `profile_completed_at`. Déployé avant la colonne, ou avant son rattrapage, il renverrait **tous** les comptes vers `/completer-profil`. Ne jamais inverser les étapes 3 et 6.
 4. **Contrôle des profils existants** (lecture seule) : tous les profils doivent avoir `profile_completed_at` renseigné, soit 0 profil incomplet :
    ```bash
-   npx supabase db query --linked "select count(*) from public.profiles where profile_completed_at is null;"
+   npx supabase db query --remote --read-only "select count(*) from public.profiles where profile_completed_at is null;"
    ```
    Un résultat non nul signale un profil créé par l'ancien code entre l'étape 3 et le déploiement : le compléter à la main avant l'étape 6.
 5. **Défaut du statut** : `profiles.status` vaut `'En attente'` par défaut. Les insertions de l'application posent déjà le statut ; aucun compte existant n'est modifié.

@@ -58,5 +58,7 @@ docs/images/
 supabase/.temp/
 # Dump du schéma de prod (référence locale, jamais versionné)
 /prod_schema.sql
+# Sauvegardes de la prod (données d'adhérents, jamais versionnées)
+/backup/
 # Captures Playwright de toutes les features (gardées en local, jamais commitées)
 docs/features/*/captures/
