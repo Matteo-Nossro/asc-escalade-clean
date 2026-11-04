@@ -57,7 +57,7 @@ Fichiers de test : `scripts/check-securite-bdd.mjs` (sections [C] et [D] ; `regi
 
 ## Mise en prod (par l'utilisateur ; détail : `docs/mise-en-prod.md` § 2 bis)
 - ☑ Migration A appliquée en prod le 2026-11-04, étapes 1 à 5, hors historique ; D16 corrigé en prod. Annuaire vide : aucun référent ni moniteur affecté (`docs/backlog.md` P7).
-- ☐ Contrôle de `/tarifs` en prod : résultat à confirmer.
+- ☑ Contrôle de `/tarifs` en prod : la page se charge normalement, sans nom affiché (annuaire vide).
 - ☐ Jour de la livraison groupée, dans l'ordre : § 2 (non fait), `migration repair` de `20261102`, puis § 3.
 
 ## Blocages
