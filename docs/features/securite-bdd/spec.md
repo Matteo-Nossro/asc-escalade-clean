@@ -34,6 +34,18 @@ Fermer les failles signalées par les advisors de sécurité Supabase. En tête,
 - [ ] Après application sur le dev : advisors de sécurité relancés → **aucune ERROR**, plus aucun WARN `function_search_path_mutable`, `anon_security_definer_function_executable`, `authenticated_security_definer_function_executable` (WARN restant attendu : `auth_leaked_password_protection`, réglage manuel ; INFO `rls_enabled_no_policy` accepté).
 - [ ] `npm test` et `npm run typecheck` verts ; e2e smoke vert (la page tarifs affiche les noms des moniteurs).
 
+### Migration C — trigger de `registrations` (décision du 2026-11-04)
+- [ ] Nouvelle migration : `registrations_block_user_status_change` commence par les mêmes exemptions que `profiles_block_status_change` (`auth.role() IS NULL`, puis `'service_role'`), avant d'appeler `private.is_admin_or_secretary()`. Une écriture de `registrations` par la service role réussit ; l'interdiction reste entière pour un adhérent.
+
+### Migration D — GRANT explicites HelloAsso (Q29, décision du 2026-11-04)
+- [ ] Nouvelle migration, après B et C : `REVOKE ALL` puis `GRANT` au strict nécessaire sur `helloasso_tokens` et `helloasso_sync_runs`, rôle par rôle. `service_role` : uniquement ce que `server/` utilise. `authenticated` : `SELECT` seul sur `helloasso_sync_runs`, rien sur `helloasso_tokens`. `anon` : rien.
+- [ ] Prouvé dans les conditions de la prod : les droits attendus sont obtenus même si la table n'en avait aucun au départ (« Automatically expose new tables » désactivé), par une répétition dans une transaction annulée sur le dev. Le verrou `helloasso_acquire_token_lock` fonctionne sous `service_role`.
+- [ ] Bloquant : la livraison de `20261025` en prod inclut cette migration (même `db push`).
+
+### Garde-fou `agent-guard.mjs` (décision du 2026-11-04)
+- [ ] Pour Bash et PowerShell, `supabase db push|reset|query` et `supabase migration repair` ne sont autorisés **que sur le ref du dev**. `--remote=<ref>` avec un autre ref, une URL ou un nom de branche : refus explicite. `--remote` seul ou `--linked` : refus si le projet lié n'est pas le dev. `--db-url`, `--project-ref`, `--workdir` : refus. Les options placées avant la sous-commande ne contournent pas le contrôle.
+- [ ] Testé par Vitest (`tests/`) : autorisations sur le dev, refus pour tout autre projet.
+
 ### Documentation
 - [ ] `docs/mise-en-prod.md` : procédure « correctif de sécurité anticipé » (appliquer la migration A seule en prod, avant les autres migrations en attente, et l'inscrire dans l'historique de migrations de la prod sans casser l'ordre décrit en § 2) ; état de la prod avant et après ; vérifications à faire ensuite.
 - [ ] `docs/database.md` et la skill `supabase-db` : `member_directory` décrite (colonnes, lecteurs, droits), règle « `search_path = ''` et noms qualifiés pour toute fonction `SECURITY DEFINER` ; fonctions de trigger sans `EXECUTE` pour `anon` / `authenticated` ».

@@ -17,6 +17,12 @@
  *                    helloasso_acquire_token_lock, nominativement), fonctions de trigger hors
  *                    API, is_admin_or_secretary / has_role déplacées dans `private` (absentes
  *                    de `public`, EXECUTE à authenticated seulement, rpc refusé à tous).
+ *   [C]              trigger registrations_block_user_status_change : la service role écrit
+ *                    `registrations` (exemption en tête de trigger), l'adhérent reste bloqué.
+ *   [D]              droits explicites de helloasso_tokens / helloasso_sync_runs (catalogue du dev),
+ *                    puis répétition « conditions de la prod » : transaction TOUJOURS annulée
+ *                    (REVOKE ALL, corps du fichier D sans BEGIN/COMMIT, relecture des droits,
+ *                    verrou helloasso_acquire_token_lock sous service_role).
  *   [non-régression] lectures et écritures staff / adhérent (policies qui appellent
  *                    is_admin_or_secretary / has_role : profiles, user_roles, helloasso_forms,
  *                    profile_payments), triggers, création de compte, Q24 (RLS, trigger
@@ -42,12 +48,13 @@
  * Code de sortie : 0 si tout est OK, 1 s'il y a au moins un ÉCHEC.
  */
 import { randomUUID } from 'node:crypto'
+import fs from 'node:fs'
 import { createClient } from '@supabase/supabase-js'
 import pg from 'pg'
 
 const DEV_REF = 'ybtnnogxukfldurozqwa'
 const MARQUE = '+secu-'
-const SECTIONS = ['A', 'B', 'non-régression']
+const SECTIONS = ['A', 'B', 'C', 'D', 'non-régression']
 
 function fail(message) {
   console.error(`Erreur : ${message}`)
@@ -207,6 +214,23 @@ async function nettoyerRestes() {
   }
   for (const id of ids) erreurs.push(...(await supprimerJetable(id)))
   erreurs.push(...(await supprimerFormulairesJetables()))
+  erreurs.push(...(await supprimerInscriptionsJetables()))
+  return erreurs
+}
+
+/** Inscriptions (notes `+secu-…`) puis événements jetables (titre `+secu-…`). */
+async function supprimerInscriptionsJetables() {
+  const erreurs = []
+  const regs = await service.from('registrations').delete().ilike('notes', `%${MARQUE}%`)
+  if (regs.error) erreurs.push(`registrations : ${msg(regs.error)}`)
+  const evts = await service.from('events').select('id').ilike('title', `%${MARQUE}%`)
+  if (evts.error) return [...erreurs, `events : ${msg(evts.error)}`]
+  for (const e of evts.data ?? []) {
+    const r = await service.from('registrations').delete().eq('event_id', e.id)
+    if (r.error) erreurs.push(`registrations (événement jetable) : ${msg(r.error)}`)
+    const ev = await service.from('events').delete().eq('id', e.id)
+    if (ev.error) erreurs.push(`events : ${msg(ev.error)}`)
+  }
   return erreurs
 }
 
@@ -228,6 +252,10 @@ async function resteJetables() {
   const reste = []
   const formsRestants = await service.from('helloasso_forms').select('id').ilike('label', `%${MARQUE}%`)
   reste.push(...(formsRestants.data ?? []).map((f) => f.id))
+  const regsRestantes = await service.from('registrations').select('id').ilike('notes', `%${MARQUE}%`)
+  reste.push(...(regsRestantes.data ?? []).map((r) => r.id))
+  const evtsRestants = await service.from('events').select('id').ilike('title', `%${MARQUE}%`)
+  reste.push(...(evtsRestants.data ?? []).map((e) => e.id))
   for (const colonne of ['email', 'full_name']) {
     const { data } = await service.from('profiles').select('id').ilike(colonne, `%${MARQUE}%`)
     reste.push(...(data ?? []).map((p) => p.id))
@@ -756,6 +784,249 @@ async function verifierNouveauCompte() {
   if (!reste) jetables.splice(jetables.indexOf(id), 1)
 }
 
+// ═════════════════════════════════════════════════════════════════════════════
+// [C] — trigger registrations_block_user_status_change (migration C)
+//   La service role doit pouvoir écrire `registrations` (exemption en tête de trigger,
+//   avant l'appel à private.is_admin_or_secretary()) ; l'adhérent reste bloqué.
+//   Lignes jetables : un événement `+secu-` et des inscriptions dont les notes portent `+secu-`.
+// ═════════════════════════════════════════════════════════════════════════════
+async function lireInscription(id) {
+  const { data, error } = await service.from('registrations').select('id, status, admin_note').eq('id', id).maybeSingle()
+  if (error) throw new Error(`relecture registrations : ${msg(error)}`)
+  return data
+}
+
+async function verifierRegistrations(comptes) {
+  const { adherent, secretaire } = comptes
+  // Unicité (user_id, event_id) : un événement jetable par inscription.
+  const nouvelleInscription = async () => {
+    compteur += 1
+    const evenement = await service
+      .from('events')
+      .insert({ title: `${MARQUE}event-${Date.now()}-${compteur}`, starts_at: new Date(Date.now() + 30 * 86400000).toISOString() })
+      .select('id')
+      .maybeSingle()
+    if (evenement.error || !evenement.data) throw new Error(`création de l’événement jetable : ${msg(evenement.error)}`)
+    const { data, error } = await service
+      .from('registrations')
+      .insert({ user_id: adherent.id, event_id: evenement.data.id, notes: `${MARQUE}reg-${Date.now()}-${compteur}` })
+      .select('id')
+      .maybeSingle()
+    if (error || !data) throw new Error(`création de l’inscription jetable : ${msg(error)}`)
+    return data.id
+  }
+
+  // service_role : changement de statut accepté (rouge tant que le trigger exige private.is_admin_or_secretary())
+  const idService = await nouvelleInscription()
+  const majService = await service.from('registrations').update({ status: 'confirmed' }).eq('id', idService).select('id')
+  const apresService = await lireInscription(idService)
+  noter('C', 'service_role', 'UPDATE registrations.status accepté (pending -> confirmed)', !majService.error && apresService?.status === 'confirmed', majService.error ? msg(majService.error) : `status = ${apresService?.status}`)
+  const majNote = await service.from('registrations').update({ admin_note: `${MARQUE}note` }).eq('id', idService).select('id')
+  const apresNote = await lireInscription(idService)
+  noter('C', 'service_role', 'UPDATE registrations.admin_note accepté', !majNote.error && apresNote?.admin_note === `${MARQUE}note`, majNote.error ? msg(majNote.error) : `admin_note = ${apresNote?.admin_note}`)
+
+  // adhérent : changement vers autre chose que cancelled toujours refusé (non-régression)
+  const idAdh = await nouvelleInscription()
+  const majAdh = await adherent.client.from('registrations').update({ status: 'confirmed' }).eq('id', idAdh).select('id')
+  const apresAdh = await lireInscription(idAdh)
+  noter('C', adherent.nom, 'UPDATE registrations.status -> confirmed refusé, statut inchangé', Boolean(majAdh.error) && apresAdh?.status === 'pending', `${avecErreur(majAdh.error)} ; status = ${apresAdh?.status}`)
+  const noteAdh = await adherent.client.from('registrations').update({ admin_note: `${MARQUE}x` }).eq('id', idAdh).select('id')
+  const apresNoteAdh = await lireInscription(idAdh)
+  noter('C', adherent.nom, 'UPDATE registrations.admin_note refusé, valeur inchangée', Boolean(noteAdh.error) && apresNoteAdh?.admin_note === null, `${avecErreur(noteAdh.error)} ; admin_note = ${apresNoteAdh?.admin_note}`)
+  const annul = await adherent.client.from('registrations').update({ status: 'cancelled' }).eq('id', idAdh).select('id')
+  const apresAnnul = await lireInscription(idAdh)
+  noter('C', adherent.nom, 'UPDATE registrations.status -> cancelled toujours accepté', !annul.error && apresAnnul?.status === 'cancelled', annul.error ? msg(annul.error) : `status = ${apresAnnul?.status}`)
+
+  // secrétaire : le bureau valide toujours
+  const idSec = await nouvelleInscription()
+  const majSec = await secretaire.client.from('registrations').update({ status: 'confirmed' }).eq('id', idSec).select('id')
+  const apresSec = await lireInscription(idSec)
+  noter('C', secretaire.nom, 'UPDATE registrations.status -> confirmed accepté (is_admin_or_secretary)', !majSec.error && apresSec?.status === 'confirmed', majSec.error ? msg(majSec.error) : `status = ${apresSec?.status}`)
+
+  // remise en état : inscriptions puis événement jetables
+  const erreurs = await supprimerInscriptionsJetables()
+  noter('C', 'service_role', 'inscriptions et événement jetables supprimés', erreurs.length === 0, erreurs.join(' ; '))
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// [D] — droits explicites de helloasso_tokens / helloasso_sync_runs (migration D)
+//
+// Droits retenus pour service_role : ce que server/ utilise réellement.
+//   · helloasso_tokens : SELECT (readRow), UPDATE (writeAsHolder, invalidate) et, via la RPC
+//     helloasso_acquire_token_lock (SECURITY INVOKER, donc exécutée AVEC les droits de
+//     service_role) : INSERT … ON CONFLICT DO UPDATE ⇒ SELECT + INSERT + UPDATE. Pas de DELETE.
+//   · helloasso_sync_runs : aucune écriture dans server/ aujourd'hui ; la synchronisation
+//     l'alimentera (ligne `running`, puis fin de passage) ⇒ SELECT + INSERT + UPDATE. Pas de DELETE.
+//   · jamais TRUNCATE, REFERENCES, TRIGGER.
+// authenticated : SELECT seul sur helloasso_sync_runs (RLS : staff), rien sur helloasso_tokens ;
+// anon : rien.
+// ═════════════════════════════════════════════════════════════════════════════
+const FICHIER_D = 'supabase/migrations/20261105_helloasso_grants_explicites.sql'
+const TOUS_DROITS = ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'TRUNCATE', 'REFERENCES', 'TRIGGER']
+const DROITS_ATTENDUS = {
+  helloasso_tokens: { service_role: ['SELECT', 'INSERT', 'UPDATE'], authenticated: [], anon: [] },
+  helloasso_sync_runs: { service_role: ['SELECT', 'INSERT', 'UPDATE'], authenticated: ['SELECT'], anon: [] },
+}
+const libelleDroits = (liste) => (liste.length ? liste.join(', ') : 'aucun')
+
+/** Droits effectifs d'un rôle sur une table (table ou colonne ; PUBLIC et héritage compris). */
+async function droitsDe(db, role, table) {
+  const { rows } = await db.query(
+    `select p as priv,
+            has_table_privilege($1, $2, p)
+            or case when p in ('SELECT', 'INSERT', 'UPDATE', 'REFERENCES')
+                    then has_any_column_privilege($1, $2, p) else false end as ok
+       from unnest($3::text[]) as p`,
+    [role, `public.${table}`, TOUS_DROITS],
+  )
+  return TOUS_DROITS.filter((p) => rows.find((r) => r.priv === p)?.ok)
+}
+
+function ecartDroits(obtenus, attendus) {
+  const enTrop = obtenus.filter((p) => !attendus.includes(p))
+  const manquants = attendus.filter((p) => !obtenus.includes(p))
+  return { ok: enTrop.length === 0 && manquants.length === 0, detail: `en trop : ${libelleDroits(enTrop)} ; manquant(s) : ${libelleDroits(manquants)}` }
+}
+
+async function verifierGrantsCatalogue(db) {
+  for (const [table, parRole] of Object.entries(DROITS_ATTENDUS)) {
+    for (const [role, attendus] of Object.entries(parRole)) {
+      const obtenus = await droitsDe(db, role, table)
+      if (role === 'service_role') {
+        const interdits = obtenus.filter((p) => ['TRUNCATE', 'REFERENCES', 'TRIGGER'].includes(p))
+        noter('D', 'catalogue', `${table} : service_role sans TRUNCATE, REFERENCES, TRIGGER`, interdits.length === 0, `accordés : ${libelleDroits(interdits)}`)
+      }
+      const cmp = ecartDroits(obtenus, attendus)
+      noter('D', 'catalogue', `${table} : ${role} = ${libelleDroits(attendus)} (strict nécessaire)`, cmp.ok, cmp.detail)
+    }
+  }
+}
+
+/** Exécute une requête dans un SAVEPOINT : un refus n'abandonne pas la transaction. */
+async function essayer(db, sql, params = []) {
+  await db.query('SAVEPOINT essai')
+  try {
+    const res = await db.query(sql, params)
+    await db.query('RELEASE SAVEPOINT essai')
+    return { ok: true, res }
+  } catch (e) {
+    await db.query('ROLLBACK TO SAVEPOINT essai')
+    return { ok: false, code: e?.code, message: erreurInattendue(e) }
+  }
+}
+const refusDroit = (r) => !r.ok && r.code === '42501'
+
+async function verifierRepetitionProd(db) {
+  const C = 'répétition prod (ROLLBACK)'
+  let corps
+  try {
+    corps = fs.readFileSync(new URL(`../${FICHIER_D}`, import.meta.url), 'utf8')
+  } catch {
+    noter('D', C, 'fichier de la migration D présent', false, `${FICHIER_D} absent : la migration D n’est pas encore écrite`)
+    return
+  }
+  // Le script gère sa propre transaction (toujours annulée) : on retire BEGIN / COMMIT du fichier.
+  corps = corps.replace(/^[ \t]*(BEGIN|COMMIT)[ \t]*;[ \t]*$/gim, '')
+
+  const avant = {}
+  for (const table of Object.keys(DROITS_ATTENDUS)) avant[table] = (await droitsDe(db, 'service_role', table)).join(',')
+
+  await db.query('BEGIN')
+  try {
+    // Environnement jetable : un environnement sans ligne ; à défaut la ligne est supprimée dans la
+    // transaction (annulée ensuite).
+    const { rows: pris } = await db.query('select environment from public.helloasso_tokens')
+    let env = ['production', 'sandbox'].find((e) => !pris.some((r) => r.environment === e))
+    if (!env) {
+      env = 'sandbox'
+      await db.query('delete from public.helloasso_tokens where environment = $1', [env])
+    }
+
+    // Conditions de la prod : aucune table n'a de droit au départ.
+    await db.query('REVOKE ALL ON TABLE public.helloasso_tokens, public.helloasso_sync_runs FROM anon, authenticated, service_role')
+    for (const table of Object.keys(DROITS_ATTENDUS)) {
+      const reste = []
+      for (const role of ['anon', 'authenticated', 'service_role']) {
+        const d = await droitsDe(db, role, table)
+        if (d.length) reste.push(`${role} : ${d.join(', ')}`)
+      }
+      noter('D', C, `${table} : départ sans aucun droit (conditions de la prod)`, reste.length === 0, reste.join(' ; '))
+    }
+
+    try {
+      await db.query(corps)
+    } catch (e) {
+      noter('D', C, 'corps du fichier D exécuté sans erreur', false, erreurInattendue(e))
+      return
+    }
+    noter('D', C, 'corps du fichier D exécuté sans erreur', true)
+
+    for (const [table, parRole] of Object.entries(DROITS_ATTENDUS)) {
+      for (const [role, attendus] of Object.entries(parRole)) {
+        const cmp = ecartDroits(await droitsDe(db, role, table), attendus)
+        noter('D', C, `${table} : ${role} = ${libelleDroits(attendus)} après le fichier D`, cmp.ok, cmp.detail)
+      }
+    }
+
+    // ── service_role : verrou et écritures de server/ ────────────────────────
+    await db.query('SET LOCAL ROLE service_role')
+    const holder = randomUUID()
+    const lock1 = await essayer(db, 'select public.helloasso_acquire_token_lock($1, $2::uuid, 5) as ok', [env, holder])
+    noter('D', C, 'service_role : helloasso_acquire_token_lock obtient le verrou (environnement jetable)', lock1.ok && lock1.res.rows[0].ok === true, lock1.ok ? `retour = ${lock1.res.rows[0].ok}` : lock1.message)
+    const lock2 = await essayer(db, 'select public.helloasso_acquire_token_lock($1, $2::uuid, 5) as ok', [env, randomUUID()])
+    noter('D', C, 'service_role : second détenteur refusé tant que le verrou est valide (false)', lock2.ok && lock2.res.rows[0].ok === false, lock2.ok ? `retour = ${lock2.res.rows[0].ok}` : lock2.message)
+    const lecture = await essayer(db, 'select environment, lock_holder from public.helloasso_tokens where environment = $1', [env])
+    noter('D', C, 'service_role : SELECT helloasso_tokens', lecture.ok && lecture.res.rowCount === 1, lecture.ok ? `${lecture.res.rowCount} ligne(s)` : lecture.message)
+    const maj = await essayer(db, `update public.helloasso_tokens set lock_holder = null, lock_until = null, updated_at = now() where environment = $1 and lock_holder = $2::uuid`, [env, holder])
+    noter('D', C, 'service_role : UPDATE helloasso_tokens conditionné au détenteur (libération)', maj.ok && maj.res.rowCount === 1, maj.ok ? `${maj.res.rowCount} ligne(s)` : maj.message)
+    const suppr = await essayer(db, 'delete from public.helloasso_tokens where environment = $1', [env])
+    noter('D', C, 'service_role : DELETE helloasso_tokens refusé', refusDroit(suppr), suppr.ok ? 'DELETE accepté' : `${suppr.code} · ${suppr.message}`)
+    const tronque = await essayer(db, 'truncate table public.helloasso_tokens')
+    noter('D', C, 'service_role : TRUNCATE helloasso_tokens refusé', refusDroit(tronque), tronque.ok ? 'TRUNCATE accepté' : `${tronque.code} · ${tronque.message}`)
+
+    const run = await essayer(db, `insert into public.helloasso_sync_runs (scope, trigger_source, environment) values ('${MARQUE}run', 'manual', $1) returning id`, [env])
+    noter('D', C, 'service_role : INSERT helloasso_sync_runs', run.ok, run.ok ? '' : run.message)
+    if (run.ok) {
+      const id = run.res.rows[0].id
+      const fin = await essayer(db, `update public.helloasso_sync_runs set status = 'success', finished_at = now() where id = $1 returning id`, [id])
+      noter('D', C, 'service_role : UPDATE helloasso_sync_runs (fin de passage)', fin.ok && fin.res.rowCount === 1, fin.ok ? '' : fin.message)
+      const lu = await essayer(db, 'select id from public.helloasso_sync_runs where id = $1', [id])
+      noter('D', C, 'service_role : SELECT helloasso_sync_runs', lu.ok && lu.res.rowCount === 1, lu.ok ? '' : lu.message)
+    }
+    const supprRun = await essayer(db, 'delete from public.helloasso_sync_runs')
+    noter('D', C, 'service_role : DELETE helloasso_sync_runs refusé', refusDroit(supprRun), supprRun.ok ? 'DELETE accepté' : `${supprRun.code} · ${supprRun.message}`)
+
+    // ── authenticated et anon ────────────────────────────────────────────────
+    await db.query('RESET ROLE')
+    await db.query('SET LOCAL ROLE authenticated')
+    const authTokens = await essayer(db, 'select 1 from public.helloasso_tokens limit 1')
+    noter('D', C, 'authenticated : SELECT helloasso_tokens refusé (42501)', refusDroit(authTokens), authTokens.ok ? 'lecture acceptée' : `${authTokens.code} · ${authTokens.message}`)
+    const authRuns = await essayer(db, 'select 1 from public.helloasso_sync_runs limit 1')
+    noter('D', C, 'authenticated : SELECT helloasso_sync_runs permis (RLS filtre)', authRuns.ok, authRuns.ok ? '' : authRuns.message)
+    const authIns = await essayer(db, `insert into public.helloasso_sync_runs (scope, trigger_source, environment) values ('${MARQUE}run', 'manual', 'sandbox')`)
+    noter('D', C, 'authenticated : INSERT helloasso_sync_runs refusé (42501)', refusDroit(authIns), authIns.ok ? 'INSERT accepté' : `${authIns.code} · ${authIns.message}`)
+    await db.query('RESET ROLE')
+    await db.query('SET LOCAL ROLE anon')
+    for (const table of Object.keys(DROITS_ATTENDUS)) {
+      const anonLu = await essayer(db, `select 1 from public.${table} limit 1`)
+      noter('D', C, `anon : SELECT ${table} refusé (42501)`, refusDroit(anonLu), anonLu.ok ? 'lecture acceptée' : `${anonLu.code} · ${anonLu.message}`)
+    }
+    await db.query('RESET ROLE')
+  } catch (e) {
+    noter('D', C, 'exécution de la répétition', false, erreurInattendue(e))
+  } finally {
+    await db.query('ROLLBACK')
+  }
+
+  // Aucun effet persistant : les droits de service_role sont ceux d'avant la répétition.
+  const ecarts = []
+  for (const table of Object.keys(DROITS_ATTENDUS)) {
+    const apres = (await droitsDe(db, 'service_role', table)).join(',')
+    if (apres !== avant[table]) ecarts.push(`${table} : ${avant[table]} -> ${apres}`)
+  }
+  noter('D', C, 'transaction annulée : droits inchangés après la répétition', ecarts.length === 0, ecarts.join(' ; '))
+}
+
 // ── Exécution ───────────────────────────────────────────────────────────────
 const db = new pg.Client(CONFIG_PG)
 let connecte = false
@@ -782,7 +1053,10 @@ try {
     ['lectures adhérent (API)', () => verifierLecturesAdherent(comptes)],
     ['écritures staff (API)', () => verifierEcrituresStaff(comptes)],
     ['RPC (API)', () => verifierRpc(comptes)],
+    ['registrations (API)', () => verifierRegistrations(comptes)],
     ['catalogue (SQL)', () => verifierCatalogue(db)],
+    ['droits HelloAsso (SQL)', () => verifierGrantsCatalogue(db)],
+    ['répétition prod HelloAsso (SQL)', () => verifierRepetitionProd(db)],
     ['Q24 (SQL)', () => verifierQ24(db, attendus)],
     ['handle_new_user', () => verifierNouveauCompte()],
   ]
