@@ -113,6 +113,91 @@ describe('useGroups — enroll', () => {
 })
 
 // ═════════════════════════════════════════════════════════════════════════════
+// fetchGroups — contrat avec la vue member_directory (feature securite-bdd)
+// Critère : « useGroups.fetchGroups fonctionne sans changement » ; la vue ne
+// sert plus que id + full_name (avatar_url retiré), jamais lu par le code.
+// ═════════════════════════════════════════════════════════════════════════════
+
+describe('useGroups — fetchGroups lit member_directory (id, full_name)', () => {
+  const REFERENT = 'ref-1'
+  const MONITEUR = 'mon-1'
+
+  function brancherTables() {
+    const directorySelect = vi.fn()
+    const directoryIn = vi.fn().mockResolvedValue({
+      data: [
+        { id: REFERENT, full_name: 'Référent Test' },
+        { id: MONITEUR, full_name: 'Moniteur Test' },
+      ],
+      error: null,
+    })
+    directorySelect.mockReturnValue({ in: directoryIn })
+
+    const groupe = {
+      id: 'g1',
+      name: 'Groupe test',
+      referent_id: REFERENT,
+      schedules: [],
+      instructors: [{ id: 'i1', group_id: 'g1', user_id: MONITEUR }],
+    }
+
+    mockFrom.mockImplementation((table: string) => {
+      if (table === 'groups') {
+        return {
+          select: () => ({
+            order: () => ({ order: async () => ({ data: [groupe], error: null }) }),
+          }),
+        }
+      }
+      if (table === 'member_directory') return { select: directorySelect }
+      if (table === 'group_members') {
+        return { select: () => ({ eq: () => ({ eq: async () => ({ count: 2, error: null }) }) }) }
+      }
+      throw new Error(`table inattendue : ${table}`)
+    })
+
+    return { directorySelect, directoryIn }
+  }
+
+  beforeEach(() => {
+    mockFrom.mockReset()
+  })
+
+  it("interroge member_directory avec exactement 'id, full_name'", async () => {
+    const { directorySelect, directoryIn } = brancherTables()
+
+    const { fetchGroups } = useGroups()
+    await fetchGroups()
+
+    expect(directorySelect).toHaveBeenCalledTimes(1)
+    expect(directorySelect).toHaveBeenCalledWith('id, full_name')
+    expect(directoryIn).toHaveBeenCalledWith('id', expect.arrayContaining([REFERENT, MONITEUR]))
+  })
+
+  it('ne demande jamais avatar_url à member_directory', async () => {
+    const { directorySelect } = brancherTables()
+
+    const { fetchGroups } = useGroups()
+    await fetchGroups()
+
+    for (const [colonnes] of directorySelect.mock.calls) {
+      expect(String(colonnes)).not.toContain('avatar_url')
+      expect(String(colonnes)).not.toContain('*')
+    }
+  })
+
+  it('rattache le nom du référent et des moniteurs au groupe', async () => {
+    brancherTables()
+
+    const { fetchGroups, groups } = useGroups()
+    await fetchGroups()
+
+    expect(groups.value[0]?.referent?.full_name).toBe('Référent Test')
+    expect(groups.value[0]?.instructors?.[0]?.profile?.full_name).toBe('Moniteur Test')
+  })
+})
+
+// ═════════════════════════════════════════════════════════════════════════════
 // État réactif initial
 // ═════════════════════════════════════════════════════════════════════════════
 
