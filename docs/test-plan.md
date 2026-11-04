@@ -409,6 +409,28 @@
 
 ---
 
+## 16. Sécurité BDD (`securite-bdd`)
+
+> Passe 1 : annuaire `member_directory`, fonctions de rôle déplacées dans `private`, `search_path = ''`, droits explicites HelloAsso. Déjà automatisé, non répété ici : `node scripts/check-securite-bdd.mjs` (sections A, B, C, D et non-régression, avec les vrais comptes du dev, dont le cas Q24 en SQL), `tests/composables/useGroups.test.ts`, `tests/hooks/agent-guard.test.ts`, `e2e/securite-bdd.spec.ts` (visiteur → `/tarifs`). Les scénarios ci-dessous contrôlent le rendu réel et le ressenti par rôle.
+> Prérequis : dev avec migrations A à D appliquées ; comptes de test visiteur (sans session), adhérent, secrétaire, admin ; onglet Réseau ouvert (aucune erreur `permission denied for schema private`, `42501` ni 5xx).
+
+| # | Scénario | Résultat attendu | Statut | Notes |
+|---|----------|-----------------|--------|-------|
+| SB01 | **Visiteur** (sans session) : `/tarifs` (accordéon des groupes) | Noms du référent et des moniteurs affichés ; aucune photo ; la requête `member_directory` est en GET, 200, et ne renvoie que `id` et `full_name` | | Annuaire ; avant la passe, `avatar_url` et tous les profils étaient lisibles |
+| SB02 | **Visiteur** : depuis la console, requête REST avec la clé publique sur `member_directory` en `PATCH`, `DELETE`, `POST`, puis `GET ?select=avatar_url` | Chaque écriture est refusée, `profiles` inchangé ; la lecture de `avatar_url` renvoie une erreur de colonne inconnue | | Couvert par le script ; à refaire à la main une fois |
+| SB03 | **Adhérent** : `/mes-inscriptions`, ouvrir « Rejoindre un groupe » | Référent et moniteurs affichés comme pour le visiteur ; aucun autre adhérent n'est lisible dans `profiles` (soi et famille seulement) | | |
+| SB04 | **Staff** (secrétaire puis admin) : `/admin/dashboard`, section des groupes | Référent et moniteurs affichés ; tableau des membres, rôles et demandes chargés sans erreur | | Les policies appellent `private.has_role` / `private.is_admin_or_secretary` |
+| SB05 | Connexion par `/login` avec admin, secrétaire, initiateur, adhérent | Redirections et menu inchangés (A01, A08, N09) : « Administration » visible pour staff seulement ; aucune erreur dans la console ni le Réseau | | Fonctions de rôle déplacées dans `private` |
+| SB06 | Inscription par `/register` (avec 1 enfant, puis sans) | Compte et profil créés (« En attente »), enfant créé et lié ; aucune erreur serveur ; confirmation par e-mail comme AP01 / AP45 | | Triggers `handle_new_user` et `enrich_profile_from_temps_user` ; consomme le quota d'envoi |
+| SB07 | Adhérent connecté, console : appeler `rpc/has_role` et `rpc/is_admin_or_secretary` ; idem sans session | Refus dans les deux cas (fonctions introuvables dans l'API) | | Couvert par le script ; contrôle manuel optionnel |
+| SB08 | **Secrétaire** : passer un profil « En attente » à « Actif » (AP17), recharger | Statut persisté, aucune erreur ; l'adhérent concerné accède ensuite à `/profil` (AP18). Le même PATCH de statut sur un tiers depuis la console d'un **adhérent** est refusé | | Trigger `profiles_block_status_change` |
+| SB09 | **Secrétaire** : approuver une demande d'inscription (RQ03), en rejeter une avec motif (RQ05) | `confirmed` / `cancelled`, `admin_note` et `reviewed_at` renseignés, notification créée. Adhérent : peut annuler sa propre inscription (ME03) mais pas la passer à `confirmed` ni écrire `admin_note` (console) | | Trigger `registrations_block_user_status_change` (migration C) |
+| SB10 | **Admin** : « Tester la connexion » (HA01) deux fois, puis « Synchroniser maintenant » (HA10) | Connexion opérationnelle ; une seule ligne `sandbox` dans `helloasso_tokens`, jeton non renouvelé au 2e clic (HA03) ; synchronisation sans erreur ; aucun `42501` dans les logs du serveur | | Migration D : `service_role` garde SELECT / INSERT / UPDATE, plus DELETE |
+| SB11 | Historique des synchronisations (`helloasso_sync_runs`) : lire la table depuis la session secrétaire, puis admin, puis adhérent (console, clé publique) | Secrétaire et admin lisent les lignes ; adhérent et visiteur : 0 ligne ; écriture refusée à tous les rôles clients | | Aucun écran d'historique dans l'interface à ce jour ; le serveur n'écrit pas encore cette table (lot `helloasso-sync`) : scénario à compléter alors |
+| SB12 | `node scripts/check-securite-bdd.mjs` puis `node scripts/check-helloasso-socle-db.mjs` sur le dev | 0 ÉCHEC pour les deux ; le second (81 OK) nettoie `helloasso_tokens` et `helloasso_sync_runs` par `pg` (`SUPABASE_DEV_DB_URL`) : aucune ligne `t1b-check-` ni `+secu-` résiduelle | | À relancer à la porte de qualité |
+
+---
+
 ## Résumé
 
 | Catégorie | Total | ✅ OK | ❌ KO | ⚠️ Partiel | 🐛 Bug connu | ⏭️ Non testé |
@@ -429,7 +451,8 @@
 | Admin HelloAsso (socle) | 12 | | | | | |
 | Authentification et profils (auth-profils) | 43 | | | | | |
 | Fiabilité des enfants (enfants-fiabilite) | 5 | | | | | |
-| **Total** | **214** | | | | | **4** |
+| Sécurité BDD (securite-bdd) | 12 | | | | | |
+| **Total** | **226** | | | | | **4** |
 
 ---
 

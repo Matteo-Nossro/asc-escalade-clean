@@ -16,6 +16,7 @@
  *   TEST_USERS_EMAIL       adresse de base `local@domaine` ; comptes `local+admin@domaine`,
  *                          `+secretaire`, `+initiateur`, `+adherent`
  *   TEST_USERS_PASSWORD    mot de passe commun aux 4 comptes
+ *   SUPABASE_DEV_DB_URL    chaîne Postgres du DEV (nettoyage des tables sans DELETE service_role)
  *
  * Une écriture « refusée » est constatée sur l'état réel : erreur renvoyée OU
  * 0 ligne touchée, dans les deux cas confirmé par une relecture via le service role.
@@ -24,6 +25,11 @@
  * client_id) ; elles sont supprimées au démarrage (restes éventuels) puis dans
  * un `finally`. Aucune ligne réelle n'est modifiée : pour `helloasso_tokens`, on
  * n'utilise qu'un environnement sans ligne, sinon arrêt.
+ *
+ * Depuis la migration D (20261105), `service_role` n'a plus DELETE sur
+ * `helloasso_tokens` ni `helloasso_sync_runs` : leurs lignes de test (préfixe
+ * `t1b-check-` uniquement) sont supprimées par une connexion `pg`
+ * (SUPABASE_DEV_DB_URL), qui n'est pas soumise à ces droits.
  *
  * Sécurité : refus avant tout appel réseau si l'URL ou une clé JWT ne désigne pas
  * le projet de DEV. Clés, mot de passe et jetons ne sont jamais affichés
@@ -34,6 +40,7 @@
  */
 import { randomUUID } from 'node:crypto'
 import { createClient } from '@supabase/supabase-js'
+import pg from 'pg'
 
 const DEV_REF = 'ybtnnogxukfldurozqwa'
 const PREFIXE = 't1b-check-'
@@ -58,6 +65,7 @@ const cleService =
   process.env.SUPABASE_SERVICE_KEY
 const motDePasse = process.env.TEST_USERS_PASSWORD
 const emailBase = process.env.TEST_USERS_EMAIL
+const urlPg = process.env.SUPABASE_DEV_DB_URL
 
 const manquantes = []
 if (!url) manquantes.push('SUPABASE_URL')
@@ -65,6 +73,7 @@ if (!cleAnon) manquantes.push('SUPABASE_KEY (ou SUPABASE_ANON_KEY)')
 if (!cleService) manquantes.push('SUPABASE_SECRET_KEY (ou SUPABASE_SERVICE_ROLE_KEY / SUPABASE_SERVICE_KEY)')
 if (!motDePasse) manquantes.push('TEST_USERS_PASSWORD')
 if (!emailBase) manquantes.push('TEST_USERS_EMAIL')
+if (!urlPg) manquantes.push('SUPABASE_DEV_DB_URL')
 if (manquantes.length) fail(`variable(s) manquante(s) : ${manquantes.join(', ')}`)
 
 // ── Garde : uniquement le projet de DEV, avant tout appel réseau ────────────
@@ -98,6 +107,32 @@ function controlerCle(cle, roleAttendu, libelle) {
 controlerCle(cleService, 'service_role', 'service role')
 controlerCle(cleAnon, 'anon', 'publique (anon)')
 
+/** Garde de la chaîne Postgres : connexion directe du DEV, ou pooler avec l'utilisateur du DEV. */
+function configPg(chaine) {
+  let u
+  try {
+    u = new URL(chaine)
+  } catch {
+    fail('SUPABASE_DEV_DB_URL n’est pas une URL valide (valeur non affichée)')
+  }
+  const utilisateur = decodeURIComponent(u.username)
+  const directe = u.hostname === `db.${DEV_REF}.supabase.co`
+  const pooler = u.hostname.endsWith('.pooler.supabase.com') && utilisateur === `postgres.${DEV_REF}`
+  if (!directe && !pooler) {
+    fail(`SUPABASE_DEV_DB_URL ne désigne pas le projet de DEV (${DEV_REF}) ; arrêt.`)
+  }
+  return {
+    host: u.hostname,
+    port: Number(u.port) || 5432,
+    user: utilisateur,
+    password: decodeURIComponent(u.password),
+    database: decodeURIComponent(u.pathname.replace(/^\//, '')) || 'postgres',
+    ssl: { rejectUnauthorized: false },
+    connectionTimeoutMillis: 15000,
+  }
+}
+const CONFIG_PG = configPg(urlPg)
+
 // ── Adresses des comptes ────────────────────────────────────────────────────
 const arobase = emailBase.lastIndexOf('@')
 if (arobase < 1 || arobase === emailBase.length - 1) {
@@ -121,17 +156,32 @@ function msg(error) {
 }
 const avecErreur = (error) => (error ? `erreur : ${msg(error)}` : 'aucune erreur')
 
-// ── Nettoyage (service role) ────────────────────────────────────────────────
+// ── Suppression par pg (tables sans DELETE pour service_role) ───────────────
+// Lignes de test uniquement : le motif doit commencer par le préfixe.
+const CIBLES_PG = { helloasso_sync_runs: 'scope', helloasso_tokens: 'client_id' }
+async function supprimerPg(table, motif) {
+  const colonne = CIBLES_PG[table]
+  if (!colonne || !motif.startsWith(PREFIXE)) throw new Error('suppression pg hors périmètre de test')
+  const db = new pg.Client(CONFIG_PG)
+  await db.connect()
+  try {
+    await db.query(`delete from public.${table} where ${colonne} like $1`, [motif])
+  } finally {
+    await db.end()
+  }
+}
+
+// ── Nettoyage ───────────────────────────────────────────────────────────────
 async function nettoyer() {
   const erreurs = []
-  const cibles = [
-    ['helloasso_forms', 'form_slug'],
-    ['helloasso_sync_runs', 'scope'],
-    ['helloasso_tokens', 'client_id'],
-  ]
-  for (const [table, colonne] of cibles) {
-    const { error } = await service.from(table).delete().like(colonne, `${PREFIXE}%`)
-    if (error) erreurs.push(`${table} : ${msg(error)}`)
+  const forms = await service.from('helloasso_forms').delete().like('form_slug', `${PREFIXE}%`)
+  if (forms.error) erreurs.push(`helloasso_forms : ${msg(forms.error)}`)
+  for (const table of Object.keys(CIBLES_PG)) {
+    try {
+      await supprimerPg(table, `${PREFIXE}%`)
+    } catch (e) {
+      erreurs.push(`${table} : ${e instanceof Error ? e.message : 'erreur pg'}`)
+    }
   }
   return erreurs
 }
@@ -198,7 +248,7 @@ async function verifierTokens(comptes) {
     const { error } = await c.client.from(T).insert({ environment: env, client_id: marque }).select()
     const lignes = await lire(T, 'environment', (q) => q.eq('client_id', marque))
     noter(c.nom, 'helloasso_tokens : insert refusé', lignes.length === 0, avecErreur(error))
-    if (lignes.length) await service.from(T).delete().eq('client_id', marque)
+    if (lignes.length) await supprimerPg(T, marque)
   }
 
   // Ligne de test (service role) pour lecture / update / delete / RPC.
