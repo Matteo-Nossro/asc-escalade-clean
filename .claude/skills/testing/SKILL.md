@@ -41,4 +41,5 @@ Référence générale : `docs/architecture.md` § Tests.
 - Route serveur : `vi.resetModules()` puis `stubNitroGlobals()` dans `beforeEach`, et `vi.unstubAllGlobals()` dans `afterEach`.
 - Les e2e vont dans `e2e/`, jamais dans `tests/` (sinon Vitest les ramasse).
 - `#supabase/server` est un alias Nitro que Vite ne résout pas. `vitest.config.ts` le pointe sur `tests/utils/supabase-server-stub.ts` : sans cet alias, une route `server/` qui l'importe ne se charge pas, même avec `vi.mock`. Chaque test remplace le stub par `vi.mock('#supabase/server', …)`.
+- **Git Bash sous Windows** : lancer Vitest depuis `cd "D:/projet-perso/asc-escalade-clean"`, **pas** depuis `cd /d/projet-perso/…`. Avec le chemin `/d/…` (lettre de lecteur en minuscule), tous les fichiers échouent avec « failed to find the runner », sans rapport avec le code testé.
 - Fixtures HelloAsso dont la racine est un tableau : elles sont rangées sous la clé `body` (`fixture('form-types.ok').body`). `fixture()` de `tests/utils/helloasso-kit.ts` retire `_source`.
