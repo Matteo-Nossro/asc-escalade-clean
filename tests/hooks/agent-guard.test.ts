@@ -50,7 +50,20 @@ function lancer(tool: string, command: string, lien: Lien) {
   return { code: res.status, stderr: res.stderr ?? '' }
 }
 
+// Entrée brute sur stdin (JSON valide mais de forme inattendue, ou JSON invalide)
+function lancerBrut(raw: string, lien: Lien = 'dev') {
+  const res = spawnSync(process.execPath, [HOOK, 'session'], {
+    input: raw,
+    env: { ...process.env, CLAUDE_PROJECT_DIR: racines[lien] },
+    encoding: 'utf8',
+    timeout: 10000,
+  })
+  return { code: res.status, stderr: res.stderr ?? '' }
+}
+
 const S = 'npx supabase'
+const SV = 'npx supabase@latest' // paquet versionné
+const SV3 = 'npx -y supabase@3.0.0'
 
 // ── Acceptés, projet lié = dev ───────────────────────────────────────────────
 const ACCEPTES_DEV = [
@@ -66,6 +79,10 @@ const ACCEPTES_DEV = [
   `${S} migration list --remote`,
   'git status',
   `${S} db query "select 1"`, // cible locale
+  `npx supabase@3.0.0 db push --remote --dry-run`, // paquet versionné
+  `${SV} db push --remote=${DEV}`,
+  'supabase migration up --remote',
+  `${S} migration up --remote`,
 ]
 
 // ── Refusés, projet lié = dev ────────────────────────────────────────────────
@@ -101,6 +118,19 @@ REFUSES_DEV.push(
   `${S} db push --remote --dry-run && ${S} db push --remote=${AUTRE}`,
   `${S} db push --remote --dry-run; ${S} db query --remote=${AUTRE} "select 1"`,
   `git status && ${S} migration repair --remote=${AUTRE} --status applied 20261102`,
+  // `--remote <ref>` (espace au lieu de `=`)
+  `${S} db push --remote ${AUTRE}`,
+  `${S} db query --remote ${AUTRE} "select 1"`,
+  `${S} migration repair --remote ${AUTRE} --status applied 20261102`,
+  // paquet versionné (`supabase@<version>`)
+  `${SV} db push --remote=${AUTRE}`,
+  `${SV3} db query --remote=${AUTRE} "select 1"`,
+  `${SV} db push --remote --db-url postgresql://postgres:x@db.${AUTRE}.supabase.co:5432/postgres`,
+  // migration up|down|squash visent aussi un hébergé
+  `${S} migration up --remote=${AUTRE}`,
+  `${S} migration down --remote=${AUTRE}`,
+  `${S} migration squash --remote=${AUTRE}`,
+  `${S} migration up --remote --db-url postgresql://postgres:x@db.${AUTRE}.supabase.co:5432/postgres`,
 )
 
 // ── Refusés, projet lié = autre ou aucun ─────────────────────────────────────
@@ -109,7 +139,45 @@ const REFUSES_NON_DEV = [
   `${S} db push --linked`,
   `${S} db query --remote "select 1"`,
   `${S} migration repair --remote --status applied 20261102`,
+  // paquet versionné
+  `${SV} db push --remote`,
+  `${SV3} db push --linked`,
+  // migration up|down|squash
+  `${S} migration up --remote`,
+  `${S} migration up --linked`,
+  `${S} migration down --remote`,
+  `${S} migration squash --remote`,
+  'supabase migration up --remote',
+  `${SV} migration up --linked`,
 ]
+
+// ── Continuation de ligne : l'option interdite arrive après la coupure ───────
+// Bash : `\` + retour à la ligne ; PowerShell : accent grave + retour à la ligne. LF et CRLF.
+const CONTINUATEUR = { Bash: '\\', PowerShell: '`' } as const
+const COUPURES = [['LF', '\n'], ['CRLF', '\r\n']] as const
+const OPTIONS_CONTINUES = [
+  '--db-url x',
+  `--db-url postgresql://postgres:x@db.${AUTRE}.supabase.co:5432/postgres`,
+  '--project-ref x',
+  `--project-ref ${AUTRE}`,
+  '--workdir x',
+  `--remote=${AUTRE}`,
+  `--remote ${AUTRE}`,
+]
+
+// ── Échec fermé : entrée du hook inattendue ⇒ exit 2 (le code 1 ne bloque pas) ─
+const ENTREES_INATTENDUES: Array<[string, (tool: string) => string]> = [
+  ['null', () => 'null'],
+  ['tableau vide', () => '[]'],
+  ['tableau contenant une commande', (t) => JSON.stringify([{ tool_name: t, tool_input: { command: 'git status' } }])],
+  ['tool_input à null', (t) => JSON.stringify({ tool_name: t, tool_input: null })],
+  ['command à null', (t) => JSON.stringify({ tool_name: t, tool_input: { command: null } })],
+  ['command nombre', (t) => JSON.stringify({ tool_name: t, tool_input: { command: 42 } })],
+  ['command booléen', (t) => JSON.stringify({ tool_name: t, tool_input: { command: true } })],
+  ['command objet', (t) => JSON.stringify({ tool_name: t, tool_input: { command: { a: 'supabase db push' } } })],
+  ['command tableau', (t) => JSON.stringify({ tool_name: t, tool_input: { command: ['supabase db push --remote'] } })],
+]
+const JSON_INVALIDE = ['{', 'pas du json', '{"tool_name": "Bash", "tool_input": {"command": ', 'undefined']
 
 // ── Sans lien avec Supabase, ou simple mention du dossier de migrations ──────
 const SANS_LIEN = [
@@ -140,6 +208,61 @@ describe.each(TOOLS)('agent-guard (%s)', (tool) => {
     it.each(REFUSES_NON_DEV)('refuse : %s', (commande) => {
       const { code } = lancer(tool, commande, lien)
       expect(code).toBe(2)
+    })
+  })
+
+  describe('projet lié = dev : continuation de ligne', () => {
+    const cont = CONTINUATEUR[tool]
+    const CAS = COUPURES.flatMap(([nom, saut]) =>
+      OPTIONS_CONTINUES.map((opt) => [nom, `${S} db push ${cont}${saut}${opt}`] as const),
+    )
+    it.each(CAS)('refuse (%s) : %j', (_nom, commande) => {
+      const { code } = lancer(tool, commande, 'dev')
+      expect(code).toBe(2)
+    })
+
+    it.each(COUPURES)('refuse (%s) : option interdite sur db query et migration repair', (_nom, saut) => {
+      expect(lancer(tool, `${S} db query ${cont}${saut}--remote ${cont}${saut}--project-ref ${AUTRE} "select 1"`, 'dev').code).toBe(2)
+      expect(lancer(tool, `${S} migration repair ${cont}${saut}--remote=${AUTRE} --status applied 20261102`, 'dev').code).toBe(2)
+    })
+
+    it.each(COUPURES)('refuse (%s) : continuation dans la sous-commande et dans un paquet versionné', (_nom, saut) => {
+      expect(lancer(tool, `${S} db ${cont}${saut}push --remote=${AUTRE}`, 'dev').code).toBe(2)
+      expect(lancer(tool, `${SV} db push ${cont}${saut}--db-url x`, 'dev').code).toBe(2)
+    })
+
+    it.each(COUPURES)('accepte (%s) : continuation sans option interdite', (_nom, saut) => {
+      const { code, stderr } = lancer(tool, `${S} db push ${cont}${saut}--remote --dry-run`, 'dev')
+      expect(code, stderr).toBe(0)
+    })
+  })
+
+  describe.each(['autre', 'aucun'] as const)('projet lié = %s : continuation de ligne', (lien) => {
+    const cont = CONTINUATEUR[tool]
+    it.each(COUPURES)('refuse (%s) : db push + --remote après la coupure', (_nom, saut) => {
+      expect(lancer(tool, `${S} db push ${cont}${saut}--remote`, lien).code).toBe(2)
+    })
+  })
+
+  describe('échec fermé : entrée du hook inattendue', () => {
+    it.each(ENTREES_INATTENDUES)('exit 2 : %s', (_nom, fabrique) => {
+      const { code } = lancerBrut(fabrique(tool))
+      expect(code).toBe(2)
+    })
+
+    it.each(JSON_INVALIDE)('exit 2 : JSON invalide %j', (raw) => {
+      const { code } = lancerBrut(raw)
+      expect(code).toBe(2)
+    })
+
+    it('`{}` sans outil : comportement inchangé (accepté, pas une commande)', () => {
+      const { code, stderr } = lancerBrut('{}')
+      expect(code, stderr).toBe(0)
+    })
+
+    it('jamais le code 1 (non bloquant) quelle que soit l’entrée', () => {
+      for (const [, fabrique] of ENTREES_INATTENDUES) expect(lancerBrut(fabrique(tool)).code).not.toBe(1)
+      for (const raw of JSON_INVALIDE) expect(lancerBrut(raw).code).not.toBe(1)
     })
   })
 

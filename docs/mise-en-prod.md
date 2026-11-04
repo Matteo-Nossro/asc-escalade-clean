@@ -76,7 +76,8 @@ select
       and coalesce(r.ev_class, 0) <> 'public.member_directory'::regclass) as objets_dependants,
   (select count(*) from public.profiles p
     where exists (select 1 from public.groups g where g.referent_id = p.id)
-       or exists (select 1 from public.group_instructors gi where gi.user_id = p.id)) as attendu;
+       or exists (select 1 from public.group_instructors gi where gi.user_id = p.id)) as attendu,
+  to_regnamespace('private') as schema_private; -- doit être vide : sinon, s'arrêter et regarder ce qu'il contient
 ```
 **2. Migration** : coller **tout** le fichier `supabase/migrations/20261102_member_directory_securite.sql` et l'exécuter une fois. Il porte son `BEGIN` / `COMMIT` : en cas d'erreur, rien n'est appliqué.
 
@@ -177,7 +178,18 @@ Une fois `20261102` dans l'historique, les migrations plus anciennes encore à l
    Elle doit contenir **exactement** les migrations listées plus haut. Aucune des 5 versions historiques, ni `20261102`. Toute autre ligne ⇒ s'arrêter.
 7. **Migrations d'abord** : `npx supabase db push --remote --include-all` (relire « Target », confirmer à la main), puis `npx supabase migration list --remote`.
 8. **Contrôles de la base** (lecture seule) :
-   - **Droits HelloAsso** : `anon` aucun ; `authenticated` `SELECT` sur `helloasso_sync_runs` seulement ; `service_role` sans `TRUNCATE`, `REFERENCES`, `TRIGGER`.
+   - **Fonctions** : `has_role` et `is_admin_or_secretary` dans `private` uniquement ; aucune ligne ne doit ressortir de la seconde requête (fonction sans `search_path` vide).
+     ```sql
+     select n.nspname, p.proname from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+      where p.proname in ('has_role', 'is_admin_or_secretary');
+
+     select n.nspname, p.proname, p.proconfig::text from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+      where n.nspname in ('public', 'private')
+        and (p.prosecdef or p.proname in ('handle_updated_at', 'registrations_block_user_status_change',
+             'profiles_block_payment_change', 'profiles_block_status_change', 'helloasso_acquire_token_lock'))
+        and not coalesce(p.proconfig, array[]::text[]) @> array['search_path=""'];
+     ```
+   - **Droits HelloAsso** : `anon` aucun ; `authenticated` `SELECT` sur `helloasso_sync_runs` seulement ; `service_role` exactement `SELECT, INSERT, UPDATE` sur les deux tables.
      ```sql
      select t as table_name, r as role,
             coalesce((select string_agg(p, ', ')
@@ -197,7 +209,7 @@ Une fois `20261102` dans l'historique, les migrations plus anciennes encore à l
 9. **Déploiement de l'application**, seulement après les étapes 7 et 8 : `git push origin dev` (workflow `.github/workflows/deploy.yml`). Le code lit `profile_completed_at` : déployé avant la colonne ou son rattrapage, il renverrait **tous** les comptes vers `/completer-profil`. Ne jamais inverser les étapes 7 et 9.
 10. **Contrôles dans l'admin** :
     - « Tester la connexion » HelloAsso : environnement `production`, organisation correcte, OK ;
-    - première synchronisation manuelle des adhésions, vérification du passage dans `helloasso_sync_runs` (compteurs, aucune erreur) ;
+    - première synchronisation manuelle des adhésions, sans erreur ; si le lot `helloasso-sync` est livré, vérification du passage dans `helloasso_sync_runs` (compteurs). Sans ce lot, le serveur n'écrit pas encore dans cette table ;
     - contrôle sur quelques adhérents connus du statut « payé ».
 11. **Automatismes** (selon les lots livrés) : activer le cron OVH (lot 4), déclarer l'URL du webhook dans HelloAsso (lot 7). **Le secret du webhook doit être défini en prod (étape 5) AVANT de déclarer cette URL chez HelloAsso** : sans secret, la route refuse toutes les notifications. L'URL déclarée doit contenir `?secret=<NUXT_HELLOASSO_WEBHOOK_SECRET>` : sinon les notifications sont ignorées et les paiements ne sont plus enregistrés.
 12. **Revenir sur le dev** : `npx supabase link --project-ref ybtnnogxukfldurozqwa`.

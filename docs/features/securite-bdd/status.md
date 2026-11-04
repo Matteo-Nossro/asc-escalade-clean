@@ -14,7 +14,7 @@
 - ☑ T4 — Migrations C `20261104_registrations_service_role.sql`, D `20261105_helloasso_grants_explicites.sql`, garde-fou `.claude/hooks/agent-guard.mjs` (api-dev) — C/D écrites, non appliquées (à pousser par l'utilisateur, puis `check-securite-bdd` [C] [D]) ; garde-fou : `tests/hooks` 150 verts, `npm test` 930 verts
 - ☑ QA (qa) — T3 : `docs/test-plan.md` § 16 (SB01–SB12) + Résumé (226) ; `check-helloasso-socle-db.mjs` : nettoyage de `helloasso_tokens` / `helloasso_sync_runs` par `pg` (`SUPABASE_DEV_DB_URL`, garde-fou sur le ref du dev, préfixe `t1b-check-` seul), assertions inchangées, 81 OK · 0 ÉCHEC ; `npm test` 59 fichiers / 930 verts ; typecheck 186 (baseline 186), 0 nouvelle
 - ☐ Porte de qualité — npm test · typecheck · e2e (si parcours) — échecs consécutifs : 0/2
-- ☐ Revue (reviewer) —
+- ☑ Revue (reviewer) — 2026-11-04 : ⚠️ corrections, 0 bloquant, 5 importants (4 sur agent-guard, 1 sur les droits de helloasso_sync_runs en D), 9 mineurs ; voir review.md
 - ☐ Doc + graphify update (doc-writer) — T5 : mise-en-prod (procédure A, --include-all), database.md, skill supabase-db, backlog
 
 ## Relevé T0a (dev, avant toute migration) — `node scripts/check-securite-bdd.mjs`
@@ -43,6 +43,14 @@ Fichiers de test : `scripts/check-securite-bdd.mjs` (sections [C] et [D] ; `regi
 - **Écart à connaître** : `scripts/check-helloasso-socle-db.mjs` nettoie `helloasso_tokens` et `helloasso_sync_runs` par DELETE sous `service_role` ; sans DELETE (migration D), son nettoyage échouera, à adapter (hors périmètre de cette tâche).
 - **Garde-fou : 80 OK · 70 ÉCHEC** (35 par outil, identiques Bash et PowerShell). Acceptations (12 sur dev, 18 sans lien Supabase) toutes OK. Échecs = refus nouveaux : `--remote=<autre ref | URL | branche>` sur push, query, repair ; `--db-url`, `--project-ref`, `--workdir` sur query et repair (et `--workdir` sur push) ; options avant la sous-commande ; seconde commande chaînée vers un autre ref ; `db query --remote` et `migration repair --remote` lié à un autre projet ou sans lien ; message sans le ref du dev (8 cas, dont `--db-url` sur push, déjà refusé mais sans nommer le projet). Déjà verts : refus de `link` + push, de `--db-url` / `--project-ref` sur push, de `db push --remote|--linked` hors dev.
 - `npm test` : 58 fichiers verts, 1 rouge (`tests/hooks/agent-guard.test.ts`, attendu).
+
+### Ajout 2026-11-04 — Tests d'abord, points Important 1 à 4 de la revue (qa) — `tests/hooks/agent-guard.test.ts` seul fichier modifié (`.claude/hooks/` intact)
+- 138 tests ajoutés (69 par outil, Bash et PowerShell) : 288 au total. **108 rouges (54 par outil), 180 verts**, rouges pour la bonne raison (exit 0 ou 1 au lieu de 2).
+- Point 1, continuation de ligne (`\` Bash, accent grave PowerShell, LF et CRLF) : `--db-url`, `--project-ref`, `--workdir`, `--remote=<autre>`, `--remote <autre>`, coupure dans la sous-commande et dans `supabase@latest` : 18 rouges par outil. Cas accepté `--remote --dry-run` après coupure : vert.
+- Point 2, `supabase@<version>` : `--remote=<autre>` et `--db-url` sur lien dev, `db push --remote|--linked` sur lien autre ou aucun : 6 rouges par outil (+ `--remote <autre>` espace : 3 rouges par outil, absent jusque-là).
+- Point 3, `migration up|down|squash` : `--remote=<autre>` / `--db-url` sur lien dev (4), `--remote|--linked` sur lien autre ou aucun (comptés avec le point 2 : 10 rouges sur lien dev + 16 sur liens autre et aucun ; `migration up --remote` accepté sur lien dev : vert aujourd'hui, à garder vert).
+- Point 4, échec fermé : stdin `null`, tableau (vide ou contenant une commande), `tool_input` à `null`, `command` à `null` / nombre / booléen / objet / tableau : 10 rouges par outil, test « jamais le code 1 » compris. JSON invalide : déjà vert (exit 2). `{}` : exit 0 conservé (vert).
+- `command` absent d'un outil Bash/PowerShell non couvert (non demandé).
 
 ## Blocages
 - **`SUPABASE_DEV_DB_URL` du `.env` pointe sur le mauvais hôte pooler** (`aws-1-eu-west-3`) : le serveur répond « tenant/user not found ». Le pooler du dev lié au CLI est `aws-0-eu-west-1.pooler.supabase.com` (testé : connexion OK avec le même utilisateur et mot de passe). Le `.env` n'a pas été modifié ; l'utilisateur doit y remplacer l'hôte. Sans cela le script s'arrête sur « connexion Postgres impossible ».
