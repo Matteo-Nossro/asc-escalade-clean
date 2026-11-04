@@ -32,7 +32,7 @@ Un `supabase db push` lancé tel quel sur la prod rejouerait donc tout, dont le 
    npx supabase db dump --remote --data-only -f backup/prod_data_AAAAMMJJ.sql
    ```
    Docker doit être démarré. Vérifier que les deux fichiers ne sont pas vides. Les sauvegardes restent hors du dépôt (`backup/` est dans `.gitignore`).
-2. **Vérifier qu'aucune dérive n'a eu lieu depuis le dump de référence** : comparer le nouveau dump de schéma avec `prod_schema.sql`. Tout objet ajouté à la main entre-temps doit d'abord être reporté dans une **nouvelle** migration (jamais dans une migration existante).
+2. **Vérifier qu'aucune dérive n'a eu lieu depuis le dump de référence** : comparer le nouveau dump de schéma avec `prod_schema.sql`. Tout objet ajouté à la main entre-temps doit d'abord être reporté dans une **nouvelle** migration (jamais dans une migration existante). **Différences attendues, sans nouvelle migration** : celles de la migration A, appliquée le 2026-11-04 (§ 2 bis) : schéma `private`, fonction `private.member_directory_rows()`, vue `member_directory` recréée sans `avatar_url` et ses droits. Tout autre écart ⇒ s'arrêter.
 3. **Constater l'historique vide** :
    ```bash
    npx supabase migration list --remote   # colonne « Remote » vide
@@ -46,7 +46,7 @@ Un `supabase db push` lancé tel quel sur la prod rejouerait donc tout, dont le 
    npx supabase migration list --remote   # Local = Remote pour les 5 versions
    npx supabase db push --remote --dry-run # ne propose que des versions postérieures à 20260520
    ```
-   Le dry-run liste les migrations plus récentes encore à livrer : c'est normal, ne pas les pousser ici. S'il propose la moindre de ces 5 migrations : **s'arrêter**, ne pas pousser.
+   Le dry-run liste les migrations plus récentes encore à livrer, dont `20261102` tant qu'elle n'est pas enregistrée : c'est normal, ne pas les pousser ici. S'il propose la moindre de ces 5 migrations : **s'arrêter**, ne pas pousser.
 6. **Revenir sur le dev** immédiatement :
    ```bash
    npx supabase link --project-ref ybtnnogxukfldurozqwa
@@ -57,8 +57,8 @@ Un `supabase db push` lancé tel quel sur la prod rejouerait donc tout, dont le 
 ## 2 bis. Correctif de sécurité anticipé : migration A (`member_directory`)
 Applique `20261102_member_directory_securite.sql` en prod **seule**, dans le SQL Editor, avant les autres migrations en attente. Elle ne dépend d'aucune d'elles.
 
-> **Appliquée en prod le 2026-11-04 (étapes 1 à 5), hors historique des migrations.** `20261102` n'est pas enregistrée dans `schema_migrations` : l'étape 6 reste à faire le jour de la livraison groupée, après le § 2 et avant le dry-run du § 3 (étape 6).
-> Constaté : `attendu` = 0, aucun référent ni moniteur n'étant affecté aux groupes en prod, donc l'annuaire est vide ; anonyme, 0 profil lisible ; adhérent, son seul profil, 0 profil de tiers ; `anon` et `authenticated` en `SELECT` seul ; vue non modifiable ; `avatar_url` en erreur 42703.
+> **Appliquée en prod le 2026-11-04 (étapes 1 à 5), hors historique des migrations.** `20261102` n'est pas enregistrée dans `schema_migrations`. Le § 2 n'était pas fait à cette date : il se fera le jour de la livraison groupée, puis l'étape 6 ci-dessous, avant le dry-run (§ 3, étape 6). Ne pas lancer l'étape 6 avant le § 2.
+> Constaté : `attendu` = 0, aucun référent ni moniteur n'étant affecté aux groupes en prod, donc l'annuaire est vide ; anonyme, 0 profil lisible ; adhérent, son seul profil, 0 profil de tiers ; `anon` et `authenticated` en `SELECT` seul ; `is_updatable` et `is_insertable_into` à `NO` ; `avatar_url` en erreur 42703 ; DELETE anonyme en erreur 55000. PATCH non lancé (jugé inutile par l'utilisateur, `is_updatable` = `NO`). Contrôle de `/tarifs` : résultat à confirmer.
 
 **État de la prod avant (2026-11-03)** : correctif manuel fait, `anon` sans droit, `authenticated` en `SELECT` seul sur l'ancienne vue. Conséquences jusqu'à la migration : un adhérent connecté lit encore le nom et l'avatar de tous les profils ; un visiteur anonyme ne voit plus les noms des moniteurs sur `/tarifs`, sans message d'erreur (`useGroups` ignore l'erreur). La migration est compatible avec ce `revoke` : elle supprime la vue, la recrée et repose tous ses droits. Elle est aussi compatible avec le code déployé, qui ne lit que `id, full_name`.
 
@@ -172,7 +172,8 @@ Une fois `20261102` dans l'historique, les migrations plus anciennes encore à l
 **Migrations livrées**, dans cet ordre : `20261025_helloasso_socle.sql`, `20261029_auth_profils.sql`, `20261030_profiles_block_status_role.sql`, `20261103_fonctions_search_path.sql` (B), `20261104_registrations_service_role.sql` (C), `20261105_helloasso_grants_explicites.sql` (D), plus celles des lots HelloAsso livrés (`20260520_helloasso.sql` n'étant jamais réécrite).
 
 **Prérequis bloquants**
-- § 2 fait, § 2 bis fait jusqu'à l'étape 5 (2026-11-04). Son étape 6 se fait au début de l'étape 6 ci-dessous.
+- § 2 fait le jour de la livraison, au plus tard avant l'étape 6 ci-dessous. Sa sauvegarde peut servir à l'étape 2 si elle est du même jour.
+- § 2 bis fait jusqu'à l'étape 5 (2026-11-04). Son étape 6 se fait au début de l'étape 6 ci-dessous.
 - **La migration D (backlog Q29) fait partie de la liste.** Sans elle, « Automatically expose new tables » étant désactivé, `service_role` n'aurait aucun droit sur `helloasso_tokens` et `helloasso_sync_runs` : le jeton et la synchronisation HelloAsso seraient cassés.
 - Lots à livrer mergés et validés sur le dev, en sandbox HelloAsso.
 - **Rien n'est poussé sur `dev` avant l'étape 9** : `git push` déploie l'application.
