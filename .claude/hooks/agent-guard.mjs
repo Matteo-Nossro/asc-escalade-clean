@@ -5,9 +5,11 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-// Garde Supabase (tous profils) : db push / db reset uniquement sur le projet de DEV lié
+// Garde Supabase (tous profils) : db push|reset|query et migration repair uniquement sur le projet de DEV
 const SUPABASE_DEV_REF = 'ybtnnogxukfldurozqwa'
-const SUPABASE_DB_WRITE = /\bsupabase\s+db\s+(push|reset)\b/
+const SUPABASE_BIN = /^supabase(\.(exe|cmd|ps1))?$/i
+const SUPABASE_FORBIDDEN_OPTS = /^--(db-url|project-ref|workdir)(=|$)/
+const unquote = (t) => t.replace(/^[$("'`]+|[)"'`]+$/g, '')
 // Création des comptes de test (service role) : session principale uniquement
 const SEED_TEST_USERS = /seed-test-users\.mjs/
 
@@ -57,6 +59,48 @@ const deny = (msg) => {
   process.exit(2)
 }
 
+// Segments d'une commande chaînée (; & | retour à la ligne) : une découpe qui respecte les guillemets,
+// une autre qui les ignore (bash -c "a; b"), pour qu'aucune invocation de supabase n'échappe au contrôle.
+function splitSegments(cmd) {
+  const segments = []
+  let cur = ''
+  let quote = ''
+  for (const c of cmd) {
+    if (quote) {
+      if (c === quote) quote = ''
+      cur += c
+    } else if (c === '"' || c === "'") {
+      quote = c
+      cur += c
+    } else if (/[;&|\r\n]/.test(c)) {
+      segments.push(cur)
+      cur = ''
+    } else cur += c
+  }
+  segments.push(cur)
+  return [...segments, ...cmd.split(/[;&|\r\n]+/)]
+}
+
+// Chaque invocation de supabase : options et arguments qui suivent, arguments positionnels, commande gardée
+function supabaseCalls(cmd) {
+  const calls = []
+  for (const segment of splitSegments(cmd)) {
+    const tokens = segment.split(/\s+/).filter(Boolean).map(unquote)
+    tokens.forEach((t, i) => {
+      if (!SUPABASE_BIN.test(t.split(/[\\/]/).pop())) return
+      const rest = tokens.slice(i + 1)
+      const pos = rest.filter((x) => !x.startsWith('-'))
+      let kind = ''
+      pos.forEach((p, j) => {
+        if (p === 'db' && /^(push|reset|query)$/.test(pos[j + 1] || '')) kind = `db ${pos[j + 1]}`
+        if (p === 'migration' && pos[j + 1] === 'repair') kind = 'migration repair'
+      })
+      calls.push({ rest, pos, kind })
+    })
+  }
+  return calls
+}
+
 const profile = PROFILES[process.argv[2]]
 if (!profile) deny(`profil inconnu "${process.argv[2]}"`)
 
@@ -74,16 +118,28 @@ const args = input.tool_input || {}
 if (tool === 'Bash' || tool === 'PowerShell') {
   const cmd = String(args.command || '').trim()
   if (SEED_TEST_USERS.test(cmd) && process.argv[2] !== 'session') deny('seed-test-users.mjs est réservé à la session principale.')
-  if (SUPABASE_DB_WRITE.test(cmd)) {
-    // Le lien est lu avant l'exécution : un « supabase link » ou une cible explicite dans la même commande le contournerait
-    if (/\bsupabase\s+link\b/.test(cmd)) deny('supabase link et db push/reset dans la même commande : interdit.')
-    if (/--db-url\b|--project-ref\b/.test(cmd)) deny('db push/reset avec --db-url ou --project-ref : interdit, seul le projet lié est accepté.')
+  const calls = supabaseCalls(cmd)
+  const guarded = calls.filter((c) => c.kind)
+  if (guarded.length) {
+    const dev = `projet de DEV « ${SUPABASE_DEV_REF} »`
+    // Le lien est lu avant l'exécution : un « supabase link » dans la même commande le contournerait
+    if (calls.some((c) => c.pos[0] === 'link')) deny(`supabase link et ${guarded[0].kind} dans la même commande : interdit, seul le ${dev} est accepté.`)
     const root = process.env.CLAUDE_PROJECT_DIR || input.cwd || process.cwd()
     let ref = ''
     try {
       ref = fs.readFileSync(path.join(root, 'supabase', '.temp', 'project-ref'), 'utf8').trim()
     } catch {}
-    if (ref !== SUPABASE_DEV_REF) deny(`supabase db push/reset refusé : projet lié « ${ref || 'aucun'} » ≠ projet de DEV « ${SUPABASE_DEV_REF} ».`)
+    for (const { rest, kind } of guarded) {
+      const forbidden = rest.find((t) => SUPABASE_FORBIDDEN_OPTS.test(t))
+      if (forbidden) deny(`supabase ${kind} avec ${forbidden.split('=')[0]} : interdit, seul le ${dev} est accepté.`)
+      const remotes = rest.filter((t) => /^--remote(=|$)/.test(t))
+      const badRemote = remotes.find((t) => t.includes('=') && t.slice(t.indexOf('=') + 1).replace(/["'`]/g, '') !== SUPABASE_DEV_REF)
+      if (badRemote) deny(`supabase ${kind} refusé : cible « ${badRemote} » ≠ ${dev}.`)
+      const linked = remotes.some((t) => !t.includes('=')) || rest.some((t) => /^--linked(=|$)/.test(t))
+      // Sans --remote ni --linked : db query vise le local ; les autres commandes visent le projet lié
+      const targetsLinked = linked || (!remotes.length && kind !== 'db query')
+      if (targetsLinked && ref !== SUPABASE_DEV_REF) deny(`supabase ${kind} refusé : projet lié « ${ref || 'aucun'} » ≠ ${dev}.`)
+    }
   }
 }
 
