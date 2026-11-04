@@ -13,10 +13,14 @@
  * Sections du relevé :
  *   [A]              annuaire : lecture limitée à id + full_name des référents / moniteurs,
  *                    écritures refusées, vue non modifiable, droits, schéma `private`.
- *   [B]              search_path fixé, fonctions de trigger hors API, anon sans accès
- *                    aux fonctions de rôle.
- *   [non-régression] lectures staff / adhérent, triggers, création de compte, Q24 (RLS,
- *                    trigger profiles_block_status), remise en état.
+ *   [B]              search_path fixé (dont profiles_block_status_change et
+ *                    helloasso_acquire_token_lock, nominativement), fonctions de trigger hors
+ *                    API, is_admin_or_secretary / has_role déplacées dans `private` (absentes
+ *                    de `public`, EXECUTE à authenticated seulement, rpc refusé à tous).
+ *   [non-régression] lectures et écritures staff / adhérent (policies qui appellent
+ *                    is_admin_or_secretary / has_role : profiles, user_roles, helloasso_forms,
+ *                    profile_payments), triggers, création de compte, Q24 (RLS, trigger
+ *                    profiles_block_status), remise en état.
  * Avant les migrations, [A] et [B] doivent être en ÉCHEC (fonctionnalité absente) et
  * [non-régression] en OK. Tout autre motif d'échec est une erreur de test.
  *
@@ -202,11 +206,28 @@ async function nettoyerRestes() {
     if ((u.email ?? '').includes(MARQUE)) ids.add(u.id)
   }
   for (const id of ids) erreurs.push(...(await supprimerJetable(id)))
+  erreurs.push(...(await supprimerFormulairesJetables()))
+  return erreurs
+}
+
+/** Formulaires HelloAsso jetables (label `+secu-…`) et leurs paiements (RESTRICT sur form_id). */
+async function supprimerFormulairesJetables() {
+  const erreurs = []
+  const { data, error } = await service.from('helloasso_forms').select('id').ilike('label', `%${MARQUE}%`)
+  if (error) return [`helloasso_forms : ${msg(error)}`]
+  for (const f of data ?? []) {
+    const paiements = await service.from('profile_payments').delete().eq('form_id', f.id)
+    if (paiements.error) erreurs.push(`profile_payments : ${msg(paiements.error)}`)
+    const form = await service.from('helloasso_forms').delete().eq('id', f.id)
+    if (form.error) erreurs.push(`helloasso_forms : ${msg(form.error)}`)
+  }
   return erreurs
 }
 
 async function resteJetables() {
   const reste = []
+  const formsRestants = await service.from('helloasso_forms').select('id').ilike('label', `%${MARQUE}%`)
+  reste.push(...(formsRestants.data ?? []).map((f) => f.id))
   for (const colonne of ['email', 'full_name']) {
     const { data } = await service.from('profiles').select('id').ilike(colonne, `%${MARQUE}%`)
     reste.push(...(data ?? []).map((p) => p.id))
@@ -326,10 +347,11 @@ async function verifierLecturesStaff(comptes) {
     profiles: await compter('profiles'),
     user_roles: await compter('user_roles'),
     helloasso_forms: await compter('helloasso_forms'),
+    profile_payments: await compter('profile_payments'),
   }
   for (const cle of ['admin', 'secretaire']) {
     const c = comptes[cle]
-    for (const table of ['profiles', 'user_roles', 'helloasso_forms']) {
+    for (const table of ['profiles', 'user_roles', 'helloasso_forms', 'profile_payments']) {
       const { count, error } = await c.client.from(table).select('*', { count: 'exact', head: true })
       noter('non-régression', c.nom, `lit ${table} en entier (policies is_admin_or_secretary / has_role)`, !error && count === totaux[table], error ? msg(error) : `${count} ligne(s) lue(s) sur ${totaux[table]}`)
     }
@@ -342,6 +364,103 @@ async function verifierLecturesStaff(comptes) {
     const forms = await ini.client.from('helloasso_forms').select('*', { count: 'exact', head: true })
     noter('non-régression', ini.nom, 'helloasso_forms invisible pour un non-staff (témoin négatif)', !forms.error && forms.count === 0, forms.error ? msg(forms.error) : `${forms.count} ligne(s)`)
   }
+  if (totaux.profile_payments > 0) {
+    const paiements = await comptes.adherent.client.from('profile_payments').select('*', { count: 'exact', head: true })
+    noter('non-régression', comptes.adherent.nom, 'profile_payments invisible pour un non-staff (témoin négatif)', !paiements.error && paiements.count === 0, paiements.error ? msg(paiements.error) : `${paiements.count} ligne(s)`)
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// [non-régression] — API : écritures protégées par has_role / is_admin_or_secretary
+//   · helloasso_forms : écritures admin seul (has_role('admin')), refusées à la secrétaire ;
+//   · profile_payments : écritures staff (is_admin_or_secretary), refusées à l'adhérent ;
+//   · profiles.status : bureau seulement (policy + trigger profiles_block_status_change).
+// Toutes les lignes écrites sont jetables (`+secu-`) et supprimées en fin de parcours.
+// ═════════════════════════════════════════════════════════════════════════════
+async function lireFormulaire(id) {
+  const { data, error } = await service.from('helloasso_forms').select('id, label').eq('id', id).maybeSingle()
+  if (error) throw new Error(`relecture helloasso_forms : ${msg(error)}`)
+  return data
+}
+
+async function verifierEcrituresStaff(comptes) {
+  const { admin, secretaire, adherent } = comptes
+  const saison = '2026-2027'
+  const nouveauFormulaire = (suffixe) => {
+    const slug = `secu-${suffixe}-${Date.now()}`
+    return { form_slug: slug, form_type: 'Membership', label: `${MARQUE}${slug}`, season: saison }
+  }
+
+  // helloasso_forms : INSERT admin accepté
+  const insertAdmin = await admin.client.from('helloasso_forms').insert(nouveauFormulaire('admin')).select('id, label')
+  const form = insertAdmin.data?.[0]
+  noter('non-régression', admin.nom, 'INSERT helloasso_forms accepté (policy has_role(\'admin\'))', !insertAdmin.error && Boolean(form), insertAdmin.error ? msg(insertAdmin.error) : 'aucune ligne créée')
+  if (!form) return
+
+  // INSERT refusé à la secrétaire et à l'adhérent (RLS : erreur 42501, aucune ligne créée)
+  for (const c of [secretaire, adherent]) {
+    const refus = nouveauFormulaire(`refus-${c.nom === 'adhérent' ? 'adh' : 'sec'}`)
+    const res = await c.client.from('helloasso_forms').insert(refus).select('id')
+    const { data: cree } = await service.from('helloasso_forms').select('id').eq('form_slug', refus.form_slug)
+    noter('non-régression', c.nom, 'INSERT helloasso_forms refusé (écritures admin seul)', Boolean(res.error) && (cree ?? []).length === 0, (cree ?? []).length ? 'ligne créée' : `aucune erreur renvoyée ; ${avecErreur(res.error)}`)
+  }
+
+  // UPDATE / DELETE refusés à la secrétaire (0 ligne touchée, ligne intacte)
+  const marqueSecretaire = `${MARQUE}maj-secretaire-${Date.now()}`
+  const majSecretaire = await secretaire.client.from('helloasso_forms').update({ label: marqueSecretaire }).eq('id', form.id).select('id')
+  const apresMajSecretaire = await lireFormulaire(form.id)
+  noter('non-régression', secretaire.nom, 'UPDATE helloasso_forms refusé (écritures admin seul)', apresMajSecretaire?.label === form.label && (Boolean(majSecretaire.error) || (majSecretaire.data ?? []).length === 0), apresMajSecretaire?.label === form.label ? `${(majSecretaire.data ?? []).length} ligne(s)` : 'label modifié par la secrétaire')
+  const supprSecretaire = await secretaire.client.from('helloasso_forms').delete().eq('id', form.id).select('id')
+  const apresSupprSecretaire = await lireFormulaire(form.id)
+  noter('non-régression', secretaire.nom, 'DELETE helloasso_forms refusé (écritures admin seul)', Boolean(apresSupprSecretaire) && (Boolean(supprSecretaire.error) || (supprSecretaire.data ?? []).length === 0), apresSupprSecretaire ? `${(supprSecretaire.data ?? []).length} ligne(s)` : 'ligne supprimée par la secrétaire')
+
+  // UPDATE accepté à l'admin
+  const marqueAdmin = `${MARQUE}maj-admin-${Date.now()}`
+  const majAdmin = await admin.client.from('helloasso_forms').update({ label: marqueAdmin }).eq('id', form.id).select('id')
+  const apresMajAdmin = await lireFormulaire(form.id)
+  noter('non-régression', admin.nom, 'UPDATE helloasso_forms accepté', !majAdmin.error && apresMajAdmin?.label === marqueAdmin, majAdmin.error ? msg(majAdmin.error) : `label = ${apresMajAdmin?.label ?? '(absent)'}`)
+
+  // profile_payments : staff (secrétaire) écrit, adhérent refusé
+  const profilId = await creerJetable()
+  const paiement = { profile_id: profilId, form_id: form.id, amount: 0 }
+  const insertAdherent = await adherent.client.from('profile_payments').insert(paiement).select('id')
+  const { data: creeAdherent } = await service.from('profile_payments').select('id').eq('profile_id', profilId)
+  noter('non-régression', adherent.nom, 'INSERT profile_payments refusé (staff seulement)', Boolean(insertAdherent.error) && (creeAdherent ?? []).length === 0, (creeAdherent ?? []).length ? 'ligne créée' : `aucune erreur renvoyée ; ${avecErreur(insertAdherent.error)}`)
+
+  const insertSecretaire = await secretaire.client.from('profile_payments').insert(paiement).select('id')
+  const idPaiement = insertSecretaire.data?.[0]?.id
+  noter('non-régression', secretaire.nom, 'INSERT profile_payments accepté (policy is_admin_or_secretary)', !insertSecretaire.error && Boolean(idPaiement), insertSecretaire.error ? msg(insertSecretaire.error) : 'aucune ligne créée')
+  if (idPaiement) {
+    const majPaiement = await secretaire.client.from('profile_payments').update({ amount: 1 }).eq('id', idPaiement).select('id')
+    noter('non-régression', secretaire.nom, 'UPDATE profile_payments accepté', !majPaiement.error && (majPaiement.data ?? []).length === 1, majPaiement.error ? msg(majPaiement.error) : `${(majPaiement.data ?? []).length} ligne(s)`)
+    const supprAdherent = await adherent.client.from('profile_payments').delete().eq('id', idPaiement).select('id')
+    const { data: encore } = await service.from('profile_payments').select('id').eq('id', idPaiement)
+    noter('non-régression', adherent.nom, 'DELETE profile_payments refusé (staff seulement)', (encore ?? []).length === 1 && (Boolean(supprAdherent.error) || (supprAdherent.data ?? []).length === 0), (encore ?? []).length ? `${(supprAdherent.data ?? []).length} ligne(s)` : 'ligne supprimée par l’adhérent')
+    const supprSecretairePaiement = await secretaire.client.from('profile_payments').delete().eq('id', idPaiement).select('id')
+    const { data: reste } = await service.from('profile_payments').select('id').eq('id', idPaiement)
+    noter('non-régression', secretaire.nom, 'DELETE profile_payments accepté', !supprSecretairePaiement.error && (reste ?? []).length === 0, supprSecretairePaiement.error ? msg(supprSecretairePaiement.error) : `${(reste ?? []).length} ligne(s) restante(s)`)
+  }
+
+  // profiles.status : le bureau modifie (policy profiles_update_staff + trigger qui appelle is_admin_or_secretary)
+  const autreStatut = (s) => (s === 'Actif' ? 'Inactif' : 'Actif')
+  for (const c of [secretaire, admin]) {
+    const id = await creerJetable()
+    const avant = await lireProfil(id)
+    const cible = autreStatut(avant?.status)
+    const res = await c.client.from('profiles').update({ status: cible }).eq('id', id).select('id')
+    const apres = await lireProfil(id)
+    noter('non-régression', c.nom, 'UPDATE profiles.status accepté (policy + trigger profiles_block_status)', !res.error && apres?.status === cible, res.error ? msg(res.error) : `status = ${apres?.status} (attendu ${cible})`)
+  }
+  const idAdh = await creerJetable()
+  const avantAdh = await lireProfil(idAdh)
+  const resAdh = await adherent.client.from('profiles').update({ status: autreStatut(avantAdh?.status) }).eq('id', idAdh).select('id')
+  const apresAdh = await lireProfil(idAdh)
+  noter('non-régression', adherent.nom, 'UPDATE profiles.status d’un tiers refusé', apresAdh?.status === avantAdh?.status && (Boolean(resAdh.error) || (resAdh.data ?? []).length === 0), `${(resAdh.data ?? []).length} ligne(s) ; status = ${apresAdh?.status}`)
+
+  // DELETE helloasso_forms accepté à l'admin (le formulaire n'est plus référencé : paiement supprimé ci-dessus)
+  const supprAdmin = await admin.client.from('helloasso_forms').delete().eq('id', form.id).select('id')
+  const apresSupprAdmin = await lireFormulaire(form.id)
+  noter('non-régression', admin.nom, 'DELETE helloasso_forms accepté', !supprAdmin.error && !apresSupprAdmin, supprAdmin.error ? msg(supprAdmin.error) : apresSupprAdmin ? 'ligne conservée' : '')
 }
 
 async function verifierLecturesAdherent(comptes) {
@@ -370,11 +489,14 @@ async function verifierRpc(comptes) {
       noter('B', c.nom, `rpc/${fonction} refusé`, rpcRefuse(res), `status ${res.status} ; ${avecErreur(res.error)}`)
     }
   }
-  // anon ne doit jamais pouvoir appeler les fonctions de rôle (vrai dans les deux schémas possibles)
-  const anonyme = comptes.anonyme
-  for (const [fonction, args] of [['is_admin_or_secretary', undefined], ['has_role', { _role: 'admin' }]]) {
-    const res = await anonyme.client.rpc(fonction, args)
-    noter('B', anonyme.nom, `rpc/${fonction} refusé à anon`, rpcRefuse(res), `status ${res.status} ; ${avecErreur(res.error)}`)
+  // Les fonctions de rôle sont dans `private` (non exposé par l'API) : rpc refusé à tous les comptes,
+  // y compris authenticated (les policies les appellent en interne, pas via l'API).
+  for (const cle of ['anonyme', 'adherent', 'secretaire', 'admin']) {
+    const c = comptes[cle]
+    for (const [fonction, args] of [['is_admin_or_secretary', undefined], ['has_role', { _role: 'admin' }]]) {
+      const res = await c.client.rpc(fonction, args)
+      noter('B', c.nom, `rpc/${fonction} refusé`, rpcRefuse(res), `status ${res.status} ; ${avecErreur(res.error)}`)
+    }
   }
 }
 
@@ -440,6 +562,8 @@ async function verifierCatalogue(db) {
       const [{ ok }] = await q(`select has_function_privilege($1, $2::oid, 'EXECUTE') as ok`, [role, fn.oid])
       noter('A', 'catalogue', `${role} peut exécuter member_directory_rows`, ok, 'EXECUTE absent')
     }
+    const [{ svc }] = await q(`select has_function_privilege('service_role', $1::oid, 'EXECUTE') as svc`, [fn.oid])
+    noter('A', 'catalogue', 'service_role ne peut pas exécuter member_directory_rows', !svc, 'EXECUTE accordé à service_role')
     const [{ n }] = await q(
       `select count(*)::int as n from pg_proc p,
          aclexplode(coalesce(p.proacl, acldefault('f', p.proowner))) a
@@ -507,24 +631,49 @@ async function verifierCatalogue(db) {
     noter('B', 'catalogue', `${nom} : EXECUTE retiré à PUBLIC, anon, authenticated`, accordes.length === 0, `exécutable par : ${accordes.join(', ')}`)
   }
 
-  // is_admin_or_secretary / has_role : anon et PUBLIC sans EXECUTE (schéma non asserté, authenticated non asserté)
+  // search_path = '' nominatif : fonctions de trigger / de verrou qui ne sont pas toutes SECURITY DEFINER
+  // (la vérification générique ci-dessus ne les couvre pas).
+  for (const nom of ['profiles_block_status_change', 'helloasso_acquire_token_lock']) {
+    const lues2 = await q(
+      `select p.proconfig from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+        where n.nspname = 'public' and p.proname = $1`,
+      [nom],
+    )
+    const ok = lues2.length > 0 && lues2.every((f) => (f.proconfig ?? []).includes('search_path=""'))
+    noter('B', 'catalogue', `${nom} : search_path = ''`, ok, lues2.length ? `proconfig = ${(lues2[0].proconfig ?? []).join(' ') || '(vide)'}` : 'fonction introuvable')
+  }
+
+  // is_admin_or_secretary / has_role : déplacées dans `private` (migration B)
+  const authUsage = present ? (await q(`select has_schema_privilege('authenticated', 'private', 'USAGE') as ok`))[0].ok : false
+  noter('B', 'catalogue', 'authenticated a USAGE sur le schéma private (policies)', authUsage, present ? 'USAGE absent' : 'schéma private absent')
   for (const [nom, signature] of [['is_admin_or_secretary', '()'], ['has_role', '(text)']]) {
-    const [f] = await q(
-      `select coalesce(to_regprocedure($1), to_regprocedure($2))::oid as oid`,
+    const [{ dansPublic, dansPrivate }] = await q(
+      `select to_regprocedure($1) is not null as "dansPublic", to_regprocedure($2)::oid is not null as "dansPrivate"`,
       [`public.${nom}${signature}`, `private.${nom}${signature}`],
     )
+    noter('B', 'catalogue', `${nom} : présente dans private`, dansPrivate, 'absente de private')
+    noter('B', 'catalogue', `${nom} : absente de public`, !dansPublic, 'encore présente dans public (exposée par l’API)')
+
+    const [f] = await q(`select to_regprocedure($1)::oid as oid`, [`private.${nom}${signature}`])
     if (!f?.oid) {
-      noter('B', 'catalogue', `${nom} : anon et PUBLIC sans EXECUTE`, false, 'fonction introuvable (public et private)')
+      for (const verif of ['authenticated peut exécuter', 'anon et PUBLIC sans EXECUTE']) {
+        noter('B', 'catalogue', `private.${nom} : ${verif}`, false, 'fonction absente de private')
+      }
       continue
     }
-    const [{ anon }] = await q(`select has_function_privilege('anon', $1::oid, 'EXECUTE') as anon`, [f.oid])
+    const [{ auth, anon }] = await q(
+      `select has_function_privilege('authenticated', $1::oid, 'EXECUTE') as auth,
+              has_function_privilege('anon', $1::oid, 'EXECUTE') as anon`,
+      [f.oid],
+    )
     const [{ n }] = await q(
       `select count(*)::int as n from pg_proc p,
          aclexplode(coalesce(p.proacl, acldefault('f', p.proowner))) a
         where p.oid = $1::oid and a.grantee = 0`,
       [f.oid],
     )
-    noter('B', 'catalogue', `${nom} : anon et PUBLIC sans EXECUTE`, !anon && n === 0, `exécutable par : ${[anon ? 'anon' : null, n > 0 ? 'PUBLIC' : null].filter(Boolean).join(', ')}`)
+    noter('B', 'catalogue', `private.${nom} : authenticated peut exécuter`, auth, 'EXECUTE absent')
+    noter('B', 'catalogue', `private.${nom} : anon et PUBLIC sans EXECUTE`, !anon && n === 0, `exécutable par : ${[anon ? 'anon' : null, n > 0 ? 'PUBLIC' : null].filter(Boolean).join(', ')}`)
   }
 
   // Non-régression : les triggers existent et sont actifs
@@ -631,6 +780,7 @@ try {
     ['écritures sur la vue (API)', () => verifierEcrituresVue(comptes)],
     ['lectures staff (API)', () => verifierLecturesStaff(comptes)],
     ['lectures adhérent (API)', () => verifierLecturesAdherent(comptes)],
+    ['écritures staff (API)', () => verifierEcrituresStaff(comptes)],
     ['RPC (API)', () => verifierRpc(comptes)],
     ['catalogue (SQL)', () => verifierCatalogue(db)],
     ['Q24 (SQL)', () => verifierQ24(db, attendus)],
