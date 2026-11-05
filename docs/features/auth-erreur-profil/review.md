@@ -1,0 +1,41 @@
+# Revue — auth-erreur-profil
+
+> Diff relu : `git diff` + fichiers non suivis (rien n'est commité) · Date : 2026-11-05 (2e passe, corrections) · Verdict : ✅ OK sous réserve des mineurs ci-dessous (0 bloquant, 0 important)
+
+Portes données par la session principale, non relancées : `npm test` 1220 verts à la 1re passe, typecheck = référence, e2e verts, contrôles navigateur verts (déconnexion réseau coupé, reconnexion, 2 lectures exactes, relecture lente). `check.mjs` : aucune sortie, code 0 à la 1re passe. Je n'ai pas pu relancer les tests dans cette passe ; la relecture est faite sur le code.
+
+## Bloquant
+- —
+
+## Important
+- —
+
+## Mineur
+- `app/components/auth/PageGate.vue:70-77` — le commentaire « le verrou tombe à la fin de `retry()`, après la décision de redirection » n'est pas tenu. `blocked` s'écrit `failed && authStatus !== 'ready'` : dès que le statut passe à `ready`, la porte s'ouvre, avant `authRedirectFor`/`navigateTo` (la reprise de `retry()` arrive plusieurs microtâches après le rendu Vue déjà planifié). Conséquence : après un « Réessayer » réussi, une page qui va rediriger (profil incomplet, `/admin` sans rôle) se monte un instant. Le serveur revérifie chaque action ; pas de fuite de données. Correction possible : `failed && (authStatus !== 'ready' || retrying)`. Non reproduit, déduit de l'ordre de la file de tâches.
+- `app/composables/useAuth.ts:19` — `Storage.prototype.removeItem.call(localStorage, key)` : en navigateur, c'est équivalent à `localStorage.removeItem(key)` (même méthode). C'est même un peu plus robuste, car une clé de stockage nommée `removeItem` ne casse pas l'appel. Le code peut rester tel quel ; il faut en revanche corriger le commentaire de la ligne 18, qui justifie le code par les tests. C'est le test qui est fragile : son espion `vi.spyOn(Storage.prototype, 'removeItem')` dépend de la façon dont happy-dom expose `localStorage`. Les assertions `removeItem` « non appelé » des cas nominaux (`PageGate.pending-and-logout.test.ts:448, 466`) sont faibles (elles passeraient aussi si le code appelait `localStorage.removeItem`). À l'auteur du test de décider (assertions sur l'état des clés, ou espion sur `localStorage`).
+- `app/composables/useAuth.ts:15-25` (purge) — vérifié : seules les clés `localStorage` et les cookies dont le nom commence par `sb-` sont touchés. Chunks `.0`/`.1` et `-code-verifier` compris (le test seed ces cas). Réserves : (a) toute clé `sb-*` de la même origine est effacée, y compris celle d'un autre projet Supabase (aucun cas réel hors dev local) ; (b) les cookies sont expirés avec `path=/` sans `domain`, ce qui correspond à la config actuelle (`nuxt.config.ts:64-68` ne fixe ni `path` ni `domain`) ; si un `domain` ou un autre `path` est ajouté plus tard, la purge cessera de marcher sans erreur ; (c) en SSR, la fonction ne fait rien (`import.meta.client`), mais `logout()` n'est appelé que depuis des clics ; (d) l'effacement a lieu avant le rechargement complet (`external: true`) : une relance de jeton automatique du client en mémoire dans cet intervalle pourrait réécrire le cookie, fenêtre très courte, non reproduite (le contrôle navigateur « reconnexion » est vert).
+- `app/components/layout/Header.vue:306-309` et `app/pages/completer-profil.vue:111` — `await logout()` / `@click="logout"` sans `try/catch`. `logout()` ne lève que si les deux `signOut` et la purge locale échouent (stockage inaccessible, par exemple). Conséquence : sur ces deux appelants, rien ne s'affiche, la session reste ouverte, et l'exception remonte au gestionnaire d'erreurs de Vue (console ; Nuxt n'ouvre pas la page d'erreur pour une erreur non fatale). Cas très rare ; seul `PageGate` affiche un message. À traiter si on veut un message uniforme (un petit utilitaire partagé), sinon accepter.
+- Sécurité, réseau coupé — vérifié : rien n'affirme que le jeton est révoqué. Le seul message (`PageGate.vue:16-18`) ne s'affiche que quand la déconnexion a échoué et dit que la session reste ouverte. En revanche, quand la purge locale réussit hors ligne, l'utilisateur est renvoyé sur `/login` sans avis, alors que le jeton de rafraîchissement reste valable côté serveur jusqu'à son expiration. Le serveur n'ayant pas été prévenu, une copie du jeton resterait utilisable. Acceptable pour le périmètre ; à noter dans la doc (`docs/architecture.md`) à la clôture.
+- Points mineurs de la 1re passe, inchangés : `auth.global.ts` `getSession` et réseau coupé pendant le rafraîchissement mène à `/login` ; accessibilité du bloc (`role="alert"` englobant les boutons, pas de gestion du focus) ; `blocked` dépend de `isLoggedIn` (`user.value`) alors que le middleware décide sur `getSession()` ; `/profil`, `/mes-inscriptions`, `/completer-profil` ni dans `sitemap.exclude` ni en `noindex` (à mettre au backlog) ; `.claude/skills/testing/SKILL.md` hors plan ; `captures/` à supprimer à la clôture ; Q25 et Q26 à retirer du backlog en T4.
+
+## Sort des points de la 1re passe
+- Bloquant « page montée pendant un Réessayer » — **résolu**. Vérifié : `failed` (`PageGate.vue:60`) est posé dès le setup si le statut est déjà `error`, passe à vrai à chaque `error` (watcher synchrone, `:67-71`) et `blocked` reste vrai pour toute lecture (`loading`, `idle`) tant que le statut n'est pas `ready` (`:74-78`), quel que soit l'initiateur (bouton, `ensureProfile`, auth-sync). Le bouton est désactivé pendant la lecture (`reading`, `:81`, garde `:84`). Tests : `PageGate.pending-and-logout.test.ts:118-269` (bloc conservé, page jamais montée, `/admin/dashboard` sans lecture métier ni `navigateTo`, double clic).
+- Important « `signOut` en échec » — **résolu**. `logout()` (`useAuth.ts:210-239`) : `signOut` global, puis `signOut({ scope: 'local' })`, puis purge manuelle et rechargement complet ; si la purge elle-même lève, aucune remise à zéro ni navigation, et `leave()` (`PageGate.vue:101-113`) affiche le message (`logoutFailed`) avec garde de double clic (`leaving`). Tests : `:331-494`. Reste le point des deux autres appelants (mineur ci-dessus).
+- Important « règles scopées du `Header` » — **inchangé, sans correction demandée** (hors périmètre de cette passe, déjà signalé). À mesurer à part.
+- Mineur « 3e lecture via `auth-sync` » — **résolu**. `hasFailedFor` (`useAuth.ts:123-125`) ne vaut vrai que pour `error` + même id ; `auth-sync.client.ts:18` ne relance pas, et le middleware (`auth.global.ts:49-51`) compte cette lecture comme initiale, puis un seul réessai (`:60`) : 2 lectures. Le test `:306-327` couvre les deux ordres d'arrivée.
+
+## Réponses aux 6 points de la demande
+1. **Verrou `failed`** : il ne reste pas bloqué après `ready` (watcher synchrone, repli dans le `finally` de `retry()` `:97`, et chute si l'utilisateur disparaît `:72`). Il ne laisse pas passer de page tant que le statut n'est pas `ready`. Un statut `idle` avec utilisateur présent resterait bloqué, mais cet état n'est atteint que par `resetAuth`, appelé quand l'utilisateur disparaît (la porte retombe alors) : pas de cas réel trouvé. La seule fuite est la fenêtre d'avant redirection décrite en mineur.
+2. **`hasFailedFor` / `auth:failedFor`** : n'empêche aucune relecture légitime. `failedFor` est vidé par `load()`, par une lecture réussie et par `resetAuth()` (donc déconnexion et reconnexion du même compte). Il n'agit que sur le watcher d'`auth-sync` et sur le cas `idFromSession` du middleware, jamais sur `fetchProfile`, `ensureProfile` ni « Réessayer ». Un utilisateur n'est donc jamais sans issue.
+3. **Purge** : voir le mineur ci-dessus.
+4. **`Storage.prototype.removeItem.call`** : garder le code, corriger son commentaire ; le point fragile est le test.
+5. **Appelants de `logout()`** : voir le mineur ci-dessus (silencieux, très rare).
+6. **Sécurité** : voir le mineur ci-dessus (rien d'affirmé à tort ; pas d'avis non plus).
+
+## Vérifications
+- ☑ `check.mjs` : 0 erreur, 0 avertissement (1re passe) ; typecheck = référence (session principale)
+- ☑ Critères d'acceptation de la spec : message conservé et page non montée pendant un réessai, 2 lectures exactes, aucune redirection sur échec
+- ☑ Logique / SSR / cas limites relus (purge client seulement)
+- ☑ Sécurité : aucun secret côté client ; aucune route `server/api` modifiée
+- ☑ Images / GSAP : sans objet
+- ☑ Migration BDD : aucune, conforme au plan

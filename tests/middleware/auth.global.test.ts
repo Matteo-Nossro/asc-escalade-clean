@@ -121,9 +121,11 @@ describe('/admin — garde de rôle (comportement à préserver)', () => {
     expect((await visit('/admin/dashboard'))?.to).toBe('/')
   })
 
-  it('lecture des rôles en échec : renvoyé vers / (jamais vers la complétion)', async () => {
+  // auth-erreur-profil (T0) : ancien contrat « échec de lecture => renvoi vers / » remplacé par « aucune redirection »
+  // (décision 1 de l'utilisateur ; le blocage est affiché par la porte). Jamais de renvoi vers la complétion non plus.
+  it('lecture des rôles en échec : aucune redirection (ni vers /, ni vers la complétion) ; le blocage relève de la porte', async () => {
     loginAs('admin')
     db.fail = true
-    expect((await visit('/admin/dashboard'))?.to).toBe('/')
+    expect(await visit('/admin/dashboard')).toBeNull()
   })
 })

@@ -27,6 +27,7 @@
 | Callback OAuth | Gestion des redirections Google/Microsoft |
 | Confirmation par e-mail | Lien de confirmation vers `/callback`. Lien expiré ou déjà utilisé : explication et renvoi de l'e-mail (depuis `/callback` et `/login`). Confirmation sans session : écran « Adresse e-mail confirmée », connexion ensuite. Retour `?code=` arrivé sur une autre page : renvoyé vers `/callback` |
 | Middleware global | Protège `/admin/*`, `/profil`, `/mes-inscriptions`, `/completer-profil` |
+| Échec de lecture du profil | Si le profil ne se charge pas, la page ne s'affiche pas : message, bouton « Réessayer » (une relecture automatique est tentée avant) et « Se déconnecter ». Aucune redirection sur échec, l'URL reste la même |
 | Complétion du profil | Compte Google/Microsoft ou profil incomplet : renvoi vers `/completer-profil` (mêmes champs que l'inscription). Le compte reste « En attente » jusqu'à validation du bureau |
 | Middleware guest | Empêche un utilisateur connecté d'accéder à `/login` et `/register` |
 

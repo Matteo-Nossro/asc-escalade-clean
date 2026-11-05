@@ -2,7 +2,9 @@
   <UApp>
     <LayoutHeader />
     <UMain>
-      <NuxtPage />
+      <AuthPageGate>
+        <NuxtPage />
+      </AuthPageGate>
     </UMain>
     <LayoutFooter />
   </UApp>

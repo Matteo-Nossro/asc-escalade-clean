@@ -5,7 +5,7 @@ import { watch } from 'vue'
 
 export default defineNuxtPlugin(() => {
   const user = useSupabaseUser()
-  const { ensureProfile, resetAuth } = useAuth()
+  const { ensureProfile, hasFailedFor, resetAuth } = useAuth()
 
   watch(
     () => user.value?.id ?? (user.value as any)?.sub,
@@ -14,6 +14,8 @@ export default defineNuxtPlugin(() => {
         resetAuth()
         return
       }
+      // Lecture déjà échouée pour cet id (middleware : 2 essais) : l'arrivée tardive de l'utilisateur ne relance rien
+      if (hasFailedFor(id)) return
       void ensureProfile()
     },
     { immediate: true },

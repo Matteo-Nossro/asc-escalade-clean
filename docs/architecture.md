@@ -16,20 +16,25 @@
 
 Le catch-all `[...slug].vue` résout le slug Storyblok et délègue le rendu à `StoryblokComponent`.
 
+`/admin/**`, `/profil`, `/mes-inscriptions` et `/completer-profil` sont en `ssr: false` via `routeRules` (`nuxt.config.ts`) : le `ssr: false` de `definePageMeta` n'a aucun effet sur ces pages.
+
 ### Middleware
 
-`middleware/auth.global.ts` s'exécute sur chaque navigation, côté client pour les contrôles et aussi côté serveur pour la seule redirection `?code=`. Une seule liste de pages demande d'être connecté : `/admin`, `/profil`, `/mes-inscriptions`, `/completer-profil`. Les pages publiques (`/`, `/login`, `/register`, `/callback`, pages Storyblok) ne sont jamais touchées par ces contrôles, sauf la redirection ci-dessous.
+`middleware/auth.global.ts` s'exécute sur chaque navigation, côté client pour les contrôles et aussi côté serveur pour la seule redirection `?code=`. Une seule liste de pages demande d'être connecté : `/admin`, `/profil`, `/mes-inscriptions`, `/completer-profil` (`app/utils/authPages.ts`, partagée avec la porte `AuthPageGate`). Les pages publiques (`/`, `/login`, `/register`, `/callback`, pages Storyblok) ne sont jamais touchées par ces contrôles, sauf la redirection ci-dessous.
 - Lien d'e-mail en erreur (`error_code` en query ou dans le hash) sur une page autre que `/callback` : renvoi vers `/callback` avant tout contrôle, query et hash conservés.
 - `code` au format UUID en query sur une page autre que `/callback` (retour PKCE tombé sur la Site URL) : renvoi vers `/callback` avant tout le reste, côté serveur comme côté client, query et hash conservés. Un `code` qui n'est pas un UUID n'est pas redirigé.
 - Redirige vers `/login?redirect=…` si l'utilisateur n'est pas connecté.
 - Profil incomplet (`profile_completed_at` vide, état `ready`) : redirige vers `/completer-profil` depuis toutes ces pages, sauf sur `/completer-profil` elle-même. Un profil complété qui ouvre `/completer-profil` est renvoyé vers `/profil`.
-- Redirige vers `/` si la route commence par `/admin` et que l'utilisateur n'a pas le rôle `admin`, `secretary` ou `initiateur` (état non `ready` compris).
-- En état `error` (lecture du profil en échec), la règle de complétion est sautée.
+- Redirige vers `/` si la route commence par `/admin` et que l'utilisateur n'a pas le rôle `admin`, `secretary` ou `initiateur` (état `idle` ou `loading` compris, jamais `error`).
+- En état `error` (lecture du profil en échec) : aucune redirection, la règle de complétion est sautée. Après `ensureProfile()`, un seul `fetchProfile()` de réessai (2 lectures au total par navigation). Si l'échec persiste, la page n'est pas montée : la porte `AuthPageGate` (`components/auth/PageGate.vue`, dans `app.vue`) affiche un message, « Réessayer » et « Se déconnecter », sans changer l'URL. Une relecture réussie applique la règle normale (une seule redirection possible).
+- Premier chargement d'une page protégée (ou accès direct à `/admin/**`, `ssr: false`) sans utilisateur dans `useSupabaseUser()` : le middleware attend `getSession()` avant de décider, pour ne pas renvoyer vers `/login` une session encore en cours de restauration.
+- Piège `unctx` : dans ce middleware, un `await` placé dans un `if/else` sans accolades, ou dans un ternaire, casse le middleware. Toujours des accolades.
 
 ### Authentification partagée (`useAuth`)
 
 - `useAuth()` (`composables/useAuth.ts`) lit un seul état partagé, en `useState` : `auth:profile`, `auth:roles`, `auth:status`, `auth:loadedFor`. Deux composants voient donc les mêmes rôles, sans relecture.
-- `authStatus` : `idle` (rôles inconnus) · `loading` · `ready` · `error`. Les rôles restent vides hors `ready` : rien n'est autorisé par défaut.
+- `authStatus` : `idle` (rôles inconnus) · `loading` · `ready` · `error`. Les rôles restent vides hors `ready` : rien n'est autorisé par défaut. `loading` et `error` ne sont plus exposés : l'état de lecture est `authStatus` seul, et les erreurs des actions de connexion (`loginWithEmail`, `signUp`, `updateProfile`…) sont levées à l'appelant. `hasFailedFor(id)` n'est vrai que pour un statut `error` de cet id : `auth-sync` et le middleware s'en servent pour ne pas relire un profil déjà en échec.
+- `logout()` : `signOut` global, puis `signOut({ scope: 'local' })`. Si les deux échouent, purge locale des clés `sb-*` (localStorage et cookies), puis `/login` en rechargement complet. Limites : hors ligne, le jeton de rafraîchissement n'est pas révoqué côté serveur et reste valable jusqu'à son expiration ; la purge suppose des cookies sans `domain` et `path=/` (config actuelle de `nuxt.config.ts`), et si cela change elle cesse de marcher sans erreur.
 - `ensureProfile()` lit profil et rôles une seule fois par utilisateur ; une lecture en cours est partagée. `fetchProfile()` force la relecture. `isProfileComplete` dérive de `profile_completed_at`. `resetAuth()` vide tout (déconnexion, changement de compte).
 - `app/plugins/auth-sync.client.ts` suit l'id de l'utilisateur Supabase : `ensureProfile()` quand il apparaît, `resetAuth()` quand il disparaît. Les composants ne chargent plus rien eux-mêmes.
 - `callback.vue` : recovery → `/profil?resetPassword=true` ; profil incomplet → `/completer-profil` ; admin, secretary ou initiateur → `/admin/dashboard` ; sinon `/profil`.
@@ -184,6 +189,7 @@ app/
 ├── middleware/
 │   └── auth.global.ts           # Guard auth, complétion du profil, guard admin
 ├── utils/
+│   ├── authPages.ts             # Pages protégées et redirection selon le profil (middleware + AuthPageGate)
 │   ├── authRedirect.ts          # URL de retour des e-mails de confirmation (source unique)
 │   ├── categoryColors.ts        # Couleurs des catégories de posts et difficultés (source unique)
 │   └── profileForm.ts           # Champs et validations partagés inscription / complétion
@@ -194,7 +200,7 @@ app/
 │   ├── useBreakpoints.ts        # Responsive (windowWidth, isMobile, isTablet…)
 │   ├── useSeo.ts                # Balises meta/OG depuis Storyblok ou options explicites
 │   ├── useStoryblokCacheTag.ts  # Pose les headers Netlify-Cache-Tag (SSR only)
-│   ├── useAuth.ts               # Auth Supabase ; profil et rôles partagés (useState), ensureProfile
+│   ├── useAuth.ts               # Auth Supabase ; profil et rôles partagés (useState), ensureProfile, hasFailedFor
 │   ├── useFamily.ts             # Liens parent → enfants (parent_access)
 │   ├── useGroups.ts             # Groupes, inscriptions, CRUD admin + fetchPreviousYearEnrollments()
 │   ├── useEventRegistrations.ts # Inscriptions aux événements

@@ -349,7 +349,7 @@
 | AP13 | Profil incomplet : ouvrir `/profil`, `/mes-inscriptions`, `/admin/dashboard` | Redirection vers `/completer-profil` dans les trois cas | | |
 | AP14 | `/completer-profil` : lien de déconnexion | Session fermée, retour sur `/login` ou `/` | | |
 | AP15 | Reconnexion OAuth d'un compte déjà complété | Pas de passage par `/completer-profil` | | |
-| AP16 | Lecture du profil en échec (bloquer la requête `profiles` dans l'onglet Réseau) puis ouvrir `/profil` | Comportement actuel : la page s'ouvre sans redirection (état d'erreur, pas de boucle) ; `/admin` renvoie vers `/` | | Documenté par `tests/middleware/auth.global.error-state.test.ts` |
+| AP16 | Lecture du profil en échec (bloquer la requête `profiles` dans l'onglet Réseau) puis ouvrir `/profil` | Remplacé par `auth-erreur-profil` : la page n'affiche plus de contenu dépendant du profil mais un message avec « Réessayer », y compris sur `/admin` (aucune redirection) | | Voir § 17 (AE01 à AE09) ; `tests/middleware/auth.global.error-state.test.ts` |
 
 ### 15c. Validation par le bureau et création par un admin
 
@@ -431,6 +431,25 @@
 
 ---
 
+## 17. Échec de lecture du profil (`auth-erreur-profil`)
+
+> Q25 et Q26. Déjà automatisé (Vitest), non répété ici : réessai unique du middleware (2 lectures de `profiles` pour une navigation en échec persistant), absence de redirection, porte `AuthPageGate` (message, « Réessayer », « Se déconnecter »), branchement dans `app.vue`, `/admin/**` en `ssr: false` et `sitemap: false` (`tests/utils/nuxtConfig.routeRules.test.ts`), coquille de `/admin` sans donnée, retrait de `loading` / `error` de `useAuth`. Les scénarios ci-dessous exigent un vrai navigateur.
+> Prérequis : projet de dev, compte adhérent (avec profil complété), compte admin. Pour provoquer l'échec : outils de développement, onglet Réseau, **bloquer l'URL de requête** contenant `/rest/v1/profiles` (clic droit sur la requête, « Bloquer l'URL de la requête »), puis recharger la page. Pour rétablir : retirer le blocage. Servir le code à jour (voir l'étape préalable en tête de fichier : `nuxt.config.ts` a changé).
+
+| # | Scénario | Résultat attendu | Statut | Notes |
+|---|----------|-----------------|--------|-------|
+| AE01 | Adhérent connecté, lecture du profil bloquée, ouvrir `/profil` (rechargement complet) | Bloc d'erreur « Impossible de charger votre profil » avec boutons « Réessayer » et « Se déconnecter » ; aucune donnée du profil visible ; l'URL reste `/profil` ; exactement 2 requêtes `profiles` dans le Réseau (lecture + 1 réessai) | | Q25 ; l'en-tête reste affiché |
+| AE02 | Admin connecté, lecture du profil bloquée, ouvrir `/admin/dashboard` (rechargement complet) | Même bloc d'erreur à la place du tableau de bord ; aucun KPI, aucune liste de membres, même brièvement ; aucune requête `/api/admin/*` ; aucune redirection vers `/` ni `/login` ; l'URL reste `/admin/dashboard` | | Q25 ; `/admin/**` en `ssr: false` : pas de coquille rendue côté serveur |
+| AE03 | Sur le bloc d'erreur (AE01), cliquer « Réessayer » alors que le blocage est toujours actif | Bouton désactivé le temps de la lecture, une seule requête `profiles` de plus ; le message reste affiché ; pas de redirection | | Q25 |
+| AE04 | Sur le bloc d'erreur (AE01), retirer le blocage du Réseau puis cliquer « Réessayer » | La page `/profil` s'affiche avec les données, **sans rechargement** et sur la même URL ; le bloc disparaît ; en-tête avec les initiales | | Q25 |
+| AE05 | « Réessayer » réussi dans deux cas : (a) adhérent sur `/admin/dashboard`, (b) compte au profil incomplet sur `/profil` | (a) une seule redirection vers `/` ; (b) une seule redirection vers `/completer-profil` ; jamais vers `/login` | | Q25, redirections normales après chargement |
+| AE06 | Sur le bloc d'erreur, blocage toujours actif, cliquer « Se déconnecter » | Session fermée, retour sur `/login` ; le lien fonctionne sans l'en-tête ni la lecture du profil ; reconnexion possible ensuite | | Q25, seule issue garantie si le réessai échoue en boucle |
+| AE07 | Échec ponctuel : bloquer la requête `profiles`, puis la débloquer avant d'ouvrir `/profil` par la navigation interne (menu) | Navigation normale, aucun message d'erreur ; si la première lecture échoue et la seconde réussit, la page s'affiche sans bloc | | Q25 ; difficile à provoquer exactement : un blocage « une seule fois » (extension ou réseau instable) |
+| AE08 | Lecture du profil bloquée : ouvrir `/`, `/tarifs`, `/club`, `/login` | Pages publiques affichées normalement, sans bloc d'erreur ; `/login` utilisable | | Q25, pages publiques hors porte |
+| AE09 | Sur `/login`, saisir un mauvais mot de passe, puis connexion réussie avec le bon | Message d'erreur de connexion habituel ; **aucun** bloc « Impossible de charger votre profil » : un échec de connexion n'est pas un échec de lecture du profil | | Q26 |
+
+---
+
 ## Résumé
 
 | Catégorie | Total | ✅ OK | ❌ KO | ⚠️ Partiel | 🐛 Bug connu | ⏭️ Non testé |
@@ -452,7 +471,8 @@
 | Authentification et profils (auth-profils) | 43 | | | | | |
 | Fiabilité des enfants (enfants-fiabilite) | 5 | | | | | |
 | Sécurité BDD (securite-bdd) | 12 | | | | | |
-| **Total** | **226** | | | | | **4** |
+| Échec de lecture du profil (auth-erreur-profil) | 9 | | | | | |
+| **Total** | **235** | | | | | **4** |
 
 ---
 

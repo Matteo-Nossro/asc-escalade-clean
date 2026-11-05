@@ -68,7 +68,7 @@
           icon="i-heroicons-bars-3"
           aria-label="Ouvrir le menu"
           :aria-expanded="isMobileMenuOpen"
-          class="header__burger"
+          class="header__burger hidden max-[1025px]:flex"
           @click="openMobileMenu"
         />
       </div>
@@ -413,10 +413,6 @@ const handleLogout = async () => {
     @media (max-width: 1024px) { display: none; }
   }
 
-  &__burger {
-    display: none;
-    @media (max-width: 1024px) { display: flex; }
-  }
   &__btn-user {
     @media (max-width: 1024px) { display: none; }
   }

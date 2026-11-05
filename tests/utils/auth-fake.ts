@@ -18,6 +18,10 @@ export interface AuthDb {
   roles: Record<string, string[]>
   /** Quand vrai, toute lecture répond par une erreur. */
   fail: boolean
+  /** Tables dont toute lecture répond par une erreur, les autres répondent normalement (ajout auth-erreur-profil). */
+  failTables: string[]
+  /** Nombre de prochaines lectures de `profiles` qui échouent, puis tout répond normalement (« échec puis succès »). */
+  failNext: number
   /** Lectures effectuées (table + id), dans l'ordre. */
   reads: AuthRead[]
   /** Retient les réponses jusqu'à l'appel de la fonction renvoyée. */
@@ -35,6 +39,8 @@ export function createAuthDb(init: { profiles?: Record<string, any>, roles?: Rec
     profiles: { ...(init.profiles ?? {}) },
     roles: { ...(init.roles ?? {}) },
     fail: false,
+    failTables: [],
+    failNext: 0,
     reads: [],
     _gate: null,
     hold() {
@@ -58,7 +64,9 @@ function query(db: AuthDb, table: string) {
   const run = async (single: boolean) => {
     db.reads.push({ table, uid })
     if (db._gate) await db._gate
-    if (db.fail) return { data: null, error: { message: 'lecture refusée (simulé)' } }
+    let failOnce = false
+    if (table === 'profiles' && db.failNext > 0) { db.failNext -= 1; failOnce = true }
+    if (db.fail || failOnce || db.failTables.includes(table)) return { data: null, error: { message: 'lecture refusée (simulé)' } }
     if (table === 'profiles') {
       const row = db.profiles[uid]
       if (!row) return { data: null, error: { code: 'PGRST116', message: 'aucune ligne' } }

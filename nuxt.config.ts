@@ -113,7 +113,12 @@ export default defineNuxtConfig({
     // Pages non indexées
     '/login': { sitemap: false },
     '/callback': { sitemap: false },
-    '/admin/**': { sitemap: false },
+    // Pages admin : rendu client uniquement (la porte AuthPageGate bloque dès le premier rendu si le profil est en erreur)
+    '/admin/**': { sitemap: false, ssr: false },
+    // Pages connectées : rendu client uniquement (le ssr: false du definePageMeta n'est pas appliqué)
+    '/profil': { ssr: false },
+    '/mes-inscriptions': { ssr: false },
+    '/completer-profil': { ssr: false },
     // En-têtes de sécurité sur toutes les routes publiques
     '/**': {
       headers: {

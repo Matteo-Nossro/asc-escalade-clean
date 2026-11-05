@@ -127,6 +127,9 @@ L'id utilisateur peut être dans `.id` (client) ou `.sub` (SSR/JWT). Toujours ut
 const uid = user.value?.id ?? (user.value as any)?.sub
 ```
 
+### 9. Styles scopés et `UButton` en rendu client
+Une règle `<style scoped>` ne s'applique pas à la racine d'un `UButton` créé côté client : il n'a pas de `data-v-*`. Pour un bouton rendu côté client (page `ssr: false`, ou composant monté après l'hydratation), ne pas compter sur le scoped : styler avec les classes Tailwind du composant. Cas du burger de `Header.vue` (corrigé avec `hidden max-[1025px]:flex`). `.header__btn-login`, `.header__btn-user` et `.header__user-menu` restent à corriger (Q37 du backlog).
+
 ---
 
 ## Couleurs & design tokens
@@ -161,11 +164,13 @@ Couleurs des catégories de posts et des difficultés : `app/utils/categoryColor
 
 | Composable | Usage |
 |---|---|
-| `useAuth()` | État partagé (`useState`) : `profile`, `roles`, `authStatus`, `isProfileComplete`, `isAdmin`, `isStaff`, `isParent`, `ensureProfile()`, `fetchProfile()`, `resetAuth()`, `updateProfile()`, `loginWithEmail()`, `loginWithOAuth()`, `signUp()`, `resendSignupConfirmation()`, `logout()`, `hasRole()`. Ne pas charger le profil dans un composant : le plugin `auth-sync.client.ts` s'en charge |
+| `useAuth()` | État partagé (`useState`) : `profile`, `roles`, `authStatus`, `isProfileComplete`, `isAdmin`, `isStaff`, `isParent`, `ensureProfile()`, `fetchProfile()`, `hasFailedFor(id)`, `resetAuth()`, `updateProfile()`, `loginWithEmail()`, `loginWithOAuth()`, `signUp()`, `resendSignupConfirmation()`, `logout()`, `hasRole()`. Pas de `loading` ni `error` : l'état de lecture est `authStatus`. Ne pas charger le profil dans un composant : le plugin `auth-sync.client.ts` s'en charge |
 | `useFamily()` | `children`, `fetchChildren()`, `linkChild()`, `updateAccess()`, `unlinkChild()` — liens parent → enfants |
 | `useGroups()` | `groups`, `myEnrollments`, `fetchGroups()`, `fetchMyEnrollments()`, `enroll()`, `unenroll()`, `isEnrolled()`, `formatSchedule()` + CRUD admin + `fetchPreviousYearEnrollments(profileId)` (inscriptions N-1) |
 | `useEventRegistrations()` | `registrations`, `fetchByEvent()`, `fetchMine()`, `register()`, `cancel()`, `confirm()`, `isRegistered()`, `countByEvent()` |
 | `useEnrollmentRequests()` | `pendingRequests`, `fetchPendingRequests()`, `approveRequest()`, `rejectRequest()` — workflow admin |
+
+`app/utils/authPages.ts` exporte la liste des pages protégées et `authRedirectFor()` : source unique pour le middleware et la porte `AuthPageGate` (`components/auth/PageGate.vue`) ; ne pas redéfinir cette liste dans une page.
 
 `app/utils/authRedirect.ts` exporte `signupConfirmationRedirect(origin?)`, l'URL de retour des e-mails de confirmation (`/callback?type=signup`). C'est la seule source de cette URL : ne pas l'écrire en dur dans une page ou un composable.
 
