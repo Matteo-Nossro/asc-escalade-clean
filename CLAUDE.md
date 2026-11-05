@@ -30,6 +30,10 @@ Site Nuxt 4 + Storyblok pour le club d'escalade ASC Escalade (Chevigny-Saint-Sau
 - **Fonctions de rôle dans `private`** (schéma non exposé par l'API) : dans toute policy, fonction ou migration, écrire `private.has_role(...)` et `private.is_admin_or_secretary()`, jamais `public.` ni sans schéma (à partir de la migration `securite-bdd` B).
 - Mise en prod (historique de migrations de la prod, ordre des opérations HelloAsso) : [docs/mise-en-prod.md](docs/mise-en-prod.md).
 
+### Déploiement
+- `master` → **production** (Netlify, publication automatique). `dev` → serveur perso (test), via `.github/workflows/deploy.yml`. `sauvegarde-dev` → sauvegarde uniquement, aucun déploiement.
+- **La mise en ligne réelle est la fusion de `dev` dans `master`**, dernière étape de la livraison groupée, après les migrations et les réglages manuels. Un push sur `dev` ne change pas le site public, mais le serveur perso doit être branché sur le Supabase de dev : à vérifier avant de pousser ([docs/mise-en-prod.md](docs/mise-en-prod.md) § 0).
+
 ### Images Storyblok
 - Composant unique : `<NuxtImg provider="storyblok" :src="blok.image.filename" />`
 - Multi-asset / galerie : URL directe `${photo.filename}/m/800x0/filters:quality(75):format(webp)`

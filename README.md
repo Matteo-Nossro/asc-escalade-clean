@@ -254,6 +254,6 @@ vueApp.component('mon-composant', MonComposant)
 
 ## Déploiement
 
-Le site est hébergé sur **Netlify**. Le déploiement est automatique sur push vers `main`.
+Le site est hébergé sur **Netlify** : la production se publie automatiquement depuis `master`. La branche `dev` se déploie sur un serveur de test, et ne change pas le site public. La procédure de livraison est dans [docs/mise-en-prod.md](docs/mise-en-prod.md).
 
 Les variables d'environnement sont à configurer dans le dashboard Netlify. La revalidation ISR Storyblok passe par un webhook qui appelle `/api/revalidate` avec le secret `STORYBLOK_WEBHOOK_SECRET`.

@@ -8,7 +8,33 @@
 > - `db push` et `migration repair` demandent une confirmation sur un projet hébergé : y répondre à la main. **Jamais de `--yes` ni de `SUPABASE_YES` sur la prod.**
 > - `db query` en lecture : toujours avec `--read-only`.
 > - `db dump` a besoin de **Docker démarré**. En cas d'échec, il laisse un **fichier vide** : contrôler la taille des sauvegardes.
-> - `git push` sur `dev` **déploie l'application** (`.github/workflows/deploy.yml`). Ne pas pousser avant que les migrations nécessaires soient en prod.
+
+## 0. Branches et environnements
+| Branche | Déploie sur | Quand | Base Supabase |
+|---|---|---|---|
+| `master` | **Production**, Netlify | automatique à chaque fusion ou push | prod |
+| `dev` | Serveur perso, environnement de test (`.github/workflows/deploy.yml`) | à chaque push | doit être le dev : voir la vérification ci-dessous |
+| `sauvegarde-dev` | rien | | |
+
+**La mise en ligne réelle est la fusion de `dev` dans `master`**, en dernière étape de la livraison groupée, après les migrations et les réglages manuels (§ 3, étape 9). Un push sur `dev` ne change pas le site public.
+
+**État actuel (constaté le 2026-11-05)** : le site en ligne est `dev@cf52470`, un aperçu de la PR #13 publié manuellement en production le 7 septembre. `master` n'a pas ce code : il est resté sur `4c1e061` (mars 2026). Toute publication depuis `master` avant le § 3 remplacerait donc le site en ligne par un code plus ancien, y compris un simple « Trigger deploy » dans Netlify.
+
+**Aperçus Netlify** : la PR #13 (`dev` → `master`) étant ouverte, un push sur `dev` peut relancer un aperçu. Ne pas le publier à la main : ce serait une mise en ligne hors de l'ordre du § 3. Vérifier aussi à quelle base les aperçus sont branchés (variables Netlify, contexte Deploy Previews) avant de s'y connecter.
+
+### À vérifier avant tout push sur `dev` : le serveur perso est branché sur le dev
+Le serveur perso doit utiliser le projet Supabase de dev `ybtnnogxukfldurozqwa`. Sinon, il ferait tourner le nouveau code sur la base de prod, avant ses migrations, et ses tests écriraient dans les données réelles.
+1. Ouvrir le site du serveur perso, onglet Réseau des outils de développement, puis tenter une connexion : les requêtes doivent partir vers `https://ybtnnogxukfldurozqwa.supabase.co`.
+2. Contrôler ce que recevra le prochain build : les secrets GitHub `SUPABASE_URL`, `SUPABASE_KEY` et `SUPABASE_SECRET_KEY` (illisibles une fois enregistrés : dans le doute, les ressaisir avec les valeurs du dev) et les variables de la stack Portainer `asc-escalade`.
+
+**Si le serveur n'est pas branché sur le dev, ou si le doute subsiste : ne pas pousser `dev` avant la fin de l'étape 8 du § 3**, c'est-à-dire avant que les migrations soient en prod. La validation des lots se fait alors en local.
+
+### Branche `sauvegarde-dev`
+Sauvegarde uniquement : elle ne déclenche aucun déploiement et ne sert ni à tester ni à livrer. Elle permet de mettre `dev` à l'abri sur GitHub sans le pousser. Pour la mettre à jour :
+```bash
+git push origin dev:sauvegarde-dev
+```
+Un refus (non fast-forward) signale que l'historique de `dev` a été réécrit : regarder pourquoi avant de forcer quoi que ce soit.
 
 ## 1. Situation de départ
 - Le schéma de prod a été créé **à la main** dans le dashboard : la table `supabase_migrations.schema_migrations` de la prod est vide.
@@ -167,7 +193,7 @@ npx supabase link --project-ref ybtnnogxukfldurozqwa
 Une fois `20261102` dans l'historique, les migrations plus anciennes encore à livrer (`20261025`, `20261029`, `20261030`) sont refusées sans `--include-all`. Cette option pousse **tout** ce qui manque à l'historique : si le § 2 n'avait pas été fait, elle rejouerait les 5 migrations historiques, dont le `TRUNCATE` de `20260411`. Le contrôle de la liste exacte au dry-run reste donc obligatoire, et il passe aussi `--include-all`.
 
 ## 3. Livraison groupée : HelloAsso, auth-profils, sécurité
-`db push` envoie **toutes** les migrations en attente d'un coup : ces livraisons ne peuvent pas se faire séparément. Elles partagent donc un même `db push`, suivi d'un seul déploiement de l'application.
+`db push` envoie **toutes** les migrations en attente d'un coup : ces livraisons ne peuvent pas se faire séparément. Elles partagent donc un même `db push`, suivi d'une seule mise en ligne de l'application (fusion de `dev` dans `master`).
 
 **Migrations livrées**, dans cet ordre : `20261025_helloasso_socle.sql`, `20261029_auth_profils.sql`, `20261030_profiles_block_status_role.sql`, `20261103_fonctions_search_path.sql` (B), `20261104_registrations_service_role.sql` (C), `20261105_helloasso_grants_explicites.sql` (D), plus celles des lots HelloAsso livrés (`20260520_helloasso.sql` n'étant jamais réécrite).
 
@@ -176,14 +202,15 @@ Une fois `20261102` dans l'historique, les migrations plus anciennes encore à l
 - § 2 bis fait jusqu'à l'étape 5 (2026-11-04). Son étape 6 se fait au début de l'étape 6 ci-dessous.
 - **La migration D (backlog Q29) fait partie de la liste.** Sans elle, « Automatically expose new tables » étant désactivé, `service_role` n'aurait aucun droit sur `helloasso_tokens` et `helloasso_sync_runs` : le jeton et la synchronisation HelloAsso seraient cassés.
 - Lots à livrer mergés et validés sur le dev, en sandbox HelloAsso.
-- **Rien n'est poussé sur `dev` avant l'étape 9** : `git push` déploie l'application.
+- **Rien n'arrive sur `master` avant l'étape 9** : toute fusion ou tout push y publie en production.
+- **Serveur perso vérifié** (§ 0) avant tout push sur `dev`. S'il n'est pas branché sur le dev, `dev` attend la fin de l'étape 8.
 
 ### Déroulé
 1. **Gel** : plus aucune modification de schéma à la main dans le dashboard de prod.
 2. **Sauvegarde** schéma + données (§ 2.1).
 3. **Doublon `helloasso_forms`** : `20261025_helloasso_socle.sql` est refusée tant que la prod contient le doublon `(Membership, test-rls)`. Le traiter **avant** le push, à la main, selon la décision de l'utilisateur : vérifier d'abord si `profile_payments` référence les lignes concernées (clé étrangère `ON DELETE RESTRICT` : une ligne référencée ne se supprime pas).
 4. **Réglage du dashboard** : `/callback` dans les URLs de redirection (§ 5), avant l'étape 9.
-5. **Variables d'environnement de prod** chez l'hébergeur : `NUXT_HELLOASSO_*` (client id/secret **de production**, slug de l'organisation, URL de l'API de prod, environnement `NUXT_HELLOASSO_ENVIRONMENT=production`, **obligatoire** : sans lui la synchronisation renvoie `config_missing`), secret du webhook à définir **avant** d'exposer le webhook (lot 7), secret du cron si le lot 4 est livré.
+5. **Variables d'environnement de prod** dans le dashboard Netlify (les secrets GitHub n'alimentent que le serveur perso) : `NUXT_HELLOASSO_*` (client id/secret **de production**, slug de l'organisation, URL de l'API de prod, environnement `NUXT_HELLOASSO_ENVIRONMENT=production`, **obligatoire** : sans lui la synchronisation renvoie `config_missing`), secret du webhook à définir **avant** d'exposer le webhook (lot 7), secret du cron si le lot 4 est livré.
 6. **Liste des migrations** :
    ```bash
    npx supabase link --project-ref <REF-PROD>
@@ -221,20 +248,31 @@ Une fois `20261102` dans l'historique, les migrations plus anciennes encore à l
      ```
      Un résultat non nul signale un profil créé par l'ancien code entre les étapes 7 et 9 : le compléter à la main avant l'étape 9.
    - **Défaut du statut** : `profiles.status` vaut `'En attente'` par défaut. Les insertions de l'application posent déjà le statut ; aucun compte existant n'est modifié.
-9. **Déploiement de l'application**, seulement après les étapes 7 et 8 : `git push origin dev` (workflow `.github/workflows/deploy.yml`). Le code lit `profile_completed_at` : déployé avant la colonne ou son rattrapage, il renverrait **tous** les comptes vers `/completer-profil`. Ne jamais inverser les étapes 7 et 9.
+   **Revenir sur le dev**, ces contrôles terminés : `npx supabase link --project-ref ybtnnogxukfldurozqwa`.
+9. **Mise en ligne : fusion de `dev` dans `master`**, dernière étape de la livraison, seulement après les migrations (7), leurs contrôles (8) et les réglages manuels (4 et 5) :
+   ```bash
+   git push origin dev            # si ce n'est pas déjà fait ; ne touche pas au site public
+   git fetch origin
+   git rev-parse dev origin/dev   # les deux SHA doivent être identiques
+   gh pr merge 13 --merge         # PR #13, dev → master : Netlify publie automatiquement
+   ```
+   Dans Netlify → Deploys, contrôler que le déploiement de production publié est bien ce commit de fusion. Si le site reste sur `cf52470`, vérifier que la publication automatique n'est pas verrouillée (publication manuelle du 7 septembre).
+   Le code lit `profile_completed_at` : mis en ligne avant la colonne ou son rattrapage, il renverrait **tous** les comptes vers `/completer-profil`. Ne jamais inverser les étapes 7 et 9.
+
+**Après la mise en ligne** : les étapes suivantes contrôlent le site ou branchent des automatismes qui ont besoin des nouvelles routes. Elles ne peuvent pas la précéder.
+
 10. **Contrôles dans l'admin** :
     - « Tester la connexion » HelloAsso : environnement `production`, organisation correcte, OK ;
     - première synchronisation manuelle des adhésions, sans erreur ; si le lot `helloasso-sync` est livré, vérification du passage dans `helloasso_sync_runs` (compteurs). Sans ce lot, le serveur n'écrit pas encore dans cette table ;
     - contrôle sur quelques adhérents connus du statut « payé ».
 11. **Automatismes** (selon les lots livrés) : activer le cron OVH (lot 4), déclarer l'URL du webhook dans HelloAsso (lot 7). **Le secret du webhook doit être défini en prod (étape 5) AVANT de déclarer cette URL chez HelloAsso** : sans secret, la route refuse toutes les notifications. L'URL déclarée doit contenir `?secret=<NUXT_HELLOASSO_WEBHOOK_SECRET>` : sinon les notifications sont ignorées et les paiements ne sont plus enregistrés.
-12. **Revenir sur le dev** : `npx supabase link --project-ref ybtnnogxukfldurozqwa`.
 
 **Contrôles sur le dev uniquement** : `scripts/check-auth-profils-db.mjs`, `scripts/check-helloasso-socle-db.mjs` et `scripts/check-securite-bdd.mjs` créent et suppriment des données de test. Ne jamais les lancer contre la prod.
 
 **Hors périmètre** : cette livraison ne corrige **pas** les comptes déjà créés en prod (statuts « Actif » à tort, profils incomplets, comptes Google/Microsoft sans rôle, comptes de test sans profil). Le rattrapage marque seulement ces profils comme complétés, pour qu'ils ne soient pas renvoyés vers la complétion. Leur correction relève d'une décision séparée de l'utilisateur.
 
 ### Retour arrière
-- Application : redéployer l'image précédente.
+- Application : dans Netlify → Deploys, republier le déploiement précédent (`cf52470` à la première livraison). Le serveur perso n'est pas concerné.
 - Base : les migrations ne se défont pas ; une correction passe par une **nouvelle** migration. La restauration de la sauvegarde (§ 2.1) est le dernier recours.
 - HelloAsso : désactiver le cron et le webhook ; HelloAsso reste la source de vérité des paiements, une synchronisation ultérieure rattrape l'état.
 
