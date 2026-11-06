@@ -33,6 +33,7 @@ Site Nuxt 4 + Storyblok pour le club d'escalade ASC Escalade (Chevigny-Saint-Sau
 ### Déploiement
 - `master` → **production** (Netlify, publication automatique). `dev` → serveur perso (test), via `.github/workflows/deploy.yml`. `sauvegarde-dev` → sauvegarde uniquement, aucun déploiement.
 - **La mise en ligne réelle est la fusion de `dev` dans `master`**, dernière étape de la livraison groupée, après les migrations et les réglages manuels. Un push sur `dev` ne change pas le site public, mais le serveur perso doit être branché sur le Supabase de dev : à vérifier avant de pousser ([docs/mise-en-prod.md](docs/mise-en-prod.md) § 0).
+- **Règles temporaires, jusqu'à la livraison groupée** : pas de « Trigger deploy » dans Netlify, pas de push sur `dev` ([docs/mise-en-prod.md](docs/mise-en-prod.md) § 0).
 
 ### Images Storyblok
 - Composant unique : `<NuxtImg provider="storyblok" :src="blok.image.filename" />`

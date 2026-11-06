@@ -13,6 +13,10 @@
 > **Deux règles d'ici la livraison groupée (§ 3) :**
 > 1. **Jamais de « Trigger deploy » dans Netlify** : il publierait `master`, plus ancien que le site en ligne.
 > 2. **Pas de push sur `dev`** : la sauvegarde passe par `sauvegarde-dev` (commande ci-dessous).
+>
+> **Retrouver le serveur perso comme environnement de test avant la livraison** : la règle 2 ne peut être levée que si les **deux** conditions sont remplies :
+> - Deploy Previews des PR désactivés dans Netlify (« Don't deploy pull requests ») ;
+> - serveur perso vérifié sur le Supabase de dev (vérification ci-dessous).
 
 | Branche | Déploie sur | Quand | Base Supabase |
 |---|---|---|---|
