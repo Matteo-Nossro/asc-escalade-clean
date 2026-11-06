@@ -10,6 +10,10 @@
 > - `db dump` a besoin de **Docker démarré**. En cas d'échec, il laisse un **fichier vide** : contrôler la taille des sauvegardes.
 
 ## 0. Branches et environnements
+> **Deux règles d'ici la livraison groupée (§ 3) :**
+> 1. **Jamais de « Trigger deploy » dans Netlify** : il publierait `master`, plus ancien que le site en ligne.
+> 2. **Pas de push sur `dev`** : la sauvegarde passe par `sauvegarde-dev` (commande ci-dessous).
+
 | Branche | Déploie sur | Quand | Base Supabase |
 |---|---|---|---|
 | `master` | **Production**, Netlify | automatique à chaque fusion ou push | prod |
@@ -18,7 +22,7 @@
 
 **La mise en ligne réelle est la fusion de `dev` dans `master`**, en dernière étape de la livraison groupée, après les migrations et les réglages manuels (§ 3, étape 9). Un push sur `dev` ne change pas le site public.
 
-**État actuel (constaté le 2026-11-05)** : le site en ligne est `dev@cf52470`, un aperçu de la PR #13 publié manuellement en production le 7 septembre. `master` n'a pas ce code : il est resté sur `4c1e061` (mars 2026). Toute publication depuis `master` avant le § 3 remplacerait donc le site en ligne par un code plus ancien, y compris un simple « Trigger deploy » dans Netlify.
+**État actuel (constaté le 2026-11-05)** : le site en ligne est `dev@cf52470`, un aperçu de la PR #13 publié manuellement en production le 7 septembre à 19 h 39. `master` n'a pas ce code : `origin/master` est sur `0aa28a8` (fusion de la PR #12, 1er septembre), 7 commits derrière `cf52470`. Toute publication depuis `master` remplacerait donc le site en ligne par un code plus ancien, y compris un simple « Trigger deploy » dans Netlify. Piège connu, résolu par l'étape 9 du § 3 : pas de fusion anticipée (`docs/backlog.md`, P8).
 
 **Aperçus Netlify** : la PR #13 (`dev` → `master`) étant ouverte, un push sur `dev` peut relancer un aperçu. Ne pas le publier à la main : ce serait une mise en ligne hors de l'ordre du § 3. Vérifier aussi à quelle base les aperçus sont branchés (variables Netlify, contexte Deploy Previews) avant de s'y connecter.
 
@@ -204,6 +208,7 @@ Une fois `20261102` dans l'historique, les migrations plus anciennes encore à l
 - Lots à livrer mergés et validés sur le dev, en sandbox HelloAsso.
 - **Rien n'arrive sur `master` avant l'étape 9** : toute fusion ou tout push y publie en production.
 - **Serveur perso vérifié** (§ 0) avant tout push sur `dev`. S'il n'est pas branché sur le dev, `dev` attend la fin de l'étape 8.
+- **Variables Netlify comparées** entre les contextes Production et Deploy Previews (Supabase, Storyblok, HelloAsso) : le site en ligne a été construit comme un aperçu, la fusion le reconstruit en contexte Production. **Écart inexpliqué ⇒ s'arrêter.** Les valeurs de prod posées à l'étape 5 seront ensuite un écart attendu.
 
 ### Déroulé
 1. **Gel** : plus aucune modification de schéma à la main dans le dashboard de prod.

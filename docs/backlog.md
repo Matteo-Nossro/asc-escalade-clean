@@ -56,6 +56,7 @@
 | P5 | Migration A appliquée en prod le 2026-11-04, hors historique : enregistrer `20261102` (`migration repair`) le jour de la livraison groupée, après le § 2 et avant le dry-run ; `docs/mise-en-prod.md` § 2 bis (étape 6) et § 3 (étape 6) | securite-bdd | XS |
 | P6 | Ménage des **14 comptes de test sans profil** constatés en prod (créés entre le 27/03 et le 11/04/2026). Décision de l'utilisateur ; hors périmètre du § 3 de `docs/mise-en-prod.md` | securite-bdd | S |
 | P7 | Note : en prod, aucun référent ni moniteur n'est affecté aux groupes (constat du 2026-11-04). L'annuaire `member_directory` reste donc vide, et aucun nom n'apparaît sur `/tarifs`, jusqu'à ce que le bureau les désigne | securite-bdd | XS |
+| P8 | Piège connu, résolu par la fusion de la PR #13 à l'étape 9 du § 3 de `docs/mise-en-prod.md`, sans fusion anticipée (décision du 2026-11-06 : ce serait un déploiement de production de plus). `master` (`0aa28a8`) a 7 commits de retard sur le site en ligne (`cf52470`, aperçu publié à la main le 7 septembre à 19 h 39) : une publication depuis `master` remettrait un code plus ancien. D'ici là : jamais de « Trigger deploy » dans Netlify, pas de push sur `dev` (sauvegarde par `sauvegarde-dev`), voir § 0 | mise-en-prod | XS |
 
 ## Retirés (corrigés ou clos depuis)
 - auth-erreur-profil : Q25 (réessai unique dans le middleware, blocage sans redirection par `AuthPageGate`, util `authPages`) et Q26 (`loading` et `error` retirés de `useAuth`).
